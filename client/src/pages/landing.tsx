@@ -15,7 +15,7 @@ export default function Landing() {
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <Hotel className="h-5 w-5" />
             </div>
-            <span className="text-xl font-bold">Bookerino</span>
+            <span className="text-xl font-bold">BOOKERINO</span>
           </div>
           <Button onClick={handleLogin} data-testid="button-login">
             Log In
@@ -122,7 +122,7 @@ export default function Landing() {
             Ready to transform your hotel operations?
           </h2>
           <p className="text-lg text-muted-foreground mb-8">
-            Join thousands of hoteliers already using HotelHub
+            Join thousands of hoteliers already using BOOKERINO
           </p>
           <Button size="lg" onClick={handleLogin} data-testid="button-start-free">
             Start Free Trial
@@ -132,7 +132,7 @@ export default function Landing() {
 
       <footer className="border-t">
         <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-          © 2024 HotelHub. All rights reserved.
+          © 2024 BOOKERINO. All rights reserved.
         </div>
       </footer>
     </div>

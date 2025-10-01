@@ -55,7 +55,7 @@ export function AppSidebar() {
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <Hotel className="h-5 w-5" />
           </div>
-          <span className="text-lg font-semibold">Bookerino</span>
+          <span className="text-lg font-semibold">BOOKERINO</span>
         </div>
       </SidebarHeader>
       <SidebarContent>
