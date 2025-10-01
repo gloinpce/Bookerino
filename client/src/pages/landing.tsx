@@ -15,7 +15,7 @@ export default function Landing() {
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <Hotel className="h-5 w-5" />
             </div>
-            <span className="text-xl font-bold">HotelHub</span>
+            <span className="text-xl font-bold">Bookerino</span>
           </div>
           <Button onClick={handleLogin} data-testid="button-login">
             Log In
