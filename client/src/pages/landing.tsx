@@ -18,7 +18,7 @@ export default function Landing() {
             <span className="text-xl font-bold">BOOKERINO</span>
           </div>
           <Button onClick={handleLogin} data-testid="button-login">
-            Log In
+            Autentificare
           </Button>
         </div>
       </header>
@@ -26,20 +26,20 @@ export default function Landing() {
       <main className="flex-1">
         <section className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-5xl font-bold mb-6">
-            Automate Your Hotel Management
+            Automatizează Managementul Hotelului
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Streamline bookings, manage reviews, and track analytics all in one powerful platform. Built for modern hoteliers.
+            Eficientizează rezervările, gestionează recenziile și urmărește analitice într-o singură platformă puternică. Construit pentru hotelierii moderni.
           </p>
           <Button size="lg" onClick={handleLogin} data-testid="button-get-started">
-            Get Started
+            Începe Acum
           </Button>
         </section>
 
         <section className="bg-muted/50 py-20">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-12">
-              Everything you need to run your hotel
+              Tot ce ai nevoie pentru a-ți conduce hotelul
             </h2>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Card>
@@ -47,9 +47,9 @@ export default function Landing() {
                   <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 mb-4">
                     <Calendar className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Booking Management</h3>
+                  <h3 className="text-xl font-semibold mb-2">Gestionarea Rezervărilor</h3>
                   <p className="text-muted-foreground">
-                    Track and manage all your reservations in one place with real-time updates.
+                    Urmărește și gestionează toate rezervările într-un singur loc cu actualizări în timp real.
                   </p>
                 </CardContent>
               </Card>
@@ -59,9 +59,9 @@ export default function Landing() {
                   <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 mb-4">
                     <Star className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Review Management</h3>
+                  <h3 className="text-xl font-semibold mb-2">Gestionarea Recenziilor</h3>
                   <p className="text-muted-foreground">
-                    Monitor and respond to guest reviews to maintain your reputation.
+                    Monitorizează și răspunde la recenziile oaspeților pentru a-ți menține reputația.
                   </p>
                 </CardContent>
               </Card>
@@ -71,9 +71,9 @@ export default function Landing() {
                   <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 mb-4">
                     <Hotel className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Room Inventory</h3>
+                  <h3 className="text-xl font-semibold mb-2">Inventarul Camerelor</h3>
                   <p className="text-muted-foreground">
-                    Keep track of room availability, pricing, and maintenance schedules.
+                    Ține evidența disponibilității camerelor, prețurilor și programului de întreținere.
                   </p>
                 </CardContent>
               </Card>
@@ -83,9 +83,9 @@ export default function Landing() {
                   <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 mb-4">
                     <BarChart3 className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Analytics Dashboard</h3>
+                  <h3 className="text-xl font-semibold mb-2">Panou de Analiză</h3>
                   <p className="text-muted-foreground">
-                    Make data-driven decisions with comprehensive insights and reports.
+                    Ia decizii bazate pe date cu analize și rapoarte complete.
                   </p>
                 </CardContent>
               </Card>
@@ -95,9 +95,9 @@ export default function Landing() {
                   <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 mb-4">
                     <Zap className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Automation</h3>
+                  <h3 className="text-xl font-semibold mb-2">Automatizare</h3>
                   <p className="text-muted-foreground">
-                    Automate repetitive tasks and focus on delivering great guest experiences.
+                    Automatizează sarcinile repetitive și concentrează-te pe oferirea de experiențe excelente oaspeților.
                   </p>
                 </CardContent>
               </Card>
@@ -107,9 +107,9 @@ export default function Landing() {
                   <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 mb-4">
                     <Shield className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Secure & Reliable</h3>
+                  <h3 className="text-xl font-semibold mb-2">Sigur și Fiabil</h3>
                   <p className="text-muted-foreground">
-                    Your data is protected with enterprise-grade security measures.
+                    Datele tale sunt protejate cu măsuri de securitate de nivel enterprise.
                   </p>
                 </CardContent>
               </Card>
@@ -119,20 +119,20 @@ export default function Landing() {
 
         <section className="container mx-auto px-4 py-20 text-center">
           <h2 className="text-3xl font-bold mb-6">
-            Ready to transform your hotel operations?
+            Gata să îți transformi operațiunile hotelului?
           </h2>
           <p className="text-lg text-muted-foreground mb-8">
-            Join thousands of hoteliers already using BOOKERINO
+            Alătură-te miilor de hotelieri care folosesc deja BOOKERINO
           </p>
           <Button size="lg" onClick={handleLogin} data-testid="button-start-free">
-            Start Free Trial
+            Începe Perioada Gratuită
           </Button>
         </section>
       </main>
 
       <footer className="border-t">
         <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-          © 2024 BOOKERINO. All rights reserved.
+          © 2024 BOOKERINO. Toate drepturile rezervate.
         </div>
       </footer>
     </div>

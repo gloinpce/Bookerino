@@ -16,11 +16,11 @@ interface BookingCardProps {
 }
 
 const statusConfig = {
-  pending: { label: "Pending", variant: "secondary" as const },
-  confirmed: { label: "Confirmed", variant: "default" as const },
-  "checked-in": { label: "Checked In", variant: "default" as const },
-  "checked-out": { label: "Checked Out", variant: "secondary" as const },
-  cancelled: { label: "Cancelled", variant: "destructive" as const },
+  pending: { label: "În așteptare", variant: "secondary" as const },
+  confirmed: { label: "Confirmat", variant: "default" as const },
+  "checked-in": { label: "Check-in Efectuat", variant: "secondary" as const },
+  "checked-out": { label: "Check-out Efectuat", variant: "outline" as const },
+  cancelled: { label: "Anulat", variant: "destructive" as const },
 };
 
 export function BookingCard({
@@ -60,9 +60,9 @@ export function BookingCard({
           </span>
         </div>
         <div className="flex items-center justify-between pt-2 border-t">
-          <span className="text-lg font-semibold" data-testid={`text-price-${id}`}>${totalPrice}</span>
+          <span className="text-lg font-semibold" data-testid={`text-price-${id}`}>{totalPrice}</span>
           <Button size="sm" variant="outline" data-testid={`button-view-${id}`}>
-            View Details
+            Vezi Detalii
           </Button>
         </div>
       </CardContent>

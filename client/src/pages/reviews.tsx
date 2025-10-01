@@ -57,13 +57,13 @@ export default function Reviews() {
       <div className="p-6 space-y-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-3xl font-bold">Reviews</h1>
-            <p className="text-muted-foreground">Manage guest feedback and responses</p>
+            <h1 className="text-3xl font-bold">Recenzii</h1>
+            <p className="text-muted-foreground">Monitorizează și răspunde la feedback-ul oaspeților</p>
           </div>
           <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-lg border">
             <Star className="h-5 w-5 fill-chart-4 text-chart-4" />
             <span className="text-2xl font-bold" data-testid="text-average-rating">{averageRating}</span>
-            <span className="text-sm text-muted-foreground">({mockReviews.length} reviews)</span>
+            <span className="text-sm text-muted-foreground">( {mockReviews.length} recenzii )</span>
           </div>
         </div>
 
@@ -71,22 +71,22 @@ export default function Reviews() {
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search reviews..."
+              placeholder="Caută recenzii..."
               className="pl-9"
               data-testid="input-search-reviews"
             />
           </div>
           <Select defaultValue="all">
             <SelectTrigger className="w-[160px]" data-testid="select-rating-filter">
-              <SelectValue />
+              <SelectValue placeholder="Filtrare rating" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Ratings</SelectItem>
-              <SelectItem value="5">5 Stars</SelectItem>
-              <SelectItem value="4">4 Stars</SelectItem>
-              <SelectItem value="3">3 Stars</SelectItem>
-              <SelectItem value="2">2 Stars</SelectItem>
-              <SelectItem value="1">1 Star</SelectItem>
+              <SelectItem value="all">Toate ratingurile</SelectItem>
+              <SelectItem value="5">5 Stele</SelectItem>
+              <SelectItem value="4">4 Stele</SelectItem>
+              <SelectItem value="3">3 Stele</SelectItem>
+              <SelectItem value="2">2 Stele</SelectItem>
+              <SelectItem value="1">1 Stea</SelectItem>
             </SelectContent>
           </Select>
         </div>

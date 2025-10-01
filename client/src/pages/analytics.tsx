@@ -10,21 +10,21 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 export default function Analytics() {
   const revenueData = [
-    { month: "Jan", revenue: 32000 },
+    { month: "Ian", revenue: 32000 },
     { month: "Feb", revenue: 38000 },
     { month: "Mar", revenue: 42000 },
     { month: "Apr", revenue: 45000 },
-    { month: "May", revenue: 48000 },
-    { month: "Jun", revenue: 52000 },
+    { month: "Mai", revenue: 48000 },
+    { month: "Iun", revenue: 52000 },
   ];
 
   const occupancyData = [
-    { month: "Jan", rate: 65 },
+    { month: "Ian", rate: 65 },
     { month: "Feb", rate: 72 },
     { month: "Mar", rate: 78 },
     { month: "Apr", rate: 75 },
-    { month: "May", rate: 82 },
-    { month: "Jun", rate: 85 },
+    { month: "Mai", rate: 82 },
+    { month: "Iun", rate: 85 },
   ];
 
   const bookingSources = [
@@ -39,18 +39,18 @@ export default function Analytics() {
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-3xl font-bold">Analytics</h1>
-            <p className="text-muted-foreground">Track your hotel performance metrics</p>
+            <h1 className="text-3xl font-bold">Analize</h1>
+            <p className="text-muted-foreground">Urmărește performanța și informațiile hotelului tău</p>
           </div>
           <Select defaultValue="6months">
             <SelectTrigger className="w-[180px]" data-testid="select-time-range">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="1month">Last Month</SelectItem>
-              <SelectItem value="3months">Last 3 Months</SelectItem>
-              <SelectItem value="6months">Last 6 Months</SelectItem>
-              <SelectItem value="1year">Last Year</SelectItem>
+              <SelectItem value="1month">Ultima Lună</SelectItem>
+              <SelectItem value="3months">Ultimele 3 Luni</SelectItem>
+              <SelectItem value="6months">Ultimele 6 Luni</SelectItem>
+              <SelectItem value="1year">Ultimul An</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -58,7 +58,7 @@ export default function Analytics() {
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>Revenue Trend</CardTitle>
+              <CardTitle>Tendința Veniturilor</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -87,7 +87,7 @@ export default function Analytics() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Occupancy Rate</CardTitle>
+              <CardTitle>Rata de Ocupare</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -116,7 +116,7 @@ export default function Analytics() {
 
           <Card className="md:col-span-2">
             <CardHeader>
-              <CardTitle>Booking Sources</CardTitle>
+              <CardTitle>Surse de Rezervare</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>

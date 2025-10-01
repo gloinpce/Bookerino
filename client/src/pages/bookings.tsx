@@ -79,12 +79,12 @@ export default function Bookings() {
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-3xl font-bold">Bookings</h1>
-            <p className="text-muted-foreground">Manage all your hotel reservations</p>
+            <h1 className="text-3xl font-bold">Rezervări</h1>
+            <p className="text-muted-foreground">Gestionează rezervările hotelului tău</p>
           </div>
           <Button data-testid="button-new-booking">
             <Plus className="h-4 w-4 mr-2" />
-            New Booking
+            Rezervare Nouă
           </Button>
         </div>
 
@@ -92,7 +92,7 @@ export default function Bookings() {
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search bookings..."
+              placeholder="Caută rezervări..."
               className="pl-9"
               data-testid="input-search-bookings"
             />
@@ -102,16 +102,16 @@ export default function Bookings() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="confirmed">Confirmed</SelectItem>
-              <SelectItem value="checked-in">Checked In</SelectItem>
-              <SelectItem value="checked-out">Checked Out</SelectItem>
+              <SelectItem value="all">Toate Statusurile</SelectItem>
+              <SelectItem value="pending">În așteptare</SelectItem>
+              <SelectItem value="confirmed">Confirmat</SelectItem>
+              <SelectItem value="checked-in">Check-in Efectuat</SelectItem>
+              <SelectItem value="checked-out">Check-out Efectuat</SelectItem>
             </SelectContent>
           </Select>
           <Button variant="outline" data-testid="button-more-filters">
             <Filter className="h-4 w-4 mr-2" />
-            More Filters
+            Mai Multe Filtre
           </Button>
         </div>
 

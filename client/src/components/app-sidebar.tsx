@@ -14,31 +14,31 @@ import {
 
 const menuItems = [
   {
-    title: "Dashboard",
+    title: "Panou de Control",
     url: "/",
     icon: LayoutDashboard,
     testId: "link-dashboard",
   },
   {
-    title: "Bookings",
+    title: "Rezervări",
     url: "/bookings",
     icon: Calendar,
     testId: "link-bookings",
   },
   {
-    title: "Reviews",
+    title: "Recenzii",
     url: "/reviews",
     icon: Star,
     testId: "link-reviews",
   },
   {
-    title: "Rooms",
+    title: "Camere",
     url: "/rooms",
     icon: Hotel,
     testId: "link-rooms",
   },
   {
-    title: "Analytics",
+    title: "Analize",
     url: "/analytics",
     icon: BarChart3,
     testId: "link-analytics",
@@ -60,7 +60,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Management</SidebarGroupLabel>
+          <SidebarGroupLabel>Administrare</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (

@@ -13,9 +13,9 @@ interface RoomCardProps {
 }
 
 const statusConfig = {
-  available: { label: "Available", variant: "default" as const },
-  occupied: { label: "Occupied", variant: "secondary" as const },
-  maintenance: { label: "Maintenance", variant: "destructive" as const },
+  available: { label: "Disponibilă", variant: "default" as const },
+  occupied: { label: "Ocupată", variant: "secondary" as const },
+  maintenance: { label: "Întreținere", variant: "destructive" as const },
 };
 
 export function RoomCard({ id, name, type, capacity, price, status }: RoomCardProps) {
@@ -36,16 +36,16 @@ export function RoomCard({ id, name, type, capacity, price, status }: RoomCardPr
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Users className="h-4 w-4" />
-            <span>{capacity} Guests</span>
+            <span>{capacity} Oaspeți</span>
           </div>
           <div className="flex items-center gap-1 font-semibold" data-testid={`text-price-${id}`}>
             <DollarSign className="h-4 w-4" />
-            <span>{price}/night</span>
+            <span>{price}/noapte</span>
           </div>
         </div>
         <div className="flex gap-2 pt-2 border-t">
           <Button size="sm" variant="outline" className="flex-1" data-testid={`button-edit-${id}`}>
-            Edit
+            Editează
           </Button>
           <Button size="sm" variant="outline" className="flex-1" data-testid={`button-calendar-${id}`}>
             Calendar

@@ -1,7 +1,8 @@
 import { StatCard } from "@/components/stat-card";
 import { BookingCard } from "@/components/booking-card";
 import { Calendar, DollarSign, Users, Hotel } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Star } from "lucide-react";
 
 export default function Dashboard() {
   const mockBookings = [
@@ -41,54 +42,60 @@ export default function Dashboard() {
     <div className="flex-1 overflow-auto">
       <div className="p-6 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back! Here's your hotel overview.</p>
+          <h1 className="text-3xl font-bold">Panou de Control</h1>
+          <p className="text-muted-foreground">Bine ai venit la sistemul de management hotelier</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            title="Total Bookings"
-            value="124"
-            change="↑ 12%"
+            title="Total Rezervări"
+            value="248"
+            description="+12% față de luna trecută"
             icon={Calendar}
-            trend="up"
+            testId="stat-bookings"
           />
           <StatCard
-            title="Revenue"
-            value="$48,250"
-            change="↑ 8%"
-            icon={DollarSign}
-            trend="up"
-          />
-          <StatCard
-            title="Occupancy Rate"
-            value="78%"
-            change="↑ 5%"
-            icon={Hotel}
-            trend="up"
-          />
-          <StatCard
-            title="Active Guests"
+            title="Camere Disponibile"
             value="32"
-            change="↓ 3%"
-            icon={Users}
-            trend="down"
+            description="Din 50 camere totale"
+            icon={Hotel}
+            testId="stat-rooms"
+          />
+          <StatCard
+            title="Venit"
+            value="$12,450"
+            description="+8% față de luna trecută"
+            icon={DollarSign}
+            testId="stat-revenue"
+          />
+          <StatCard
+            title="Rating Mediu"
+            value="4.8"
+            description="Pe baza a 156 recenzii"
+            icon={Star}
+            testId="stat-rating"
           />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-4">
-            <h2 className="text-xl font-semibold">Recent Bookings</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              {mockBookings.map((booking) => (
-                <BookingCard key={booking.id} {...booking} />
-              ))}
-            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Rezervări Recente</CardTitle>
+                <CardDescription>Ultimele tale rezervări</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {mockBookings.map((booking) => (
+                  <BookingCard key={booking.id} {...booking} />
+                ))}
+              </CardContent>
+            </Card>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle>Upcoming Check-ins</CardTitle>
+              <CardTitle>Recenzii Recente</CardTitle>
+              <CardDescription>Ultimele feedback-uri de la oaspeți</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between pb-3 border-b" data-testid="checkin-sarah">

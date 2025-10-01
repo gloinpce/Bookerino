@@ -83,12 +83,12 @@ export default function Rooms() {
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-3xl font-bold">Rooms</h1>
-            <p className="text-muted-foreground">Manage your room inventory and availability</p>
+            <h1 className="text-3xl font-bold">Camere</h1>
+            <p className="text-muted-foreground">Gestionează inventarul și disponibilitatea camerelor</p>
           </div>
           <Button data-testid="button-add-room">
             <Plus className="h-4 w-4 mr-2" />
-            Add Room
+            Adaugă Cameră
           </Button>
         </div>
 
@@ -96,7 +96,7 @@ export default function Rooms() {
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search rooms..."
+              placeholder="Caută camere..."
               className="pl-9"
               data-testid="input-search-rooms"
             />
@@ -106,10 +106,10 @@ export default function Rooms() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Room Types</SelectItem>
-              <SelectItem value="standard">Standard Room</SelectItem>
-              <SelectItem value="deluxe">Deluxe Suite</SelectItem>
-              <SelectItem value="premium">Premium Suite</SelectItem>
+              <SelectItem value="all">Toate Tipurile</SelectItem>
+              <SelectItem value="standard">Cameră Standard</SelectItem>
+              <SelectItem value="deluxe">Suită Deluxe</SelectItem>
+              <SelectItem value="premium">Suită Premium</SelectItem>
             </SelectContent>
           </Select>
           <Select defaultValue="all">
@@ -117,10 +117,10 @@ export default function Rooms() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="available">Available</SelectItem>
-              <SelectItem value="occupied">Occupied</SelectItem>
-              <SelectItem value="maintenance">Maintenance</SelectItem>
+              <SelectItem value="all">Toate Statusurile</SelectItem>
+              <SelectItem value="available">Disponibilă</SelectItem>
+              <SelectItem value="occupied">Ocupată</SelectItem>
+              <SelectItem value="maintenance">Întreținere</SelectItem>
             </SelectContent>
           </Select>
         </div>

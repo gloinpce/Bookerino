@@ -56,7 +56,7 @@ export function ReviewCard({
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-sm" data-testid={`text-comment-${id}`}>{comment}</p>
-        
+
         {response && !showReply && (
           <div className="rounded-md bg-muted p-3 mt-3">
             <p className="text-sm font-medium mb-1">Your Response</p>
