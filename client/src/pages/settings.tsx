@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,12 +27,25 @@ export default function Settings() {
 
   const bookingComIntegration = integrations.find(i => i.platform === "booking.com");
 
+  useEffect(() => {
+    if (bookingComIntegration) {
+      setBookingComConfig({
+        apiKey: bookingComIntegration.apiKey || "",
+        apiSecret: bookingComIntegration.apiSecret || "",
+        propertyId: bookingComIntegration.propertyId || "",
+        isActive: bookingComIntegration.isActive === 1,
+      });
+    }
+  }, [bookingComIntegration]);
+
   const saveIntegrationMutation = useMutation({
-    mutationFn: async (data: { platform: string; apiKey: string; apiSecret: string; propertyId: string; isActive: number }) => {
-      if (bookingComIntegration) {
-        return await apiRequest("PATCH", `/api/integrations/${bookingComIntegration.id}`, data);
+    mutationFn: async (data: { platform: string; apiKey: string; apiSecret: string; propertyId: string; isActive: number; existingId?: string }) => {
+      if (data.existingId) {
+        const { existingId, ...updateData } = data;
+        return await apiRequest("PATCH", `/api/integrations/${existingId}`, updateData);
       } else {
-        return await apiRequest("POST", "/api/integrations", data);
+        const { existingId, ...createData } = data;
+        return await apiRequest("POST", "/api/integrations", createData);
       }
     },
     onSuccess: () => {
@@ -86,6 +99,7 @@ export default function Settings() {
       apiSecret: bookingComConfig.apiSecret,
       propertyId: bookingComConfig.propertyId,
       isActive: bookingComConfig.isActive ? 1 : 0,
+      existingId: bookingComIntegration?.id,
     });
   };
 

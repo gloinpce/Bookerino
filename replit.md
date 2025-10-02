@@ -57,8 +57,11 @@ Preferred communication style: Simple, everyday language.
 **Data Models:**
 - **Users:** Authentication and profile management (id, email, firstName, lastName, profileImageUrl)
 - **Rooms:** Hotel room inventory (id, name, type, capacity, price, status)
-- **Bookings:** Reservation management (id, guestName, guestEmail, roomId, checkIn, checkOut, status, totalPrice)
-- **Reviews:** Guest feedback system (id, guestName, rating, comment, response, createdAt)
+- **Bookings:** Reservation management (id, guestName, guestEmail, roomId, checkIn, checkOut, status, totalPrice, source, createdAt)
+  - Source field tracks booking origin: "direct", "booking.com", "airbnb", etc.
+- **Reviews:** Guest feedback system (id, guestName, bookingId, rating, comment, response, createdAt)
+- **Integrations:** External platform connections (id, platform, apiKey, apiSecret, propertyId, isActive, lastSyncAt, createdAt, updatedAt)
+  - Stores credentials for Booking.com and other external booking platforms
 - **Sessions:** Server-side session storage for authentication
 
 **Authentication System:**
@@ -81,6 +84,8 @@ Preferred communication style: Simple, everyday language.
 - `/api/rooms` - CRUD operations for room management
 - `/api/bookings` - CRUD operations for booking management
 - `/api/reviews` - CRUD operations for review management
+- `/api/analytics/advanced` - Advanced analytics with revenue trends, occupancy rate, and booking source distribution
+- `/api/integrations` - CRUD operations for external platform integrations (Booking.com, etc.)
 - All routes protected with authentication middleware
 
 **Response Format:**

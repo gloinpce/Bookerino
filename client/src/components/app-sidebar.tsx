@@ -1,4 +1,4 @@
-import { LayoutDashboard, Calendar, Star, Hotel, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Calendar, Star, Hotel, BarChart3, Settings } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import {
   Sidebar,
@@ -42,6 +42,12 @@ const menuItems = [
     url: "/analytics",
     icon: BarChart3,
     testId: "link-analytics",
+  },
+  {
+    title: "Setări",
+    url: "/settings",
+    icon: Settings,
+    testId: "link-settings",
   },
 ];
 
