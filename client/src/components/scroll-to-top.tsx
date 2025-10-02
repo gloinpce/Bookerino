@@ -10,46 +10,28 @@ export function ScrollToTop() {
   useEffect(() => {
     const toggleVisibility = () => {
       const scrollableElement = document.querySelector('[data-scroll-container]');
-      if (scrollableElement) {
-        const shouldShow = scrollableElement.scrollTop > 300;
-        setIsVisible(shouldShow);
-      }
+      const scrollTop = scrollableElement 
+        ? scrollableElement.scrollTop 
+        : window.scrollY || document.documentElement.scrollTop;
+      
+      setIsVisible(scrollTop > 300);
     };
 
-    let scrollableElement: Element | null = null;
-    let pollIntervalId: NodeJS.Timeout | null = null;
-
-    // Try to find and attach listener with retries
-    let attemptCount = 0;
-    const maxAttempts = 5;
-    const attemptInterval = 50;
-
-    const attachListener = () => {
-      scrollableElement = document.querySelector('[data-scroll-container]');
-      if (scrollableElement) {
-        scrollableElement.addEventListener('scroll', toggleVisibility);
-        toggleVisibility(); // Check initial position
-        
-        // Also poll every 100ms as a fallback for programmatic scrolls
-        pollIntervalId = setInterval(toggleVisibility, 100);
-        return true;
-      }
-      return false;
-    };
-
-    const findIntervalId = setInterval(() => {
-      attemptCount++;
-      if (attachListener() || attemptCount >= maxAttempts) {
-        clearInterval(findIntervalId);
-      }
-    }, attemptInterval);
+    const scrollableElement = document.querySelector('[data-scroll-container]');
+    
+    if (scrollableElement) {
+      scrollableElement.addEventListener('scroll', toggleVisibility);
+    } else {
+      window.addEventListener('scroll', toggleVisibility);
+    }
+    
+    toggleVisibility();
 
     return () => {
-      clearInterval(findIntervalId);
-      if (pollIntervalId) clearInterval(pollIntervalId);
-      const el = document.querySelector('[data-scroll-container]');
-      if (el) {
-        el.removeEventListener('scroll', toggleVisibility);
+      if (scrollableElement) {
+        scrollableElement.removeEventListener('scroll', toggleVisibility);
+      } else {
+        window.removeEventListener('scroll', toggleVisibility);
       }
     };
   }, [location]);
@@ -58,6 +40,11 @@ export function ScrollToTop() {
     const scrollableElement = document.querySelector('[data-scroll-container]');
     if (scrollableElement) {
       scrollableElement.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    } else {
+      window.scrollTo({
         top: 0,
         behavior: 'smooth'
       });
