@@ -14,6 +14,7 @@ import Dashboard from "@/pages/dashboard";
 import Bookings from "@/pages/bookings";
 import Reviews from "@/pages/reviews";
 import Rooms from "@/pages/rooms";
+import Meals from "@/pages/meals";
 import Analytics from "@/pages/analytics";
 import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
@@ -25,6 +26,7 @@ function AuthenticatedRouter() {
       <Route path="/bookings" component={Bookings} />
       <Route path="/reviews" component={Reviews} />
       <Route path="/rooms" component={Rooms} />
+      <Route path="/meals" component={Meals} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/settings" component={Settings} />
       <Route component={NotFound} />

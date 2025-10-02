@@ -1,4 +1,4 @@
-import { LayoutDashboard, Calendar, Star, BarChart3, Settings } from "lucide-react";
+import { LayoutDashboard, Calendar, Star, BarChart3, Settings, UtensilsCrossed } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import {
   Sidebar,
@@ -36,6 +36,12 @@ const menuItems = [
     url: "/rooms",
     icon: () => <span>🏨</span>,
     testId: "link-rooms",
+  },
+  {
+    title: "Mese & Meniuri",
+    url: "/meals",
+    icon: UtensilsCrossed,
+    testId: "link-meals",
   },
   {
     title: "Analize",
