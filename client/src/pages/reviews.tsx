@@ -1,4 +1,8 @@
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { type Review } from "@shared/schema";
 import { ReviewCard } from "@/components/review-card";
+import { ReviewResponseDialog } from "@/components/review-response-dialog";
 import { Input } from "@/components/ui/input";
 import { Search, Star } from "lucide-react";
 import {
@@ -8,49 +12,65 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Reviews() {
-  const mockReviews = [
-    {
-      id: "1",
-      guestName: "Sarah Johnson",
-      rating: 5,
-      comment: "Absolutely wonderful stay! The room was spotless, staff was incredibly friendly, and the location was perfect. Would definitely recommend to anyone visiting.",
-      response: "Thank you for your wonderful review, Sarah! We're delighted you enjoyed your stay.",
-      createdAt: new Date("2024-09-28"),
-    },
-    {
-      id: "2",
-      guestName: "Michael Chen",
-      rating: 4,
-      comment: "Great hotel with excellent amenities. The breakfast buffet was fantastic. Only minor issue was the Wi-Fi speed in the room.",
-      createdAt: new Date("2024-09-25"),
-    },
-    {
-      id: "3",
-      guestName: "Emma Williams",
-      rating: 5,
-      comment: "Exceeded all expectations! The suite was luxurious, and the view was breathtaking. The concierge team went above and beyond.",
-      response: "We're thrilled to hear about your exceptional experience, Emma! Thank you for choosing us.",
-      createdAt: new Date("2024-09-22"),
-    },
-    {
-      id: "4",
-      guestName: "David Martinez",
-      rating: 3,
-      comment: "Decent stay overall. The room was clean but could use some updating. Service was good, though the check-in process took longer than expected.",
-      createdAt: new Date("2024-09-20"),
-    },
-    {
-      id: "5",
-      guestName: "Jennifer Lee",
-      rating: 5,
-      comment: "Perfect for a business trip! Great workspace in the room, fast internet, and the business center was well-equipped.",
-      createdAt: new Date("2024-09-18"),
-    },
-  ];
+  const [responseDialogOpen, setResponseDialogOpen] = useState(false);
+  const [selectedReview, setSelectedReview] = useState<Review | undefined>(undefined);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [ratingFilter, setRatingFilter] = useState("all");
+  const { toast } = useToast();
 
-  const averageRating = (mockReviews.reduce((sum, r) => sum + r.rating, 0) / mockReviews.length).toFixed(1);
+  const { data: reviews, isLoading } = useQuery<Review[]>({
+    queryKey: ["/api/reviews"],
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => apiRequest(`/api/reviews/${id}`, "DELETE"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/reviews"] });
+      toast({
+        title: "Succes",
+        description: "Recenzia a fost ștearsă cu succes",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Eroare",
+        description: "Nu s-a putut șterge recenzia",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleRespond = (review: Review) => {
+    setSelectedReview(review);
+    setResponseDialogOpen(true);
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm("Sigur vrei să ștergi această recenzie?")) {
+      deleteMutation.mutate(id);
+    }
+  };
+
+  const filteredReviews = reviews?.filter((review) => {
+    const matchesSearch =
+      searchQuery === "" ||
+      review.guestName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      review.comment.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesRating =
+      ratingFilter === "all" || review.rating.toString() === ratingFilter;
+
+    return matchesSearch && matchesRating;
+  });
+
+  const averageRating = reviews && reviews.length > 0
+    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+    : "0.0";
 
   return (
     <div className="flex-1 overflow-auto">
@@ -63,7 +83,7 @@ export default function Reviews() {
           <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-lg border">
             <Star className="h-5 w-5 fill-chart-4 text-chart-4" />
             <span className="text-2xl font-bold" data-testid="text-average-rating">{averageRating}</span>
-            <span className="text-sm text-muted-foreground">( {mockReviews.length} recenzii )</span>
+            <span className="text-sm text-muted-foreground">( {reviews?.length || 0} recenzii )</span>
           </div>
         </div>
 
@@ -73,10 +93,12 @@ export default function Reviews() {
             <Input
               placeholder="Caută recenzii..."
               className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               data-testid="input-search-reviews"
             />
           </div>
-          <Select defaultValue="all">
+          <Select value={ratingFilter} onValueChange={setRatingFilter}>
             <SelectTrigger className="w-[160px]" data-testid="select-rating-filter">
               <SelectValue placeholder="Filtrare rating" />
             </SelectTrigger>
@@ -91,12 +113,44 @@ export default function Reviews() {
           </Select>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {mockReviews.map((review) => (
-            <ReviewCard key={review.id} {...review} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-[250px] rounded-lg" data-testid={`skeleton-review-${i}`} />
+            ))}
+          </div>
+        ) : filteredReviews && filteredReviews.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {filteredReviews.map((review) => (
+              <ReviewCard
+                key={review.id}
+                id={review.id}
+                guestName={review.guestName}
+                rating={review.rating}
+                comment={review.comment}
+                response={review.response}
+                createdAt={new Date(review.createdAt)}
+                onRespond={() => handleRespond(review)}
+                onDelete={() => handleDelete(review.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12" data-testid="text-no-reviews">
+            <p className="text-muted-foreground">
+              {searchQuery || ratingFilter !== "all"
+                ? "Nu s-au găsit recenzii care să corespundă filtrelor"
+                : "Nu există recenzii încă."}
+            </p>
+          </div>
+        )}
       </div>
+
+      <ReviewResponseDialog
+        open={responseDialogOpen}
+        onOpenChange={setResponseDialogOpen}
+        review={selectedReview}
+      />
     </div>
   );
 }

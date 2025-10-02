@@ -75,6 +75,10 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({
   createdAt: true,
 });
 
+export const updateReviewResponseSchema = z.object({
+  response: z.string().min(1, "Response is required"),
+});
+
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Room = typeof rooms.$inferSelect;

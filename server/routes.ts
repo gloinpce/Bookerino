@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertRoomSchema, insertBookingSchema, insertReviewSchema } from "@shared/schema";
+import { insertRoomSchema, insertBookingSchema, insertReviewSchema, updateReviewResponseSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -130,7 +130,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/reviews/:id", isAuthenticated, async (req, res) => {
     try {
-      const validatedData = insertReviewSchema.partial().parse(req.body);
+      const validatedData = updateReviewResponseSchema.parse(req.body);
       const review = await storage.updateReview(req.params.id, validatedData);
       res.json(review);
     } catch (error) {

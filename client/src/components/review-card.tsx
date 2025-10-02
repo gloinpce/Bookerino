@@ -1,17 +1,23 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Star } from "lucide-react";
+import { Star, MoreVertical, MessageSquare, Trash2 } from "lucide-react";
 import { format } from "date-fns";
-import { useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ReviewCardProps {
   id: string;
   guestName: string;
   rating: number;
   comment: string;
-  response?: string;
+  response?: string | null;
   createdAt: Date;
+  onRespond?: () => void;
+  onDelete?: () => void;
 }
 
 export function ReviewCard({
@@ -21,15 +27,9 @@ export function ReviewCard({
   comment,
   response,
   createdAt,
+  onRespond,
+  onDelete,
 }: ReviewCardProps) {
-  const [showReply, setShowReply] = useState(false);
-  const [replyText, setReplyText] = useState(response || "");
-
-  const handleSubmitReply = () => {
-    console.log("Submit reply:", replyText);
-    setShowReply(false);
-  };
-
   return (
     <Card data-testid={`card-review-${id}`}>
       <CardHeader className="space-y-2">
@@ -40,60 +40,51 @@ export function ReviewCard({
               {format(createdAt, "MMM d, yyyy")}
             </p>
           </div>
-          <div className="flex items-center gap-1" data-testid={`rating-${id}`}>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star
-                key={i}
-                className={`h-4 w-4 ${
-                  i < rating
-                    ? "fill-chart-4 text-chart-4"
-                    : "fill-muted text-muted"
-                }`}
-              />
-            ))}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1" data-testid={`rating-${id}`}>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star
+                  key={i}
+                  className={`h-4 w-4 ${
+                    i < rating
+                      ? "fill-chart-4 text-chart-4"
+                      : "fill-muted text-muted"
+                  }`}
+                />
+              ))}
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="ghost" data-testid={`button-menu-${id}`}>
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={onRespond} data-testid={`menu-respond-${id}`}>
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  {response ? "Editează răspunsul" : "Răspunde"}
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={onDelete} 
+                  className="text-destructive"
+                  data-testid={`menu-delete-${id}`}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Șterge
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-sm" data-testid={`text-comment-${id}`}>{comment}</p>
 
-        {response && !showReply && (
+        {response && (
           <div className="rounded-md bg-muted p-3 mt-3">
-            <p className="text-sm font-medium mb-1">Your Response</p>
-            <p className="text-sm text-muted-foreground">{response}</p>
+            <p className="text-sm font-medium mb-1">Răspunsul tău</p>
+            <p className="text-sm text-muted-foreground" data-testid={`text-response-${id}`}>{response}</p>
           </div>
-        )}
-
-        {showReply && (
-          <div className="space-y-2 mt-3">
-            <Textarea
-              placeholder="Write your response..."
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              rows={3}
-              data-testid={`textarea-reply-${id}`}
-            />
-            <div className="flex gap-2">
-              <Button size="sm" onClick={handleSubmitReply} data-testid={`button-submit-reply-${id}`}>
-                Submit Reply
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => setShowReply(false)} data-testid={`button-cancel-reply-${id}`}>
-                Cancel
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {!showReply && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setShowReply(true)}
-            className="mt-2"
-            data-testid={`button-reply-${id}`}
-          >
-            {response ? "Edit Response" : "Reply"}
-          </Button>
         )}
       </CardContent>
     </Card>
