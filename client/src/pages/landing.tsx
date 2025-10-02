@@ -21,13 +21,11 @@ export default function Landing() {
       <header className="border-b relative z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <img
-                src="attached_assets/logo bokkerino_1759435973381.png"
-                alt="Bookerino Logo"
-                className="h-full w-full object-contain"
-              />
-            </div>
+            <img
+              src="attached_assets/logo bokkerino_1759435973381.png"
+              alt="Bookerino Logo"
+              className="h-8 w-8 rounded-md object-contain"
+            />
             <span className="text-xl font-bold">BOOKERINO</span>
           </div>
           <Button onClick={handleLogin} data-testid="button-login">

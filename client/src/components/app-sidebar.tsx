@@ -59,7 +59,7 @@ export function AppSidebar() {
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2">
           <img 
-            src="/attached_assets/logo bokkerino_1759435973381.png" 
+            src="attached_assets/logo bokkerino_1759435973381.png" 
             alt="BOOKERINO Logo" 
             className="h-8 w-8 rounded-md object-contain"
           />
