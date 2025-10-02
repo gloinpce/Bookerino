@@ -8,8 +8,17 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b">
+    <div className="min-h-screen flex flex-col relative">
+      <div 
+        className="fixed inset-0 z-0 opacity-10"
+        style={{
+          backgroundImage: 'url("attached_assets/header site_1759436834395.png")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
+      <header className="border-b relative z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
@@ -27,7 +36,7 @@ export default function Landing() {
         </div>
       </header>
 
-      <main className="flex-1">
+      <main className="flex-1 relative z-10">
         <section className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-5xl font-bold mb-6">
             Automatizează Managementul Hotelului
@@ -138,7 +147,7 @@ export default function Landing() {
         </section>
       </main>
 
-      <footer className="border-t">
+      <footer className="border-t relative z-10">
         <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
           © 2024 BOOKERINO. Toate drepturile rezervate.
         </div>
