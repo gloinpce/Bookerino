@@ -1,10 +1,10 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { insertRoomSchema, type Room, type InsertRoom } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -41,6 +41,15 @@ export function RoomDialog({ open, onOpenChange, room }: RoomDialogProps) {
   const { toast } = useToast();
   const isEdit = !!room;
 
+  const { data: rooms = [] } = useQuery<Room[]>({
+    queryKey: ["/api/rooms"],
+  });
+
+  const uniqueRoomTypes = useMemo(() => {
+    const types = new Set(rooms.map(r => r.type).filter(Boolean));
+    return Array.from(types).sort();
+  }, [rooms]);
+
   const form = useForm<InsertRoom>({
     resolver: zodResolver(insertRoomSchema),
     defaultValues: {
@@ -75,7 +84,7 @@ export function RoomDialog({ open, onOpenChange, room }: RoomDialogProps) {
   }, [open, room, form]);
 
   const createMutation = useMutation({
-    mutationFn: (data: InsertRoom) => apiRequest("/api/rooms", "POST", data),
+    mutationFn: (data: InsertRoom) => apiRequest("POST", "/api/rooms", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/rooms"] });
       toast({
@@ -95,7 +104,7 @@ export function RoomDialog({ open, onOpenChange, room }: RoomDialogProps) {
 
   const updateMutation = useMutation({
     mutationFn: (data: InsertRoom) =>
-      apiRequest(`/api/rooms/${room?.id}`, "PATCH", data),
+      apiRequest("PATCH", `/api/rooms/${room?.id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/rooms"] });
       toast({
@@ -163,22 +172,24 @@ export function RoomDialog({ open, onOpenChange, room }: RoomDialogProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tip Cameră</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger data-testid="select-room-type">
-                        <SelectValue placeholder="Selectează tipul" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Standard Room">Cameră Standard</SelectItem>
-                      <SelectItem value="Deluxe Suite">Suită Deluxe</SelectItem>
-                      <SelectItem value="Premium Suite">Suită Premium</SelectItem>
-                      <SelectItem value="Executive Suite">Suită Executive</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        list="room-types"
+                        placeholder="Introduceți tipul (ex: Cameră dublă standard)"
+                        data-testid="input-room-type"
+                      />
+                      <datalist id="room-types">
+                        {uniqueRoomTypes.map((type) => (
+                          <option key={type} value={type} />
+                        ))}
+                      </datalist>
+                    </div>
+                  </FormControl>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Introduceți exact tipul camerei de pe Booking.com sau alegeți din sugestii
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}

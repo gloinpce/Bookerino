@@ -92,7 +92,7 @@ export function BookingDialog({ open, onOpenChange, booking }: BookingDialogProp
   }, [open, booking, form]);
 
   const createMutation = useMutation({
-    mutationFn: (data: InsertBooking) => apiRequest("/api/bookings", "POST", data),
+    mutationFn: (data: InsertBooking) => apiRequest("POST", "/api/bookings", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       toast({
@@ -112,7 +112,7 @@ export function BookingDialog({ open, onOpenChange, booking }: BookingDialogProp
 
   const updateMutation = useMutation({
     mutationFn: (data: InsertBooking) =>
-      apiRequest(`/api/bookings/${booking?.id}`, "PATCH", data),
+      apiRequest("PATCH", `/api/bookings/${booking?.id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       toast({

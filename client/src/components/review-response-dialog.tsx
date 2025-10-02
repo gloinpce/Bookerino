@@ -57,7 +57,7 @@ export function ReviewResponseDialog({ open, onOpenChange, review }: ReviewRespo
 
   const updateMutation = useMutation({
     mutationFn: (data: ResponseFormData) =>
-      apiRequest(`/api/reviews/${review?.id}`, "PATCH", data),
+      apiRequest("PATCH", `/api/reviews/${review?.id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/reviews"] });
       toast({

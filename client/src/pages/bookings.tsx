@@ -33,7 +33,7 @@ export default function Bookings() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/bookings/${id}`, "DELETE"),
+    mutationFn: (id: string) => apiRequest("DELETE", `/api/bookings/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       toast({
