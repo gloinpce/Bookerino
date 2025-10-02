@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { insertRoomSchema, insertBookingSchema, insertReviewSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -32,11 +33,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/rooms", isAuthenticated, async (req, res) => {
     try {
-      const room = await storage.createRoom(req.body);
+      const validatedData = insertRoomSchema.parse(req.body);
+      const room = await storage.createRoom(validatedData);
       res.json(room);
     } catch (error) {
       console.error("Error creating room:", error);
       res.status(500).json({ message: "Failed to create room" });
+    }
+  });
+
+  app.patch("/api/rooms/:id", isAuthenticated, async (req, res) => {
+    try {
+      const validatedData = insertRoomSchema.partial().parse(req.body);
+      const room = await storage.updateRoom(req.params.id, validatedData);
+      res.json(room);
+    } catch (error) {
+      console.error("Error updating room:", error);
+      res.status(500).json({ message: "Failed to update room" });
+    }
+  });
+
+  app.delete("/api/rooms/:id", isAuthenticated, async (req, res) => {
+    try {
+      await storage.deleteRoom(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting room:", error);
+      res.status(500).json({ message: "Failed to delete room" });
     }
   });
 
@@ -53,11 +76,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/bookings", isAuthenticated, async (req, res) => {
     try {
-      const booking = await storage.createBooking(req.body);
+      const validatedData = insertBookingSchema.parse(req.body);
+      const booking = await storage.createBooking(validatedData);
       res.json(booking);
     } catch (error) {
       console.error("Error creating booking:", error);
       res.status(500).json({ message: "Failed to create booking" });
+    }
+  });
+
+  app.patch("/api/bookings/:id", isAuthenticated, async (req, res) => {
+    try {
+      const validatedData = insertBookingSchema.partial().parse(req.body);
+      const booking = await storage.updateBooking(req.params.id, validatedData);
+      res.json(booking);
+    } catch (error) {
+      console.error("Error updating booking:", error);
+      res.status(500).json({ message: "Failed to update booking" });
+    }
+  });
+
+  app.delete("/api/bookings/:id", isAuthenticated, async (req, res) => {
+    try {
+      await storage.deleteBooking(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting booking:", error);
+      res.status(500).json({ message: "Failed to delete booking" });
     }
   });
 
@@ -74,11 +119,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/reviews", isAuthenticated, async (req, res) => {
     try {
-      const review = await storage.createReview(req.body);
+      const validatedData = insertReviewSchema.parse(req.body);
+      const review = await storage.createReview(validatedData);
       res.json(review);
     } catch (error) {
       console.error("Error creating review:", error);
       res.status(500).json({ message: "Failed to create review" });
+    }
+  });
+
+  app.patch("/api/reviews/:id", isAuthenticated, async (req, res) => {
+    try {
+      const validatedData = insertReviewSchema.partial().parse(req.body);
+      const review = await storage.updateReview(req.params.id, validatedData);
+      res.json(review);
+    } catch (error) {
+      console.error("Error updating review:", error);
+      res.status(500).json({ message: "Failed to update review" });
+    }
+  });
+
+  app.delete("/api/reviews/:id", isAuthenticated, async (req, res) => {
+    try {
+      await storage.deleteReview(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting review:", error);
+      res.status(500).json({ message: "Failed to delete review" });
     }
   });
 

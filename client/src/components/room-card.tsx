@@ -1,7 +1,14 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, DollarSign } from "lucide-react";
+import { Users, DollarSign, Edit, Trash2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreVertical } from "lucide-react";
 
 interface RoomCardProps {
   id: string;
@@ -10,6 +17,8 @@ interface RoomCardProps {
   capacity: number;
   price: string;
   status: "available" | "occupied" | "maintenance";
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 const statusConfig = {
@@ -18,7 +27,7 @@ const statusConfig = {
   maintenance: { label: "Întreținere", variant: "destructive" as const },
 };
 
-export function RoomCard({ id, name, type, capacity, price, status }: RoomCardProps) {
+export function RoomCard({ id, name, type, capacity, price, status, onEdit, onDelete }: RoomCardProps) {
   const statusInfo = statusConfig[status];
 
   return (
@@ -28,9 +37,32 @@ export function RoomCard({ id, name, type, capacity, price, status }: RoomCardPr
           <h3 className="font-semibold" data-testid={`text-room-name-${id}`}>{name}</h3>
           <p className="text-sm text-muted-foreground">{type}</p>
         </div>
-        <Badge variant={statusInfo.variant} data-testid={`badge-status-${id}`}>
-          {statusInfo.label}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant={statusInfo.variant} data-testid={`badge-status-${id}`}>
+            {statusInfo.label}
+          </Badge>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost" data-testid={`button-menu-${id}`}>
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={onEdit} data-testid={`menu-edit-${id}`}>
+                <Edit className="h-4 w-4 mr-2" />
+                Editează
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={onDelete} 
+                className="text-destructive"
+                data-testid={`menu-delete-${id}`}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Șterge
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center justify-between text-sm">
@@ -42,14 +74,6 @@ export function RoomCard({ id, name, type, capacity, price, status }: RoomCardPr
             <DollarSign className="h-4 w-4" />
             <span>{price}/noapte</span>
           </div>
-        </div>
-        <div className="flex gap-2 pt-2 border-t">
-          <Button size="sm" variant="outline" className="flex-1" data-testid={`button-edit-${id}`}>
-            Editează
-          </Button>
-          <Button size="sm" variant="outline" className="flex-1" data-testid={`button-calendar-${id}`}>
-            Calendar
-          </Button>
         </div>
       </CardContent>
     </Card>

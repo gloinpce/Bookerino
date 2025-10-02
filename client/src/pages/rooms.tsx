@@ -1,4 +1,8 @@
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { type Room } from "@shared/schema";
 import { RoomCard } from "@/components/room-card";
+import { RoomDialog } from "@/components/room-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Plus } from "lucide-react";
@@ -9,74 +13,69 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Rooms() {
-  const mockRooms = [
-    {
-      id: "1",
-      name: "Deluxe Suite 301",
-      type: "Deluxe Suite",
-      capacity: 2,
-      price: "150",
-      status: "available" as const,
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingRoom, setEditingRoom] = useState<Room | undefined>(undefined);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const { toast } = useToast();
+
+  const { data: rooms, isLoading } = useQuery<Room[]>({
+    queryKey: ["/api/rooms"],
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => apiRequest(`/api/rooms/${id}`, "DELETE"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/rooms"] });
+      toast({
+        title: "Succes",
+        description: "Camera a fost ștearsă cu succes",
+      });
     },
-    {
-      id: "2",
-      name: "Standard Room 205",
-      type: "Standard Room",
-      capacity: 2,
-      price: "80",
-      status: "occupied" as const,
+    onError: () => {
+      toast({
+        title: "Eroare",
+        description: "Nu s-a putut șterge camera",
+        variant: "destructive",
+      });
     },
-    {
-      id: "3",
-      name: "Premium Suite 402",
-      type: "Premium Suite",
-      capacity: 4,
-      price: "220",
-      status: "available" as const,
-    },
-    {
-      id: "4",
-      name: "Standard Room 108",
-      type: "Standard Room",
-      capacity: 2,
-      price: "80",
-      status: "maintenance" as const,
-    },
-    {
-      id: "5",
-      name: "Deluxe Suite 305",
-      type: "Deluxe Suite",
-      capacity: 3,
-      price: "180",
-      status: "available" as const,
-    },
-    {
-      id: "6",
-      name: "Premium Suite 501",
-      type: "Premium Suite",
-      capacity: 4,
-      price: "240",
-      status: "occupied" as const,
-    },
-    {
-      id: "7",
-      name: "Standard Room 112",
-      type: "Standard Room",
-      capacity: 2,
-      price: "85",
-      status: "available" as const,
-    },
-    {
-      id: "8",
-      name: "Deluxe Suite 308",
-      type: "Deluxe Suite",
-      capacity: 3,
-      price: "175",
-      status: "available" as const,
-    },
-  ];
+  });
+
+  const handleEdit = (room: Room) => {
+    setEditingRoom(room);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm("Sigur vrei să ștergi această cameră?")) {
+      deleteMutation.mutate(id);
+    }
+  };
+
+  const handleAddNew = () => {
+    setEditingRoom(undefined);
+    setDialogOpen(true);
+  };
+
+  const filteredRooms = rooms?.filter((room) => {
+    const matchesSearch =
+      searchQuery === "" ||
+      room.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      room.type.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesType =
+      typeFilter === "all" || room.type.toLowerCase().includes(typeFilter.toLowerCase());
+
+    const matchesStatus = statusFilter === "all" || room.status === statusFilter;
+
+    return matchesSearch && matchesType && matchesStatus;
+  });
 
   return (
     <div className="flex-1 overflow-auto">
@@ -86,7 +85,7 @@ export default function Rooms() {
             <h1 className="text-3xl font-bold">Camere</h1>
             <p className="text-muted-foreground">Gestionează inventarul și disponibilitatea camerelor</p>
           </div>
-          <Button data-testid="button-add-room">
+          <Button onClick={handleAddNew} data-testid="button-add-room">
             <Plus className="h-4 w-4 mr-2" />
             Adaugă Cameră
           </Button>
@@ -98,10 +97,12 @@ export default function Rooms() {
             <Input
               placeholder="Caută camere..."
               className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               data-testid="input-search-rooms"
             />
           </div>
-          <Select defaultValue="all">
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
             <SelectTrigger className="w-[180px]" data-testid="select-type-filter">
               <SelectValue />
             </SelectTrigger>
@@ -112,7 +113,7 @@ export default function Rooms() {
               <SelectItem value="premium">Suită Premium</SelectItem>
             </SelectContent>
           </Select>
-          <Select defaultValue="all">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[160px]" data-testid="select-status-filter">
               <SelectValue />
             </SelectTrigger>
@@ -125,12 +126,44 @@ export default function Rooms() {
           </Select>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {mockRooms.map((room) => (
-            <RoomCard key={room.id} {...room} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} className="h-[200px] rounded-lg" data-testid={`skeleton-room-${i}`} />
+            ))}
+          </div>
+        ) : filteredRooms && filteredRooms.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredRooms.map((room) => (
+              <RoomCard
+                key={room.id}
+                id={room.id}
+                name={room.name}
+                type={room.type}
+                capacity={room.capacity}
+                price={room.price}
+                status={room.status as "available" | "occupied" | "maintenance"}
+                onEdit={() => handleEdit(room)}
+                onDelete={() => handleDelete(room.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12" data-testid="text-no-rooms">
+            <p className="text-muted-foreground">
+              {searchQuery || typeFilter !== "all" || statusFilter !== "all"
+                ? "Nu s-au găsit camere care să corespundă filtrelor"
+                : "Nu există camere încă. Adaugă prima cameră pentru a începe."}
+            </p>
+          </div>
+        )}
       </div>
+
+      <RoomDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        room={editingRoom}
+      />
     </div>
   );
 }
