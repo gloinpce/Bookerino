@@ -1,8 +1,14 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, User, Mail } from "lucide-react";
+import { Calendar, User, MoreVertical, Edit, Trash2 } from "lucide-react";
 import { format } from "date-fns";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface BookingCardProps {
   id: string;
@@ -13,6 +19,8 @@ interface BookingCardProps {
   checkOut: Date;
   status: "pending" | "confirmed" | "checked-in" | "checked-out" | "cancelled";
   totalPrice: string;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 const statusConfig = {
@@ -32,6 +40,8 @@ export function BookingCard({
   checkOut,
   status,
   totalPrice,
+  onEdit,
+  onDelete,
 }: BookingCardProps) {
   const statusInfo = statusConfig[status];
 
@@ -47,6 +57,27 @@ export function BookingCard({
           </div>
           <p className="text-sm text-muted-foreground truncate">{roomName}</p>
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="icon" variant="ghost" data-testid={`button-menu-${id}`}>
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={onEdit} data-testid={`menu-edit-${id}`}>
+              <Edit className="h-4 w-4 mr-2" />
+              Editează
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={onDelete} 
+              className="text-destructive"
+              data-testid={`menu-delete-${id}`}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Șterge
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center gap-2 text-sm">
@@ -60,10 +91,7 @@ export function BookingCard({
           </span>
         </div>
         <div className="flex items-center justify-between pt-2 border-t">
-          <span className="text-lg font-semibold" data-testid={`text-price-${id}`}>{totalPrice}</span>
-          <Button size="sm" variant="outline" data-testid={`button-view-${id}`}>
-            Vezi Detalii
-          </Button>
+          <span className="text-lg font-semibold" data-testid={`text-price-${id}`}>{totalPrice} RON</span>
         </div>
       </CardContent>
     </Card>

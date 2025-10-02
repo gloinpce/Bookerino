@@ -165,7 +165,7 @@ export function RoomDialog({ open, onOpenChange, room }: RoomDialogProps) {
                   <FormLabel>Tip Cameră</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger data-testid="select-room-type">
@@ -234,7 +234,7 @@ export function RoomDialog({ open, onOpenChange, room }: RoomDialogProps) {
                   <FormLabel>Status</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger data-testid="select-room-status">

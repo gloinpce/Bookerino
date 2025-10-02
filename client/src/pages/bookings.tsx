@@ -1,7 +1,11 @@
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { type Booking, type Room } from "@shared/schema";
 import { BookingCard } from "@/components/booking-card";
+import { BookingDialog } from "@/components/booking-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, Filter } from "lucide-react";
+import { Search, Plus } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -9,70 +13,75 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Bookings() {
-  const mockBookings = [
-    {
-      id: "1",
-      guestName: "Sarah Johnson",
-      guestEmail: "sarah.j@email.com",
-      roomName: "Deluxe Suite 301",
-      checkIn: new Date("2024-10-15"),
-      checkOut: new Date("2024-10-18"),
-      status: "confirmed" as const,
-      totalPrice: "450.00",
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingBooking, setEditingBooking] = useState<Booking | undefined>(undefined);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const { toast } = useToast();
+
+  const { data: bookings, isLoading: bookingsLoading } = useQuery<Booking[]>({
+    queryKey: ["/api/bookings"],
+  });
+
+  const { data: rooms } = useQuery<Room[]>({
+    queryKey: ["/api/rooms"],
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => apiRequest(`/api/bookings/${id}`, "DELETE"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      toast({
+        title: "Succes",
+        description: "Rezervarea a fost ștearsă cu succes",
+      });
     },
-    {
-      id: "2",
-      guestName: "Michael Chen",
-      guestEmail: "m.chen@email.com",
-      roomName: "Standard Room 205",
-      checkIn: new Date("2024-10-16"),
-      checkOut: new Date("2024-10-20"),
-      status: "pending" as const,
-      totalPrice: "320.00",
+    onError: () => {
+      toast({
+        title: "Eroare",
+        description: "Nu s-a putut șterge rezervarea",
+        variant: "destructive",
+      });
     },
-    {
-      id: "3",
-      guestName: "Emma Williams",
-      guestEmail: "emma.w@email.com",
-      roomName: "Premium Suite 402",
-      checkIn: new Date("2024-10-14"),
-      checkOut: new Date("2024-10-17"),
-      status: "checked-in" as const,
-      totalPrice: "680.00",
-    },
-    {
-      id: "4",
-      guestName: "James Brown",
-      guestEmail: "j.brown@email.com",
-      roomName: "Standard Room 108",
-      checkIn: new Date("2024-10-12"),
-      checkOut: new Date("2024-10-15"),
-      status: "checked-out" as const,
-      totalPrice: "240.00",
-    },
-    {
-      id: "5",
-      guestName: "Lisa Anderson",
-      guestEmail: "lisa.a@email.com",
-      roomName: "Deluxe Suite 305",
-      checkIn: new Date("2024-10-20"),
-      checkOut: new Date("2024-10-23"),
-      status: "confirmed" as const,
-      totalPrice: "540.00",
-    },
-    {
-      id: "6",
-      guestName: "Robert Taylor",
-      guestEmail: "r.taylor@email.com",
-      roomName: "Premium Suite 501",
-      checkIn: new Date("2024-10-18"),
-      checkOut: new Date("2024-10-21"),
-      status: "pending" as const,
-      totalPrice: "720.00",
-    },
-  ];
+  });
+
+  const handleEdit = (booking: Booking) => {
+    setEditingBooking(booking);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm("Sigur vrei să ștergi această rezervare?")) {
+      deleteMutation.mutate(id);
+    }
+  };
+
+  const handleAddNew = () => {
+    setEditingBooking(undefined);
+    setDialogOpen(true);
+  };
+
+  const getRoomName = (roomId: string) => {
+    return rooms?.find((r) => r.id === roomId)?.name || "Camera necunoscută";
+  };
+
+  const filteredBookings = bookings?.filter((booking) => {
+    const roomName = getRoomName(booking.roomId);
+    const matchesSearch =
+      searchQuery === "" ||
+      booking.guestName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking.guestEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      roomName.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus = statusFilter === "all" || booking.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="flex-1 overflow-auto">
@@ -82,7 +91,7 @@ export default function Bookings() {
             <h1 className="text-3xl font-bold">Rezervări</h1>
             <p className="text-muted-foreground">Gestionează rezervările hotelului tău</p>
           </div>
-          <Button data-testid="button-new-booking">
+          <Button onClick={handleAddNew} data-testid="button-new-booking">
             <Plus className="h-4 w-4 mr-2" />
             Rezervare Nouă
           </Button>
@@ -94,33 +103,66 @@ export default function Bookings() {
             <Input
               placeholder="Caută rezervări..."
               className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               data-testid="input-search-bookings"
             />
           </div>
-          <Select defaultValue="all">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[160px]" data-testid="select-status-filter">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Toate Statusurile</SelectItem>
-              <SelectItem value="pending">În așteptare</SelectItem>
-              <SelectItem value="confirmed">Confirmat</SelectItem>
+              <SelectItem value="pending">În Așteptare</SelectItem>
+              <SelectItem value="confirmed">Confirmată</SelectItem>
               <SelectItem value="checked-in">Check-in Efectuat</SelectItem>
               <SelectItem value="checked-out">Check-out Efectuat</SelectItem>
+              <SelectItem value="cancelled">Anulată</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" data-testid="button-more-filters">
-            <Filter className="h-4 w-4 mr-2" />
-            Mai Multe Filtre
-          </Button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {mockBookings.map((booking) => (
-            <BookingCard key={booking.id} {...booking} />
-          ))}
-        </div>
+        {bookingsLoading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-[150px] rounded-lg" data-testid={`skeleton-booking-${i}`} />
+            ))}
+          </div>
+        ) : filteredBookings && filteredBookings.length > 0 ? (
+          <div className="space-y-3">
+            {filteredBookings.map((booking) => (
+              <BookingCard
+                key={booking.id}
+                id={booking.id}
+                guestName={booking.guestName}
+                guestEmail={booking.guestEmail}
+                roomName={getRoomName(booking.roomId)}
+                checkIn={new Date(booking.checkIn)}
+                checkOut={new Date(booking.checkOut)}
+                status={booking.status as "pending" | "confirmed" | "checked-in" | "checked-out" | "cancelled"}
+                totalPrice={booking.totalPrice}
+                onEdit={() => handleEdit(booking)}
+                onDelete={() => handleDelete(booking.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12" data-testid="text-no-bookings">
+            <p className="text-muted-foreground">
+              {searchQuery || statusFilter !== "all"
+                ? "Nu s-au găsit rezervări care să corespundă filtrelor"
+                : "Nu există rezervări încă. Creează prima rezervare pentru a începe."}
+            </p>
+          </div>
+        )}
       </div>
+
+      <BookingDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        booking={editingBooking}
+      />
     </div>
   );
 }
