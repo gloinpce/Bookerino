@@ -62,6 +62,9 @@ Preferred communication style: Simple, everyday language.
 - **Reviews:** Guest feedback system (id, guestName, bookingId, rating, comment, response, createdAt)
 - **Integrations:** External platform connections (id, platform, apiKey, apiSecret, propertyId, isActive, lastSyncAt, createdAt, updatedAt)
   - Stores credentials for Booking.com and other external booking platforms
+- **Meals:** Restaurant menu management (id, name, description, category, price, validFrom, validTo, availableDays, consumptionCount, isActive, createdAt, updatedAt)
+  - Tracks meal validity periods, available days (1-7 for Mon-Sun), consumption statistics, and active status
+  - Supports date-based and day-of-week availability rules
 - **Sessions:** Server-side session storage for authentication
 
 **Authentication System:**
@@ -84,6 +87,8 @@ Preferred communication style: Simple, everyday language.
 - `/api/rooms` - CRUD operations for room management
 - `/api/bookings` - CRUD operations for booking management
 - `/api/reviews` - CRUD operations for review management
+- `/api/meals` - CRUD operations for meal/menu management
+- `/api/meals/:id/consume` - Increment meal consumption counter
 - `/api/analytics/advanced` - Advanced analytics with revenue trends, occupancy rate, and booking source distribution
 - `/api/integrations` - CRUD operations for external platform integrations (Booking.com, etc.)
 - All routes protected with authentication middleware
