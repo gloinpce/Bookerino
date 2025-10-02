@@ -42,5 +42,14 @@ task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
 
+[[workflows.workflow]]
+name = "Run Java App"
+author = 48219916
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "mvn clean compile exec:java -Dexec.mainClass=\"com.bookerino.Main\""
+
 [agent]
 integrations = ["javascript_mem_db:1.0.0"]
