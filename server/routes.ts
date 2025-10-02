@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertRoomSchema, insertBookingSchema, insertReviewSchema, updateReviewResponseSchema, insertIntegrationSchema } from "@shared/schema";
+import { insertRoomSchema, insertBookingSchema, insertReviewSchema, updateReviewResponseSchema, insertIntegrationSchema, insertMealSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -200,6 +200,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting integration:", error);
       res.status(500).json({ message: "Failed to delete integration" });
+    }
+  });
+
+  // Meal routes
+  app.get("/api/meals", isAuthenticated, async (req, res) => {
+    try {
+      const meals = await storage.getMeals();
+      res.json(meals);
+    } catch (error) {
+      console.error("Error fetching meals:", error);
+      res.status(500).json({ message: "Failed to fetch meals" });
+    }
+  });
+
+  app.post("/api/meals", isAuthenticated, async (req, res) => {
+    try {
+      const validatedData = insertMealSchema.parse(req.body);
+      const meal = await storage.createMeal(validatedData);
+      res.json(meal);
+    } catch (error) {
+      console.error("Error creating meal:", error);
+      res.status(500).json({ message: "Failed to create meal" });
+    }
+  });
+
+  app.patch("/api/meals/:id", isAuthenticated, async (req, res) => {
+    try {
+      const validatedData = insertMealSchema.partial().parse(req.body);
+      const meal = await storage.updateMeal(req.params.id, validatedData);
+      res.json(meal);
+    } catch (error) {
+      console.error("Error updating meal:", error);
+      res.status(500).json({ message: "Failed to update meal" });
+    }
+  });
+
+  app.delete("/api/meals/:id", isAuthenticated, async (req, res) => {
+    try {
+      await storage.deleteMeal(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting meal:", error);
+      res.status(500).json({ message: "Failed to delete meal" });
+    }
+  });
+
+  app.post("/api/meals/:id/consume", isAuthenticated, async (req, res) => {
+    try {
+      const meal = await storage.incrementMealConsumption(req.params.id);
+      res.json(meal);
+    } catch (error) {
+      console.error("Error incrementing meal consumption:", error);
+      res.status(500).json({ message: "Failed to increment meal consumption" });
     }
   });
 
