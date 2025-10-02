@@ -2,10 +2,17 @@ import { useQuery } from "@tanstack/react-query";
 import { type Room, type Booking, type Review } from "@shared/schema";
 import { StatCard } from "@/components/stat-card";
 import { BookingCard } from "@/components/booking-card";
-import { Calendar, DollarSign, Hotel, Star } from "lucide-react";
+import { Calendar, DollarSign, Hotel, Star, TrendingUp, Percent } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
+import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+
+interface AdvancedAnalytics {
+  revenueTrend: { month: string; revenue: number }[];
+  occupancyRate: number;
+  bookingSources: { name: string; value: number }[];
+}
 
 export default function Dashboard() {
   const { data: rooms, isLoading: roomsLoading } = useQuery<Room[]>({
@@ -20,7 +27,11 @@ export default function Dashboard() {
     queryKey: ["/api/reviews"],
   });
 
-  const isLoading = roomsLoading || bookingsLoading || reviewsLoading;
+  const { data: analytics, isLoading: analyticsLoading } = useQuery<AdvancedAnalytics>({
+    queryKey: ["/api/analytics/advanced"],
+  });
+
+  const isLoading = roomsLoading || bookingsLoading || reviewsLoading || analyticsLoading;
 
   const roomsList = rooms ?? [];
   const bookingsList = bookings ?? [];
@@ -98,6 +109,108 @@ export default function Dashboard() {
               />
             </>
           )}
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Tendință Venituri
+              </CardTitle>
+              <CardDescription>Evoluția veniturilor în ultimele 6 luni</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {analyticsLoading ? (
+                <Skeleton className="h-[300px]" data-testid="skeleton-revenue-chart" />
+              ) : analytics?.revenueTrend && analytics.revenueTrend.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={analytics.revenueTrend}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line 
+                      type="monotone" 
+                      dataKey="revenue" 
+                      stroke="hsl(var(--primary))" 
+                      strokeWidth={2}
+                      name="Venit (RON)"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-16">
+                  Nu există date disponibile
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Percent className="h-5 w-5" />
+                  Rată Ocupare
+                </CardTitle>
+                <CardDescription>Camere ocupate astăzi</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {analyticsLoading ? (
+                  <Skeleton className="h-[80px]" data-testid="skeleton-occupancy" />
+                ) : (
+                  <div className="text-center">
+                    <p className="text-4xl font-bold" data-testid="text-occupancy-rate">
+                      {analytics?.occupancyRate || 0}%
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Ocupare actuală
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Surse Rezervări</CardTitle>
+                <CardDescription>Distribuție pe surse</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {analyticsLoading ? (
+                  <Skeleton className="h-[200px]" data-testid="skeleton-sources-chart" />
+                ) : analytics?.bookingSources && analytics.bookingSources.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={analytics.bookingSources}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={80}
+                        fill="hsl(var(--primary))"
+                        dataKey="value"
+                      >
+                        {analytics.bookingSources.map((entry, index) => (
+                          <Cell 
+                            key={`cell-${index}`} 
+                            fill={`hsl(var(--chart-${(index % 5) + 1}))`} 
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-8">
+                    Nu există rezervări
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
