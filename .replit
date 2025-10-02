@@ -49,3 +49,11 @@ args = "Project"
 
 [agent]
 integrations = ["javascript_mem_db:1.0.0", "javascript_log_in_with_replit:1.0.0", "javascript_database:1.0.0"]
+modules = ["java-graalvm22.3"]
+run = "mvn clean package && java -jar target/bookerino-1.0.0.jar"
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+run = ["sh", "-c", "mvn clean package && java -jar target/bookerino-1.0.0.jar"]
