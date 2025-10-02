@@ -69,6 +69,21 @@ export const integrations = pgTable("integrations", {
   updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
 });
 
+export const meals = pgTable("meals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  validFrom: timestamp("valid_from"),
+  validTo: timestamp("valid_to"),
+  availableDays: text("available_days").notNull().default("1,2,3,4,5,6,7"),
+  consumptionCount: integer("consumption_count").notNull().default(0),
+  isActive: integer("is_active").notNull().default(1),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+});
+
 export const upsertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
   updatedAt: true,
@@ -99,6 +114,13 @@ export const insertIntegrationSchema = createInsertSchema(integrations).omit({
   lastSyncAt: true,
 });
 
+export const insertMealSchema = createInsertSchema(meals).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  consumptionCount: true,
+});
+
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Room = typeof rooms.$inferSelect;
@@ -109,3 +131,5 @@ export type Review = typeof reviews.$inferSelect;
 export type InsertReview = z.infer<typeof insertReviewSchema>;
 export type Integration = typeof integrations.$inferSelect;
 export type InsertIntegration = z.infer<typeof insertIntegrationSchema>;
+export type Meal = typeof meals.$inferSelect;
+export type InsertMeal = z.infer<typeof insertMealSchema>;
