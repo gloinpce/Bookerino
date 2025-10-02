@@ -7,6 +7,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { AppSidebar } from "@/components/app-sidebar";
+import { ScrollToTop } from "@/components/scroll-to-top";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
@@ -76,6 +77,7 @@ function AppContent() {
             <AuthenticatedRouter />
           </main>
         </div>
+        <ScrollToTop />
       </div>
     </SidebarProvider>
   );
