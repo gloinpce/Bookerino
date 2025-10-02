@@ -4,6 +4,7 @@ import {
   bookings,
   reviews,
   integrations,
+  meals,
   type User,
   type UpsertUser,
   type Room,
@@ -14,6 +15,8 @@ import {
   type InsertReview,
   type Integration,
   type InsertIntegration,
+  type Meal,
+  type InsertMeal,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -54,6 +57,14 @@ export interface IStorage {
   createIntegration(integration: InsertIntegration): Promise<Integration>;
   updateIntegration(id: string, integration: Partial<InsertIntegration>): Promise<Integration>;
   deleteIntegration(id: string): Promise<void>;
+
+  // Meal operations
+  getMeals(): Promise<Meal[]>;
+  getMeal(id: string): Promise<Meal | undefined>;
+  createMeal(meal: InsertMeal): Promise<Meal>;
+  updateMeal(id: string, meal: Partial<InsertMeal>): Promise<Meal>;
+  deleteMeal(id: string): Promise<void>;
+  incrementMealConsumption(id: string): Promise<Meal>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -253,6 +264,50 @@ export class DatabaseStorage implements IStorage {
 
   async deleteIntegration(id: string): Promise<void> {
     await db.delete(integrations).where(eq(integrations.id, id));
+  }
+
+  // Meal operations
+  async getMeals(): Promise<Meal[]> {
+    return await db.select().from(meals);
+  }
+
+  async getMeal(id: string): Promise<Meal | undefined> {
+    const [meal] = await db.select().from(meals).where(eq(meals.id, id));
+    return meal;
+  }
+
+  async createMeal(mealData: InsertMeal): Promise<Meal> {
+    const [meal] = await db.insert(meals).values(mealData).returning();
+    return meal;
+  }
+
+  async updateMeal(id: string, mealData: Partial<InsertMeal>): Promise<Meal> {
+    const [meal] = await db
+      .update(meals)
+      .set({ ...mealData, updatedAt: new Date() })
+      .where(eq(meals.id, id))
+      .returning();
+    return meal;
+  }
+
+  async deleteMeal(id: string): Promise<void> {
+    await db.delete(meals).where(eq(meals.id, id));
+  }
+
+  async incrementMealConsumption(id: string): Promise<Meal> {
+    const meal = await this.getMeal(id);
+    if (!meal) {
+      throw new Error("Meal not found");
+    }
+    const [updatedMeal] = await db
+      .update(meals)
+      .set({ 
+        consumptionCount: (meal.consumptionCount || 0) + 1,
+        updatedAt: new Date()
+      })
+      .where(eq(meals.id, id))
+      .returning();
+    return updatedMeal;
   }
 }
 
