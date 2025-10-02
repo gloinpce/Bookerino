@@ -43,6 +43,7 @@ export const bookings = pgTable("bookings", {
   checkOut: timestamp("check_out").notNull(),
   status: text("status").notNull().default("pending"),
   totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
+  source: text("source").notNull().default("direct"),
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
 });
 

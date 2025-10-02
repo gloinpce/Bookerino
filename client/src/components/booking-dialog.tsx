@@ -59,6 +59,7 @@ export function BookingDialog({ open, onOpenChange, booking }: BookingDialogProp
       checkOut: new Date(Date.now() + 24 * 60 * 60 * 1000),
       status: "pending",
       totalPrice: "0",
+      source: "direct",
     },
   });
 
@@ -73,6 +74,7 @@ export function BookingDialog({ open, onOpenChange, booking }: BookingDialogProp
           checkOut: new Date(booking.checkOut),
           status: booking.status,
           totalPrice: booking.totalPrice,
+          source: booking.source || "direct",
         });
       } else {
         form.reset({
@@ -83,6 +85,7 @@ export function BookingDialog({ open, onOpenChange, booking }: BookingDialogProp
           checkOut: new Date(Date.now() + 24 * 60 * 60 * 1000),
           status: "pending",
           totalPrice: "0",
+          source: "direct",
         });
       }
     }
@@ -340,6 +343,36 @@ export function BookingDialog({ open, onOpenChange, booking }: BookingDialogProp
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="source"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sursă Rezervare</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger data-testid="select-booking-source">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="direct">Direct</SelectItem>
+                      <SelectItem value="booking.com">Booking.com</SelectItem>
+                      <SelectItem value="airbnb">Airbnb</SelectItem>
+                      <SelectItem value="expedia">Expedia</SelectItem>
+                      <SelectItem value="phone">Telefon</SelectItem>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="other">Altele</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <DialogFooter>
               <Button

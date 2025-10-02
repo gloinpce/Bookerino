@@ -40,6 +40,9 @@ export interface IStorage {
   createReview(review: InsertReview): Promise<Review>;
   updateReview(id: string, review: Partial<InsertReview>): Promise<Review>;
   deleteReview(id: string): Promise<void>;
+
+  // Analytics operations
+  getAdvancedAnalytics(): Promise<any>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -146,6 +149,66 @@ export class DatabaseStorage implements IStorage {
 
   async deleteReview(id: string): Promise<void> {
     await db.delete(reviews).where(eq(reviews.id, id));
+  }
+
+  // Advanced Analytics operations
+  async getAdvancedAnalytics(): Promise<any> {
+    const allBookings = await db.select().from(bookings);
+    const allRooms = await db.select().from(rooms);
+    
+    // Calculate revenue trend (last 6 months)
+    const now = new Date();
+    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+    
+    const revenueTrend = [];
+    for (let i = 5; i >= 0; i--) {
+      const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthName = monthDate.toLocaleDateString('ro-RO', { month: 'short', year: 'numeric' });
+      const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+      const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0, 23, 59, 59);
+      
+      const monthRevenue = allBookings
+        .filter(b => {
+          const bookingDate = new Date(b.createdAt);
+          return bookingDate >= monthStart && bookingDate <= monthEnd && b.status === 'confirmed';
+        })
+        .reduce((sum, b) => {
+          const price = parseFloat(b.totalPrice || "0");
+          return sum + (Number.isFinite(price) ? price : 0);
+        }, 0);
+      
+      revenueTrend.push({ month: monthName, revenue: parseFloat(monthRevenue.toFixed(2)) });
+    }
+    
+    // Calculate occupancy rate
+    const today = new Date();
+    const occupiedRooms = allBookings.filter(b => {
+      const checkIn = new Date(b.checkIn);
+      const checkOut = new Date(b.checkOut);
+      return checkIn <= today && checkOut >= today && (b.status === 'confirmed' || b.status === 'checked-in');
+    }).length;
+    
+    const occupancyRate = allRooms.length > 0 
+      ? parseFloat(((occupiedRooms / allRooms.length) * 100).toFixed(1))
+      : 0;
+    
+    // Calculate booking sources
+    const sourceCounts = allBookings.reduce((acc: any, b) => {
+      const source = b.source || 'direct';
+      acc[source] = (acc[source] || 0) + 1;
+      return acc;
+    }, {});
+    
+    const bookingSources = Object.entries(sourceCounts).map(([name, value]) => ({
+      name,
+      value
+    }));
+    
+    return {
+      revenueTrend,
+      occupancyRate,
+      bookingSources
+    };
   }
 }
 

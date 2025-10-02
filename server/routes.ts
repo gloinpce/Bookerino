@@ -149,6 +149,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Advanced Analytics routes
+  app.get("/api/analytics/advanced", isAuthenticated, async (req, res) => {
+    try {
+      const analytics = await storage.getAdvancedAnalytics();
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching advanced analytics:", error);
+      res.status(500).json({ message: "Failed to fetch advanced analytics" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
