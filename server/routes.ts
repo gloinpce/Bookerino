@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertRoomSchema, insertBookingSchema, insertReviewSchema, updateReviewResponseSchema } from "@shared/schema";
+import { insertRoomSchema, insertBookingSchema, insertReviewSchema, updateReviewResponseSchema, insertIntegrationSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -157,6 +157,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching advanced analytics:", error);
       res.status(500).json({ message: "Failed to fetch advanced analytics" });
+    }
+  });
+
+  // Integration routes
+  app.get("/api/integrations", isAuthenticated, async (req, res) => {
+    try {
+      const integrations = await storage.getIntegrations();
+      res.json(integrations);
+    } catch (error) {
+      console.error("Error fetching integrations:", error);
+      res.status(500).json({ message: "Failed to fetch integrations" });
+    }
+  });
+
+  app.post("/api/integrations", isAuthenticated, async (req, res) => {
+    try {
+      const validatedData = insertIntegrationSchema.parse(req.body);
+      const integration = await storage.createIntegration(validatedData);
+      res.json(integration);
+    } catch (error) {
+      console.error("Error creating integration:", error);
+      res.status(500).json({ message: "Failed to create integration" });
+    }
+  });
+
+  app.patch("/api/integrations/:id", isAuthenticated, async (req, res) => {
+    try {
+      const validatedData = insertIntegrationSchema.partial().parse(req.body);
+      const integration = await storage.updateIntegration(req.params.id, validatedData);
+      res.json(integration);
+    } catch (error) {
+      console.error("Error updating integration:", error);
+      res.status(500).json({ message: "Failed to update integration" });
+    }
+  });
+
+  app.delete("/api/integrations/:id", isAuthenticated, async (req, res) => {
+    try {
+      await storage.deleteIntegration(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting integration:", error);
+      res.status(500).json({ message: "Failed to delete integration" });
     }
   });
 
