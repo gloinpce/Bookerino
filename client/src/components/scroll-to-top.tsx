@@ -11,25 +11,45 @@ export function ScrollToTop() {
     const toggleVisibility = () => {
       const scrollableElement = document.querySelector('[data-scroll-container]');
       if (scrollableElement) {
-        setIsVisible(scrollableElement.scrollTop > 300);
+        const shouldShow = scrollableElement.scrollTop > 300;
+        setIsVisible(shouldShow);
       }
     };
 
-    // Wait a bit for the DOM to be ready after route change
-    const timeoutId = setTimeout(() => {
-      const scrollableElement = document.querySelector('[data-scroll-container]');
+    let scrollableElement: Element | null = null;
+    let pollIntervalId: NodeJS.Timeout | null = null;
+
+    // Try to find and attach listener with retries
+    let attemptCount = 0;
+    const maxAttempts = 5;
+    const attemptInterval = 50;
+
+    const attachListener = () => {
+      scrollableElement = document.querySelector('[data-scroll-container]');
       if (scrollableElement) {
         scrollableElement.addEventListener('scroll', toggleVisibility);
-        // Check initial scroll position
-        toggleVisibility();
+        toggleVisibility(); // Check initial position
+        
+        // Also poll every 100ms as a fallback for programmatic scrolls
+        pollIntervalId = setInterval(toggleVisibility, 100);
+        return true;
       }
-    }, 100);
+      return false;
+    };
+
+    const findIntervalId = setInterval(() => {
+      attemptCount++;
+      if (attachListener() || attemptCount >= maxAttempts) {
+        clearInterval(findIntervalId);
+      }
+    }, attemptInterval);
 
     return () => {
-      clearTimeout(timeoutId);
-      const scrollableElement = document.querySelector('[data-scroll-container]');
-      if (scrollableElement) {
-        scrollableElement.removeEventListener('scroll', toggleVisibility);
+      clearInterval(findIntervalId);
+      if (pollIntervalId) clearInterval(pollIntervalId);
+      const el = document.querySelector('[data-scroll-container]');
+      if (el) {
+        el.removeEventListener('scroll', toggleVisibility);
       }
     };
   }, [location]);
@@ -44,17 +64,16 @@ export function ScrollToTop() {
     }
   };
 
-  if (!isVisible) {
-    return null;
-  }
-
   return (
     <Button
       data-testid="button-scroll-to-top"
       size="icon"
-      className="fixed bottom-6 right-6 z-50 shadow-lg"
+      className={`fixed bottom-6 right-6 z-50 shadow-lg transition-opacity duration-200 ${
+        isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      }`}
       onClick={scrollToTop}
       aria-label="Scroll to top"
+      aria-hidden={!isVisible}
     >
       <ArrowUp className="h-5 w-5" />
     </Button>

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Hotel, Calendar, Star, BarChart3, Shield, Zap } from "lucide-react";
+import { Calendar, Star, BarChart3, Shield, Zap } from "lucide-react";
 
 export default function Landing() {
   const handleLogin = () => {
@@ -13,7 +13,11 @@ export default function Landing() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <Hotel className="h-5 w-5" />
+              <img
+                src="attached_assets/logo bokkerino_1759435973381.png"
+                alt="Bookerino Logo"
+                className="h-full w-full object-contain"
+              />
             </div>
             <span className="text-xl font-bold">BOOKERINO</span>
           </div>
@@ -69,7 +73,11 @@ export default function Landing() {
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 mb-4">
-                    <Hotel className="h-6 w-6 text-primary" />
+                    <img
+                      src="attached_assets/logo bokkerino_1759435973381.png"
+                      alt="Bookerino Logo"
+                      className="h-full w-full object-contain"
+                    />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Inventarul Camerelor</h3>
                   <p className="text-muted-foreground">

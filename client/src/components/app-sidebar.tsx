@@ -1,4 +1,4 @@
-import { LayoutDashboard, Calendar, Star, Hotel, BarChart3, Settings } from "lucide-react";
+import { LayoutDashboard, Calendar, Star, BarChart3, Settings } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import {
   Sidebar,
@@ -34,7 +34,7 @@ const menuItems = [
   {
     title: "Camere",
     url: "/rooms",
-    icon: Hotel,
+    icon: () => <span>🏨</span>,
     testId: "link-rooms",
   },
   {
@@ -58,9 +58,11 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <Hotel className="h-5 w-5" />
-          </div>
+          <img 
+            src="/attached_assets/logo bokkerino_1759435973381.png" 
+            alt="BOOKERINO Logo" 
+            className="h-8 w-8 rounded-md object-contain"
+          />
           <span className="text-lg font-semibold">BOOKERINO</span>
         </div>
       </SidebarHeader>

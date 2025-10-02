@@ -65,21 +65,23 @@ function AppContent() {
   } as React.CSSProperties;
 
   return (
-    <SidebarProvider style={sidebarStyle}>
-      <div className="flex h-screen w-full">
-        <AppSidebar />
-        <div className="flex flex-col flex-1">
-          <header className="flex items-center justify-between p-3 border-b">
-            <SidebarTrigger data-testid="button-sidebar-toggle" />
-            <ThemeToggle />
-          </header>
-          <main className="flex-1 overflow-hidden">
-            <AuthenticatedRouter />
-          </main>
+    <>
+      <SidebarProvider style={sidebarStyle}>
+        <div className="flex h-screen w-full">
+          <AppSidebar />
+          <div className="flex flex-col flex-1">
+            <header className="flex items-center justify-between p-3 border-b">
+              <SidebarTrigger data-testid="button-sidebar-toggle" />
+              <ThemeToggle />
+            </header>
+            <main className="flex-1 overflow-hidden">
+              <AuthenticatedRouter />
+            </main>
+          </div>
         </div>
-        <ScrollToTop />
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
+      <ScrollToTop />
+    </>
   );
 }
 
