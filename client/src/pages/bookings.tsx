@@ -110,7 +110,7 @@ export default function Bookings() {
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[160px]" data-testid="select-status-filter">
-              <SelectValue placeholder="Filtrare status" />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Toate Statusurile</SelectItem>
