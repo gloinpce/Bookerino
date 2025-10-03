@@ -4,7 +4,6 @@ import { type Review } from "@shared/schema";
 import { ReviewCard } from "@/components/review-card";
 import { ReviewResponseDialog } from "@/components/review-response-dialog";
 import { Input } from "@/components/ui/input";
-import { Search, Star } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -81,7 +80,6 @@ export default function Reviews() {
             <p className="text-muted-foreground">Monitorizează și răspunde la feedback-ul oaspeților</p>
           </div>
           <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-lg border">
-            <Star className="h-5 w-5 fill-chart-4 text-chart-4" />
             <span className="text-2xl font-bold" data-testid="text-average-rating">{averageRating}</span>
             <span className="text-sm text-muted-foreground">( {reviews?.length || 0} recenzii )</span>
           </div>
@@ -89,10 +87,8 @@ export default function Reviews() {
 
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Caută recenzii..."
-              className="pl-9"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               data-testid="input-search-reviews"

@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Star, BarChart3, Shield, Zap } from "lucide-react";
 
 export default function Landing() {
   const handleLogin = () => {
@@ -55,9 +54,6 @@ export default function Landing() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Card>
                 <CardContent className="pt-6">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 mb-4">
-                    <Calendar className="h-6 w-6 text-primary" />
-                  </div>
                   <h3 className="text-xl font-semibold mb-2">Gestionarea Rezervărilor</h3>
                   <p className="text-muted-foreground">
                     Urmărește și gestionează toate rezervările într-un singur loc cu actualizări în timp real.
@@ -67,9 +63,6 @@ export default function Landing() {
 
               <Card>
                 <CardContent className="pt-6">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 mb-4">
-                    <Star className="h-6 w-6 text-primary" />
-                  </div>
                   <h3 className="text-xl font-semibold mb-2">Gestionarea Recenziilor</h3>
                   <p className="text-muted-foreground">
                     Monitorizează și răspunde la recenziile oaspeților pentru a-ți menține reputația.
@@ -95,9 +88,6 @@ export default function Landing() {
 
               <Card>
                 <CardContent className="pt-6">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 mb-4">
-                    <BarChart3 className="h-6 w-6 text-primary" />
-                  </div>
                   <h3 className="text-xl font-semibold mb-2">Panou de Analiză</h3>
                   <p className="text-muted-foreground">
                     Ia decizii bazate pe date cu analize și rapoarte complete.
@@ -107,9 +97,6 @@ export default function Landing() {
 
               <Card>
                 <CardContent className="pt-6">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 mb-4">
-                    <Zap className="h-6 w-6 text-primary" />
-                  </div>
                   <h3 className="text-xl font-semibold mb-2">Automatizare</h3>
                   <p className="text-muted-foreground">
                     Automatizează sarcinile repetitive și concentrează-te pe oferirea de experiențe excelente oaspeților.
@@ -119,9 +106,6 @@ export default function Landing() {
 
               <Card>
                 <CardContent className="pt-6">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 mb-4">
-                    <Shield className="h-6 w-6 text-primary" />
-                  </div>
                   <h3 className="text-xl font-semibold mb-2">Sigur și Fiabil</h3>
                   <p className="text-muted-foreground">
                     Datele tale sunt protejate cu măsuri de securitate de nivel enterprise.

@@ -1,4 +1,3 @@
-import { LayoutDashboard, Calendar, Star, BarChart3, Settings, UtensilsCrossed } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import {
   Sidebar,
@@ -16,43 +15,36 @@ const menuItems = [
   {
     title: "Panou de Control",
     url: "/",
-    icon: LayoutDashboard,
     testId: "link-dashboard",
   },
   {
     title: "Rezervări",
     url: "/bookings",
-    icon: Calendar,
     testId: "link-bookings",
   },
   {
     title: "Recenzii",
     url: "/reviews",
-    icon: Star,
     testId: "link-reviews",
   },
   {
     title: "Camere",
     url: "/rooms",
-    icon: () => <span>🏨</span>,
     testId: "link-rooms",
   },
   {
     title: "Mese & Meniuri",
     url: "/meals",
-    icon: UtensilsCrossed,
     testId: "link-meals",
   },
   {
     title: "Analize",
     url: "/analytics",
-    icon: BarChart3,
     testId: "link-analytics",
   },
   {
     title: "Setări",
     url: "/settings",
-    icon: Settings,
     testId: "link-settings",
   },
 ];

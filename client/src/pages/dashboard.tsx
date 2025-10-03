@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { type Room, type Booking, type Review } from "@shared/schema";
 import { StatCard } from "@/components/stat-card";
 import { BookingCard } from "@/components/booking-card";
-import { Calendar, DollarSign, Hotel, Star, TrendingUp, Percent } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
@@ -87,25 +86,21 @@ export default function Dashboard() {
                 title="Total Rezervări"
                 value={stats.totalBookings}
                 change={`${stats.totalBookings} rezervări active`}
-                icon={Calendar}
               />
               <StatCard
                 title="Camere Disponibile"
                 value={stats.availableRooms}
                 change={`Din ${stats.totalRooms} camere totale`}
-                icon={Hotel}
               />
               <StatCard
                 title="Venit Total"
                 value={`${stats.revenue} RON`}
                 change="Din toate rezervările"
-                icon={DollarSign}
               />
               <StatCard
                 title="Rating Mediu"
                 value={stats.averageRating}
                 change={`Pe baza a ${stats.totalReviews} recenzii`}
-                icon={Star}
               />
             </>
           )}
@@ -114,8 +109,7 @@ export default function Dashboard() {
         <div className="grid gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
+              <CardTitle>
                 Tendință Venituri
               </CardTitle>
               <CardDescription>Evoluția veniturilor în ultimele 6 luni</CardDescription>
@@ -150,8 +144,7 @@ export default function Dashboard() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Percent className="h-5 w-5" />
+                <CardTitle>
                   Rată Ocupare
                 </CardTitle>
                 <CardDescription>Camere ocupate astăzi</CardDescription>
@@ -274,16 +267,9 @@ export default function Dashboard() {
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">{review.guestName}</p>
                         <div className="flex items-center gap-1 mt-1">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`h-3 w-3 ${
-                                i < (review.rating || 0)
-                                  ? "fill-chart-4 text-chart-4"
-                                  : "fill-muted text-muted"
-                              }`}
-                            />
-                          ))}
+                          <span className="text-sm font-semibold">
+                            {review.rating || 0}/5
+                          </span>
                         </div>
                       </div>
                       <p className="text-sm text-muted-foreground">

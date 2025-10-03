@@ -1,13 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Star, MoreVertical, MessageSquare, Trash2 } from "lucide-react";
 import { format } from "date-fns";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 interface ReviewCardProps {
   id: string;
@@ -42,38 +35,16 @@ export function ReviewCard({
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1" data-testid={`rating-${id}`}>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-4 w-4 ${
-                    i < rating
-                      ? "fill-chart-4 text-chart-4"
-                      : "fill-muted text-muted"
-                  }`}
-                />
-              ))}
+              <span className="text-sm font-semibold">{rating}/5</span>
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="ghost" data-testid={`button-menu-${id}`}>
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={onRespond} data-testid={`menu-respond-${id}`}>
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  {response ? "Editează răspunsul" : "Răspunde"}
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={onDelete} 
-                  className="text-destructive"
-                  data-testid={`menu-delete-${id}`}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Șterge
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex gap-1">
+              <Button size="sm" variant="ghost" onClick={onRespond} data-testid={`button-respond-${id}`}>
+                {response ? "Editează răspunsul" : "Răspunde"}
+              </Button>
+              <Button size="sm" variant="ghost" onClick={onDelete} data-testid={`button-delete-${id}`} className="text-destructive">
+                Șterge
+              </Button>
+            </div>
           </div>
         </div>
       </CardHeader>

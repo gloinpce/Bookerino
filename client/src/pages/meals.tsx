@@ -4,7 +4,6 @@ import { type Meal } from "@shared/schema";
 import { MealDialog } from "@/components/meal-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, Trash2, Edit, ChevronUp } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -118,17 +117,14 @@ export default function Meals() {
             <p className="text-muted-foreground">Gestionează meniurile restaurantului și valabilitatea acestora</p>
           </div>
           <Button onClick={handleAddNew} data-testid="button-add-meal">
-            <Plus className="h-4 w-4 mr-2" />
             Adaugă Masă
           </Button>
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Caută mese..."
-              className="pl-9"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               data-testid="input-search-meals"
@@ -183,20 +179,20 @@ export default function Meals() {
                   </div>
                   <div className="flex gap-1">
                     <Button
-                      size="icon"
+                      size="sm"
                       variant="ghost"
                       onClick={() => handleEdit(meal)}
                       data-testid={`button-edit-meal-${meal.id}`}
                     >
-                      <Edit className="h-4 w-4" />
+                      Editează
                     </Button>
                     <Button
-                      size="icon"
+                      size="sm"
                       variant="ghost"
                       onClick={() => handleDelete(meal.id)}
                       data-testid={`button-delete-meal-${meal.id}`}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      Șterge
                     </Button>
                   </div>
                 </CardHeader>
@@ -226,7 +222,6 @@ export default function Meals() {
                     disabled={!isAvailableNow(meal)}
                     data-testid={`button-consume-meal-${meal.id}`}
                   >
-                    <ChevronUp className="h-4 w-4 mr-2" />
                     Înregistrează Consum
                   </Button>
                 </CardFooter>
@@ -238,7 +233,6 @@ export default function Meals() {
             <CardContent className="flex flex-col items-center justify-center py-12">
               <p className="text-muted-foreground">Nu există mese disponibile</p>
               <Button onClick={handleAddNew} className="mt-4" data-testid="button-add-first-meal">
-                <Plus className="h-4 w-4 mr-2" />
                 Adaugă Prima Masă
               </Button>
             </CardContent>

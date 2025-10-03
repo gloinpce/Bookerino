@@ -1,14 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, DollarSign, Edit, Trash2 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
 
 interface RoomCardProps {
   id: string;
@@ -41,37 +33,22 @@ export function RoomCard({ id, name, type, capacity, price, status, onEdit, onDe
           <Badge variant={statusInfo.variant} data-testid={`badge-status-${id}`}>
             {statusInfo.label}
           </Badge>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost" data-testid={`button-menu-${id}`}>
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={onEdit} data-testid={`menu-edit-${id}`}>
-                <Edit className="h-4 w-4 mr-2" />
-                Editează
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={onDelete} 
-                className="text-destructive"
-                data-testid={`menu-delete-${id}`}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Șterge
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex gap-1">
+            <Button size="sm" variant="ghost" onClick={onEdit} data-testid={`button-edit-${id}`}>
+              Editează
+            </Button>
+            <Button size="sm" variant="ghost" onClick={onDelete} data-testid={`button-delete-${id}`} className="text-destructive">
+              Șterge
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2 text-muted-foreground">
-            <Users className="h-4 w-4" />
             <span>{capacity} Oaspeți</span>
           </div>
           <div className="flex items-center gap-1 font-semibold" data-testid={`text-price-${id}`}>
-            <DollarSign className="h-4 w-4" />
             <span>{price}/noapte</span>
           </div>
         </div>

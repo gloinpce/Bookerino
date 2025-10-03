@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Settings as SettingsIcon, Plug, Key, Save, Trash2 } from "lucide-react";
 import type { Integration } from "@shared/schema";
 
 export default function Settings() {
@@ -155,7 +154,6 @@ export default function Settings() {
     <div className="container max-w-7xl mx-auto p-6">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <SettingsIcon className="w-8 h-8 text-primary" />
             <h1 className="text-3xl font-bold" data-testid="text-page-title">Settings</h1>
           </div>
           <p className="text-muted-foreground" data-testid="text-page-description">
@@ -166,11 +164,9 @@ export default function Settings() {
         <Tabs defaultValue="integrations" className="space-y-6">
           <TabsList data-testid="tabs-settings">
             <TabsTrigger value="integrations" data-testid="tab-integrations">
-              <Plug className="w-4 h-4 mr-2" />
               Integrations
             </TabsTrigger>
             <TabsTrigger value="general" data-testid="tab-general">
-              <SettingsIcon className="w-4 h-4 mr-2" />
               General
             </TabsTrigger>
           </TabsList>
@@ -199,7 +195,6 @@ export default function Settings() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="apiKey" data-testid="label-api-key">
-                    <Key className="w-4 h-4 inline mr-2" />
                     API Key
                   </Label>
                   <Input
@@ -263,7 +258,6 @@ export default function Settings() {
                   onClick={handleSave}
                   disabled={saveIntegrationMutation.isPending}
                 >
-                  <Save className="w-4 h-4 mr-2" />
                   {saveIntegrationMutation.isPending ? "Saving..." : "Save Integration"}
                 </Button>
                 
@@ -274,7 +268,6 @@ export default function Settings() {
                     onClick={() => deleteIntegrationMutation.mutate({ id: bookingComIntegration.id, platform: "booking.com" })}
                     disabled={deleteIntegrationMutation.isPending}
                   >
-                    <Trash2 className="w-4 h-4 mr-2" />
                     {deleteIntegrationMutation.isPending ? "Se șterge..." : "Șterge integrarea"}
                   </Button>
                 )}
@@ -312,7 +305,6 @@ export default function Settings() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="googleAdsDeveloperToken" data-testid="label-googleads-developer-token">
-                    <Key className="w-4 h-4 inline mr-2" />
                     Developer Token
                   </Label>
                   <Input
@@ -379,7 +371,6 @@ export default function Settings() {
                   onClick={handleSaveGoogleAds}
                   disabled={saveIntegrationMutation.isPending}
                 >
-                  <Save className="w-4 h-4 mr-2" />
                   {saveIntegrationMutation.isPending ? "Se salvează..." : "Salvează integrarea"}
                 </Button>
                 
@@ -390,7 +381,6 @@ export default function Settings() {
                     onClick={() => deleteIntegrationMutation.mutate({ id: googleAdsIntegration.id, platform: "google-ads" })}
                     disabled={deleteIntegrationMutation.isPending}
                   >
-                    <Trash2 className="w-4 h-4 mr-2" />
                     {deleteIntegrationMutation.isPending ? "Se șterge..." : "Șterge integrarea"}
                   </Button>
                 )}

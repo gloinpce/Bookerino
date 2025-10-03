@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, User, MoreVertical, Edit, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import {
   DropdownMenu,
@@ -57,35 +56,20 @@ export function BookingCard({
           </div>
           <p className="text-sm text-muted-foreground truncate">{roomName}</p>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" variant="ghost" data-testid={`button-menu-${id}`}>
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={onEdit} data-testid={`menu-edit-${id}`}>
-              <Edit className="h-4 w-4 mr-2" />
-              Editează
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={onDelete} 
-              className="text-destructive"
-              data-testid={`menu-delete-${id}`}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Șterge
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex gap-1">
+          <Button size="sm" variant="ghost" onClick={onEdit} data-testid={`button-edit-${id}`}>
+            Editează
+          </Button>
+          <Button size="sm" variant="ghost" onClick={onDelete} data-testid={`button-delete-${id}`} className="text-destructive">
+            Șterge
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center gap-2 text-sm">
-          <User className="h-4 w-4 text-muted-foreground" />
           <span className="text-muted-foreground truncate">{guestEmail}</span>
         </div>
         <div className="flex items-center gap-2 text-sm">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
           <span className="text-muted-foreground">
             {format(checkIn, "MMM d")} - {format(checkOut, "MMM d, yyyy")}
           </span>

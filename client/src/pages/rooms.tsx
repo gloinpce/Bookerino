@@ -5,7 +5,6 @@ import { RoomCard } from "@/components/room-card";
 import { RoomDialog } from "@/components/room-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -86,17 +85,14 @@ export default function Rooms() {
             <p className="text-muted-foreground">Gestionează inventarul și disponibilitatea camerelor</p>
           </div>
           <Button onClick={handleAddNew} data-testid="button-add-room">
-            <Plus className="h-4 w-4 mr-2" />
             Adaugă Cameră
           </Button>
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Caută camere..."
-              className="pl-9"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               data-testid="input-search-rooms"

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ArrowUp } from "lucide-react";
 
 export function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
@@ -54,7 +53,6 @@ export function ScrollToTop() {
   return (
     <Button
       data-testid="button-scroll-to-top"
-      size="icon"
       className={`fixed bottom-6 right-6 z-50 shadow-lg transition-opacity duration-200 ${
         isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
@@ -62,7 +60,7 @@ export function ScrollToTop() {
       aria-label="Scroll to top"
       aria-hidden={!isVisible}
     >
-      <ArrowUp className="h-5 w-5" />
+      ↑
     </Button>
   );
 }

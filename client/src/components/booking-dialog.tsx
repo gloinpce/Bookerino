@@ -32,7 +32,6 @@ import {
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 
 interface BookingDialogProps {
@@ -241,7 +240,6 @@ export function BookingDialog({ open, onOpenChange, booking }: BookingDialogProp
                             className="justify-start text-left font-normal"
                             data-testid="button-check-in"
                           >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
                             {field.value ? format(field.value, "PPP") : "Selectează data"}
                           </Button>
                         </FormControl>
@@ -274,7 +272,6 @@ export function BookingDialog({ open, onOpenChange, booking }: BookingDialogProp
                             className="justify-start text-left font-normal"
                             data-testid="button-check-out"
                           >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
                             {field.value ? format(field.value, "PPP") : "Selectează data"}
                           </Button>
                         </FormControl>
