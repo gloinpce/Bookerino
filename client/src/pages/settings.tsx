@@ -152,32 +152,33 @@ export default function Settings() {
   };
 
   return (
-    <div className="container max-w-7xl mx-auto p-6">
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <SettingsIcon className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold" data-testid="text-page-title">Settings</h1>
+    <div className="flex-1 overflow-auto" data-scroll-container>
+      <div className="container max-w-7xl mx-auto p-6">
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <SettingsIcon className="w-8 h-8 text-primary" />
+            <h1 className="text-3xl font-bold" data-testid="text-page-title">Settings</h1>
+          </div>
+          <p className="text-muted-foreground" data-testid="text-page-description">
+            Manage your hotel settings and external integrations
+          </p>
         </div>
-        <p className="text-muted-foreground" data-testid="text-page-description">
-          Manage your hotel settings and external integrations
-        </p>
-      </div>
 
-      <Tabs defaultValue="integrations" className="space-y-6">
-        <TabsList data-testid="tabs-settings">
-          <TabsTrigger value="integrations" data-testid="tab-integrations">
-            <Plug className="w-4 h-4 mr-2" />
-            Integrations
-          </TabsTrigger>
-          <TabsTrigger value="general" data-testid="tab-general">
-            <SettingsIcon className="w-4 h-4 mr-2" />
-            General
-          </TabsTrigger>
-        </TabsList>
+        <Tabs defaultValue="integrations" className="space-y-6">
+          <TabsList data-testid="tabs-settings">
+            <TabsTrigger value="integrations" data-testid="tab-integrations">
+              <Plug className="w-4 h-4 mr-2" />
+              Integrations
+            </TabsTrigger>
+            <TabsTrigger value="general" data-testid="tab-general">
+              <SettingsIcon className="w-4 h-4 mr-2" />
+              General
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="integrations" className="space-y-6">
-          <Card>
-            <CardHeader>
+          <TabsContent value="integrations" className="space-y-6">
+            <Card>
+              <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-xl" data-testid="text-integration-title">Booking.com Integration</CardTitle>
@@ -422,7 +423,8 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
+        </Tabs>
+      </div>
     </div>
   );
 }
