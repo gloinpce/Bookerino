@@ -96,7 +96,7 @@ export default function Meals() {
     return availableDays.includes(dayOfWeek) && meal.isActive === 1;
   };
 
-  const categories = Array.from(new Set(meals?.map(m => m.category) || []));
+  const categories = Array.from(new Set(meals?.map(m => m.category).filter(c => c && c.trim() !== '') || []));
 
   const filteredMeals = meals?.filter((meal) => {
     const matchesSearch =
