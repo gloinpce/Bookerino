@@ -100,7 +100,7 @@ export default function Reviews() {
           </div>
           <Select value={ratingFilter} onValueChange={setRatingFilter}>
             <SelectTrigger className="w-[160px]" data-testid="select-rating-filter">
-              <SelectValue />
+              <SelectValue placeholder="Selectează rating" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Toate ratingurile</SelectItem>
