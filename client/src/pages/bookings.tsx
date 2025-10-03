@@ -21,7 +21,7 @@ export default function Bookings() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBooking, setEditingBooking] = useState<Booking | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const { toast } = useToast();
 
   const { data: bookings, isLoading: bookingsLoading } = useQuery<Booking[]>({

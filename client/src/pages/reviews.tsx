@@ -20,7 +20,7 @@ export default function Reviews() {
   const [responseDialogOpen, setResponseDialogOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState("");
-  const [ratingFilter, setRatingFilter] = useState("all");
+  const [ratingFilter, setRatingFilter] = useState<string>("all");
   const { toast } = useToast();
 
   const { data: reviews, isLoading } = useQuery<Review[]>({
