@@ -65,9 +65,13 @@ export function AppSidebar() {
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2">
           <img 
-            src="attached_assets/logo bokkerino_1759435973381.png" 
+            src="/attached_assets/logo bokkerino_1759435973381.png" 
             alt="BOOKERINO Logo" 
             className="h-8 w-8 rounded-md object-contain"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
           />
           <span className="text-lg font-semibold">BOOKERINO</span>
         </div>
