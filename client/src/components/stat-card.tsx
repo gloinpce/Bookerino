@@ -10,7 +10,7 @@ interface StatCardProps {
 
 export function StatCard({ title, value, change, trend }: StatCardProps) {
   return (
-    <Card>
+    <Card className="bg-card-gradient border-primary/20 hover:border-primary/40 transition-all hover:shadow-lg">
       <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
         <h3 className="text-sm font-medium text-muted-foreground">{title}</h3>
       </CardHeader>

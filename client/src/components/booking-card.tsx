@@ -45,7 +45,7 @@ export function BookingCard({
   const statusInfo = statusConfig[status];
 
   return (
-    <Card className="hover-elevate" data-testid={`card-booking-${id}`}>
+    <Card className="hover-elevate bg-card-gradient border-primary/20 hover:border-primary/40 transition-all" data-testid={`card-booking-${id}`}>
       <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0 pb-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">

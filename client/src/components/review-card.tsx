@@ -24,7 +24,7 @@ export function ReviewCard({
   onDelete,
 }: ReviewCardProps) {
   return (
-    <Card data-testid={`card-review-${id}`}>
+    <Card className="bg-card-gradient border-primary/20 hover:border-primary/40 transition-all hover:shadow-lg" data-testid={`card-review-${id}`}>
       <CardHeader className="space-y-2">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">

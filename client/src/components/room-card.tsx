@@ -23,7 +23,7 @@ export function RoomCard({ id, name, type, capacity, price, status, onEdit, onDe
   const statusInfo = statusConfig[status];
 
   return (
-    <Card className="hover-elevate" data-testid={`card-room-${id}`}>
+    <Card className="hover-elevate bg-card-gradient border-primary/20 hover:border-primary/40 transition-all" data-testid={`card-room-${id}`}>
       <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0 pb-3">
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold" data-testid={`text-room-name-${id}`}>{name}</h3>
