@@ -152,8 +152,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="flex-1 overflow-auto" data-scroll-container>
-      <div className="container max-w-7xl mx-auto p-6">
+    <div className="container max-w-7xl mx-auto p-6">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <SettingsIcon className="w-8 h-8 text-primary" />
@@ -424,7 +423,6 @@ export default function Settings() {
           </Card>
         </TabsContent>
         </Tabs>
-      </div>
     </div>
   );
 }
