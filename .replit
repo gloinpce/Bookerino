@@ -1,54 +1,91 @@
+# BOOKERINO Hotel Management System - Replit Configuration
+# This file configures how your project runs on Replit platform
+
+# =============================================================================
+# PROJECT MODULES & RUNTIME
+# =============================================================================
+# Required modules for the BOOKERINO application
 modules = ["nodejs-20", "web", "postgresql-16"]
+
+# Default command to run when starting the project
 run = "npm run dev"
+
+# Files and folders to hide from the file explorer
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
+# =============================================================================
+# SYSTEM CONFIGURATION
+# =============================================================================
 [nix]
+# Nix package manager channel version
 channel = "stable-24_05"
 
+# =============================================================================
+# DEPLOYMENT SETTINGS
+# =============================================================================
 [deployment]
+# Auto-scaling deployment target for production
 deploymentTarget = "autoscale"
+
+# Build command for production deployment
 build = ["npm", "run", "build"]
+
+# Run command for production deployment
 run = ["npm", "run", "start"]
 
+# =============================================================================
+# PORT CONFIGURATION
+# =============================================================================
+# Main application port (web server)
 [[ports]]
 localPort = 5000
 externalPort = 80
 
+# Development port 1 (for testing different configurations)
 [[ports]]
 localPort = 34399
 externalPort = 3000
 
+# Development port 2 (for additional services)
 [[ports]]
 localPort = 34883
 externalPort = 3001
 
-[[ports]]
-localPort = 38651
-externalPort = 3003
-
+# Development port 3 (for API testing)
 [[ports]]
 localPort = 41429
 externalPort = 3002
 
+# Development port 4 (for frontend development)
 [[ports]]
 localPort = 45749
 externalPort = 4200
 
+# =============================================================================
+# ENVIRONMENT VARIABLES
+# =============================================================================
 [env]
+# Default port for the application
 PORT = "5000"
 
+# =============================================================================
+# WORKFLOW AUTOMATION
+# =============================================================================
 [workflows]
+# Text displayed on the main run button
 runButton = "Start Web App"
 
+# Workflow 1: Main Project Workflow (runs multiple tasks in parallel)
 [[workflows.workflow]]
 name = "Project"
-mode = "parallel"
+mode = "parallel"  # Run tasks simultaneously for faster startup
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Start application"
 
+# Workflow 2: Application Startup (waits for port to be ready)
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -56,17 +93,19 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
-waitForPort = 5000
+waitForPort = 5000  # Wait until port 5000 is available
 
+# Workflow 3: Java Application Runner (for backend services)
 [[workflows.workflow]]
 name = "Run Java App"
 author = 48219916
-mode = "sequential"
+mode = "sequential"  # Run tasks one after another
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "mvn clean compile exec:java -Dexec.mainClass=\"com.bookerino.Main\""
 
+# Workflow 4: Web Application Startup (alternative startup method)
 [[workflows.workflow]]
 name = "Start Web App"
 author = 48219916
@@ -76,5 +115,9 @@ mode = "sequential"
 task = "shell.exec"
 args = "npm run dev"
 
+# =============================================================================
+# AI AGENT INTEGRATIONS
+# =============================================================================
 [agent]
+# AI agent integrations for enhanced development experience
 integrations = ["javascript_mem_db:1.0.0"]
