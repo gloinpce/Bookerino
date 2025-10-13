@@ -1,3 +1,4 @@
+-- SQLBook: Code
 -- Create database (run in CockroachDB SQL shell)
 CREATE DATABASE bookerino;
 
