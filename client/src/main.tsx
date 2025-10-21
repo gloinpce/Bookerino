@@ -146,7 +146,6 @@ async function main() {
     console.log("Client folder not found, skipping client start.");
   }
 
-  // 4) Wait for client and open browser
   try {
     console.log(`Waiting up to ${TIMEOUT_SECONDS}s for client at http://${CLIENT_HOST}:${CLIENT_PORT} ...`);
     await waitForPort(CLIENT_HOST, CLIENT_PORT, TIMEOUT_SECONDS);
