@@ -24,6 +24,12 @@
   to = "/index.html"
   status = 200
 
-# Note: This is a Vite + React project, NOT Next.js
-# IMPORTANT: You MUST disable Next.js plugins in Netlify Dashboard:
-# Site settings → Build & deploy → Build plugins → Remove all Next.js plugins
+# CRITICAL: This is a Vite + React project, NOT Next.js
+# You MUST disable Next.js plugins in Netlify Dashboard:
+# 1. Go to: Site settings → Build & deploy → Build plugins
+# 2. DELETE/REMOVE these plugins:
+#    - @netlify/plugin-nextjs (MUST REMOVE)
+#    - netlify-plugin-html-validate (optional)
+#    - @netlify/plugin-lighthouse (optional)
+# 3. Save changes
+# Without removing Next.js plugin, builds will fail!
