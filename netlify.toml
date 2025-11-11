@@ -14,7 +14,8 @@
 
 # Environment variables
 [build.environment]
-  NODE_VERSION = "18"
+  # Vite 7 requires Node.js 20.19+ or 22.12+
+  NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
 
 # Redirects for SPA routing
@@ -24,5 +25,5 @@
   status = 200
 
 # Note: This is a Vite + React project, NOT Next.js
-# If Netlify auto-detects Next.js plugins, disable them in the Netlify dashboard:
-# Site settings → Build & deploy → Build plugins → Remove @netlify/plugin-nextjs
+# IMPORTANT: You MUST disable Next.js plugins in Netlify Dashboard:
+# Site settings → Build & deploy → Build plugins → Remove all Next.js plugins
