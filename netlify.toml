@@ -1,14 +1,14 @@
-# Netlify Build Configuration
+# Netlify Build Configuration for Vite + React
 
 # Build settings
 [build]
-  # Base directory for the build (where package.json is located)
+  # Base directory for the build
   base = "."
   
-  # Build command - install dependencies and build
+  # Build command - install dependencies and build with Vite
   command = "npm install && npm run build"
   
-  # Publish directory (where the built files are output)
+  # Publish directory (where Vite outputs the built files)
   # Based on vite.config.ts, output is in dist/public
   publish = "dist/public"
 
@@ -23,4 +23,6 @@
   to = "/index.html"
   status = 200
 
-
+# Note: This is a Vite + React project, NOT Next.js
+# If Netlify auto-detects Next.js plugins, disable them in the Netlify dashboard:
+# Site settings → Build & deploy → Build plugins → Remove @netlify/plugin-nextjs
