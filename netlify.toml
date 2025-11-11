@@ -6,7 +6,8 @@
   base = "."
   
   # Build command - install dependencies and build with Vite
-  command = "npm install && npm run build"
+  # Optimized for faster builds
+  command = "npm install --legacy-peer-deps --prefer-offline --no-audit && npm run build"
   
   # Publish directory (where Vite outputs the built files)
   # Based on vite.config.ts, output is in dist/public
@@ -16,9 +17,11 @@
 [build.environment]
   # Vite 7 requires Node.js 20.19+ or 22.12+
   NODE_VERSION = "20"
-  NPM_FLAGS = "--legacy-peer-deps"
+  NPM_FLAGS = "--legacy-peer-deps --prefer-offline"
   # Explicitly disable Next.js detection
   NEXT_PRIVATE_TARGET = ""
+  # Disable telemetry to speed up builds
+  VITE_TELEMETRY_DISABLED = "1"
 
 # Explicitly disable Next.js plugin
 # This prevents Netlify from auto-detecting Next.js
