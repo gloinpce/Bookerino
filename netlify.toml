@@ -17,6 +17,13 @@
   # Vite 7 requires Node.js 20.19+ or 22.12+
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
+  # Explicitly disable Next.js detection
+  NEXT_PRIVATE_TARGET = ""
+
+# Explicitly disable Next.js plugin
+# This prevents Netlify from auto-detecting Next.js
+[build.processing]
+  skip_processing = false
 
 # Redirects for SPA routing
 [[redirects]]
@@ -24,12 +31,6 @@
   to = "/index.html"
   status = 200
 
-# CRITICAL: This is a Vite + React project, NOT Next.js
-# You MUST disable Next.js plugins in Netlify Dashboard:
-# 1. Go to: Site settings → Build & deploy → Build plugins
-# 2. DELETE/REMOVE these plugins:
-#    - @netlify/plugin-nextjs (MUST REMOVE)
-#    - netlify-plugin-html-validate (optional)
-#    - @netlify/plugin-lighthouse (optional)
-# 3. Save changes
-# Without removing Next.js plugin, builds will fail!
+# IMPORTANT: This is a Vite + React project, NOT Next.js
+# If plugins are still being installed, remove them manually in Netlify Dashboard:
+# Site settings → Build & deploy → Build plugins → Remove @netlify/plugin-nextjs
