@@ -29,11 +29,15 @@ export default defineConfig(async () => {
         "@shared": path.resolve(import.meta.dirname, "shared"),
         "@assets": path.resolve(import.meta.dirname, "attached_assets"),
       },
+      // Ensure .tsx files are resolved before .js files
+      extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
     },
     root: path.resolve(import.meta.dirname, "client"),
     build: {
       outDir: path.resolve(import.meta.dirname, "dist/public"),
       emptyOutDir: true,
+      // Copy public directory contents
+      copyPublicDir: true,
     },
     server: {
       fs: {
