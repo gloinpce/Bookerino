@@ -6,8 +6,9 @@
   base = "."
   
   # Build command - install dependencies and build with Vite
-  # Clear npm cache and ensure fresh install to avoid dependency version issues
-  command = "npm cache clean --force && npm install --legacy-peer-deps --no-audit && npm run build"
+  # Remove node_modules and package-lock.json to fix Rollup native module issues
+  # Then do a fresh install with optional dependencies and build
+  command = "rm -rf node_modules package-lock.json && npm cache clean --force && npm install --legacy-peer-deps --include=optional --no-audit && npm run build"
   
   # Publish directory (where Vite outputs the built files)
   # Based on vite.config.ts, output is in dist/public
