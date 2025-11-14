@@ -23,16 +23,40 @@ export const databaseConfig = {
   // Log level
   logLevel: import.meta.env.VITE_LOG_LEVEL || "verbose",
   
-  // API Base URL (constructed from port)
+  // Neon REST API endpoint
+  restApiUrl: import.meta.env.VITE_REST_API_URL || "https://ep-restless-tooth-agrax399.apirest.c-2.eu-central-1.aws.neon.tech/neondb/rest/v1",
+  
+  // PostgreSQL connection string (Neon Database)
+  databaseUrl: import.meta.env.VITE_DATABASE_URL || "postgresql://neondb_owner:npg_RrQlv81uSYkb@ep-restless-tooth-agrax399-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+  
+  // Stack Auth configuration
+  stackAuth: {
+    projectId: import.meta.env.VITE_STACK_PROJECT_ID || "a84c6c76-faaa-49dc-9afc-6ff8e1656eab",
+    publishableClientKey: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || "pck_2pfmrsp33j9rm2nbzyjhtky9k99368t0tgdq2b1nvb4cg",
+    secretServerKey: import.meta.env.VITE_STACK_SECRET_SERVER_KEY || "ssk_k945n3dndhc27ntzbd8cx7t8adpzjnk70katsbrtn82v8",
+    jwksUrl: `https://api.stack-auth.com/api/v1/projects/${import.meta.env.VITE_STACK_PROJECT_ID || "a84c6c76-faaa-49dc-9afc-6ff8e1656eab"}/.well-known/jwks.json`,
+  },
+  
+  // API Base URL (constructed from port, fallback to REST API if no port)
   get apiBaseUrl(): string {
+    // If REST API URL is set, use it as the base
+    if (this.restApiUrl) {
+      return this.restApiUrl;
+    }
+    // Otherwise, construct from port
     const protocol = this.nodeEnv === "production" ? "https" : "http";
     const host = typeof window !== "undefined" ? window.location.hostname : "localhost";
     return `${protocol}://${host}:${this.port}`;
   },
   
-  // Database connection string (for JSON DB)
+  // Database connection string (PostgreSQL)
   get dbConnectionString(): string {
-    return this.jsonDbPath;
+    return this.databaseUrl;
+  },
+  
+  // Database REST API URL (Neon PostgreSQL REST API)
+  get dbRestApiUrl(): string {
+    return this.restApiUrl;
   },
 } as const;
 
@@ -44,7 +68,13 @@ export const {
   debug,
   jsonDbPath,
   logLevel,
+  restApiUrl,
+  databaseUrl,
   apiBaseUrl,
   dbConnectionString,
+  dbRestApiUrl,
 } = databaseConfig;
+
+// Export Stack Auth config separately for convenience
+export const stackAuthConfig = databaseConfig.stackAuth;
 

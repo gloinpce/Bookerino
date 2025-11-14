@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autentificare - Bookerino</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="index.html"><h2>Bookerino</h2></a>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="index.html#features" class="nav-link">Funcționalități</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="index.html#pricing" class="nav-link">Prețuri</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="index.html#about" class="nav-link">Despre</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="signup.html" class="nav-link btn-primary">Înregistrare</a>
+                    </li>
+                </ul>
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="auth-section">
+            <div class="container">
+                <div class="auth-container">
+                    <div class="auth-form">
+                        <h2>Autentificare</h2>
+                        <p>Accesați contul dvs. Bookerino</p>
+                        
+                        <form id="login-form">
+                            <div class="form-group">
+                                <label for="email">Adresă de email</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="password">Parolă</label>
+                                <input type="password" id="password" name="password" required>
+                            </div>
+                            
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="remember" name="remember">
+                                <label for="remember">Ține-mă minte</label>
+                            </div>
+                            
+                            <button type="submit" class="btn-primary">Autentificare</button>
+                            
+                            <div class="forgot-password">
+                                <a href="#">Ați uitat parola?</a>
+                            </div>
+                        </form>
+                        
+                        <div class="auth-redirect">
+                            <p>Nu aveți un cont? <a href="signup.html">Înregistrați-vă aici</a></p>
+                        </div>
+                    </div>
+                    
+                    <div class="auth-info">
+                        <h3>Conectați-vă la aplicație</h3>
+                        <p>După autentificare, puteți accesa:</p>
+                        <ul>
+                            <li>Panoul de control al afacerii</li>
+                            <li>Rapoarte și analize</li>
+                            <li>Setările contului</li>
+                            <li>Gestionarea abonamentului</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Bookerino</h3>
+                    <p>Soluția completă de management pentru afacerile HoReCa.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Linkuri rapide</h4>
+                    <ul>
+                        <li><a href="index.html#features">Funcționalități</a></li>
+                        <li><a href="index.html#pricing">Prețuri</a></li>
+                        <li><a href="index.html#about">Despre</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Suport</h4>
+                    <ul>
+                        <li><a href="#">Centru de ajutor</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Termeni și condiții</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li>Email: support@bookerino.com</li>
+                        <li>Telefon: +40 123 456 789</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Bookerino. Toate drepturile rezervate.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

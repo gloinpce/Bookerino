@@ -1,13 +1,24 @@
-import { useState } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Check } from "lucide-react";
+import { authApi } from "../lib/api";
+import { debug } from "../config/database";
+import { initStackAuth } from "../lib/stackAuth";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  // Initialize Stack Auth on component mount
+  useEffect(() => {
+    initStackAuth();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-subtle py-20">
@@ -26,7 +37,60 @@ const Auth = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-4">
+              {error && (
+                <div className="mb-4 p-3 bg-destructive/10 text-destructive text-sm rounded-md">
+                  {error}
+                </div>
+              )}
+              <form 
+                className="space-y-4"
+                onSubmit={async (e: FormEvent<HTMLFormElement>) => {
+                  e.preventDefault();
+                  setError(null);
+                  setLoading(true);
+                  
+                  const formData = new FormData(e.currentTarget);
+                  
+                  try {
+                    if (isLogin) {
+                      const email = formData.get("email") as string;
+                      const password = formData.get("password") as string;
+                      
+                      if (debug) {
+                        console.log("Attempting login for:", email);
+                      }
+                      
+                      await authApi.login(email, password);
+                      navigate("/");
+                    } else {
+                      const name = formData.get("name") as string;
+                      const email = formData.get("email") as string;
+                      const password = formData.get("password") as string;
+                      const confirmPassword = formData.get("confirm-password") as string;
+                      
+                      if (password !== confirmPassword) {
+                        setError("Parolele nu se potrivesc");
+                        setLoading(false);
+                        return;
+                      }
+                      
+                      if (debug) {
+                        console.log("Attempting registration for:", email);
+                      }
+                      
+                      await authApi.register({ name, email, password });
+                      navigate("/");
+                    }
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : "A apărut o eroare");
+                    if (debug) {
+                      console.error("Auth error:", err);
+                    }
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+              >
                 {!isLogin && (
                   <div className="space-y-2">
                     <Label htmlFor="name">Nume complet</Label>
@@ -65,8 +129,12 @@ const Auth = () => {
                   </div>
                 )}
                 
-                <Button type="submit" className="w-full">
-                  {isLogin ? "Autentificare" : "Începeți perioada de probă"}
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading 
+                    ? "Se procesează..." 
+                    : isLogin 
+                      ? "Autentificare" 
+                      : "Începeți perioada de probă"}
                 </Button>
                 
                 <div className="text-center text-sm">

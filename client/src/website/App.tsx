@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { DarkVeil } from "@/components/dark-veil";
+import { initStackAuth } from "./lib/stackAuth";
 import Index from "./pages/Index";
 import Pricing from "./pages/Pricing";
 import Success from "./pages/Success";
@@ -14,6 +15,11 @@ import NotFound from "./pages/NotFound";
 const Auth = lazy(() => import("./pages/Auth"));
 
 const queryClient = new QueryClient();
+
+// Initialize Stack Auth on app startup
+if (typeof window !== "undefined") {
+  initStackAuth();
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
