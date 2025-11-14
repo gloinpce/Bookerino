@@ -31,10 +31,14 @@
 
 # Redirects for SPA routing
 # Serve website.html as default (for public website)
+# This ensures React Router handles all routes
+# Static assets (JS, CSS, images) are served directly by Netlify
+# Only HTML routes are redirected to website.html for React Router
 [[redirects]]
   from = "/*"
   to = "/website.html"
   status = 200
+  force = false
 
 # Serve main app at /app routes
 [[redirects]]
