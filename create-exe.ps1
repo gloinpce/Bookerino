@@ -54,35 +54,104 @@ try {
     exit 1
 }
 
+# Check for WiX tools (required for exe/msi on Windows)
+$wixFound = $false
+$wixPath = $null
+
+# Check common WiX installation paths
+$wixPaths = @(
+    "C:\Program Files (x86)\WiX Toolset v3.11\bin",
+    "C:\Program Files\WiX Toolset v3.11\bin",
+    "C:\Program Files (x86)\WiX Toolset v4.0\bin",
+    "C:\Program Files\WiX Toolset v4.0\bin",
+    "${env:ProgramFiles(x86)}\WiX Toolset v3.11\bin",
+    "$env:ProgramFiles\WiX Toolset v3.11\bin"
+)
+
+foreach ($path in $wixPaths) {
+    if (Test-Path "$path\light.exe" -or Test-Path "$path\wix.exe") {
+        $wixFound = $true
+        $wixPath = $path
+        Write-Host "Found WiX tools at: $path" -ForegroundColor Green
+        break
+    }
+}
+
+# Check PATH for WiX
+if (-not $wixFound) {
+    try {
+        $lightCheck = & where.exe light.exe 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            $wixFound = $true
+            Write-Host "Found WiX tools in PATH" -ForegroundColor Green
+        }
+    } catch {
+        # WiX not in PATH
+    }
+}
+
+# Determine build type based on WiX availability
+$buildType = "app-image"  # Default: doesn't require WiX
+$outputFile = "$OutputDir\Bookerino\Bookerino.exe"
+
+if ($wixFound) {
+    $buildType = "exe"
+    $outputFile = "$OutputDir\Bookerino.exe"
+    Write-Host "Using WiX tools to create native .exe file..." -ForegroundColor Cyan
+} else {
+    Write-Host "WiX tools not found. Creating app-image instead (folder with exe)..." -ForegroundColor Yellow
+    Write-Host "To create a single .exe file, install WiX from: https://wixtoolset.org" -ForegroundColor Yellow
+    Write-Host "Or use Launch4j method: create-exe-launch4j.bat" -ForegroundColor Yellow
+    Write-Host ""
+}
+
 # Create executable using jpackage
-Write-Host "Building executable with jpackage..." -ForegroundColor Cyan
+Write-Host "Building executable with jpackage (type: $buildType)..." -ForegroundColor Cyan
 
 $jpackageArgs = @(
     "--input", "target",
     "--name", "Bookerino",
     "--main-jar", "bookerino-desktop.jar",
-    "--type", "exe",
+    "--type", $buildType,
     "--dest", $OutputDir,
     "--app-version", "1.0.0",
     "--description", "Bookerino - HoReCa Management Solution",
     "--vendor", "Bookerino",
-    "--copyright", "Copyright 2025 Bookerino",
-    "--win-dir-chooser",
-    "--win-menu",
-    "--win-shortcut"
+    "--copyright", "Copyright 2025 Bookerino"
 )
+
+# Add Windows-specific options
+if ($buildType -eq "exe") {
+    $jpackageArgs += "--win-dir-chooser", "--win-menu", "--win-shortcut"
+}
 
 if ($IcoPath) {
     $jpackageArgs += "--icon", $IcoPath
 }
 
+# Add WiX path to PATH if found
+if ($wixFound -and $wixPath) {
+    $env:PATH = "$wixPath;$env:PATH"
+}
+
 & jpackage $jpackageArgs
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "`nSUCCESS! Executable created in: $OutputDir\Bookerino.exe" -ForegroundColor Green
-    Write-Host "You can now distribute this executable file." -ForegroundColor Green
+    Write-Host "`nSUCCESS! Executable created!" -ForegroundColor Green
+    if ($buildType -eq "exe") {
+        Write-Host "Location: $OutputDir\Bookerino.exe" -ForegroundColor Green
+        Write-Host "You can now distribute this single executable file." -ForegroundColor Green
+    } else {
+        Write-Host "Location: $OutputDir\Bookerino\Bookerino.exe" -ForegroundColor Green
+        Write-Host "Note: This is an app-image (folder). Distribute the entire 'Bookerino' folder." -ForegroundColor Yellow
+        Write-Host "To create a single .exe, install WiX tools or use Launch4j method." -ForegroundColor Yellow
+    }
 } else {
     Write-Host "`nERROR: Failed to create executable" -ForegroundColor Red
+    if (-not $wixFound -and $buildType -eq "exe") {
+        Write-Host "`nTIP: Install WiX Toolset from https://wixtoolset.org" -ForegroundColor Yellow
+        Write-Host "Or use: create-exe-launch4j.bat (doesn't require WiX)" -ForegroundColor Yellow
+    }
     exit 1
 }
 
