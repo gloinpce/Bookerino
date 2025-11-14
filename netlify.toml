@@ -30,7 +30,24 @@
   skip_processing = false
 
 # Redirects for SPA routing
-# Serve website.html for /lander and website routes
+# Serve website.html as default (for public website)
+[[redirects]]
+  from = "/*"
+  to = "/website.html"
+  status = 200
+
+# Serve main app at /app routes
+[[redirects]]
+  from = "/app"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/app/*"
+  to = "/index.html"
+  status = 200
+
+# Explicit /lander route (also serves website.html)
 [[redirects]]
   from = "/lander"
   to = "/website.html"
@@ -39,12 +56,6 @@
 [[redirects]]
   from = "/lander/*"
   to = "/website.html"
-  status = 200
-
-# Default redirect for main app
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
   status = 200
 
 # IMPORTANT: This is a Vite + React project, NOT Next.js
