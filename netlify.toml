@@ -29,6 +29,18 @@
   skip_processing = false
 
 # Redirects for SPA routing
+# Serve website.html for /lander and website routes
+[[redirects]]
+  from = "/lander"
+  to = "/website.html"
+  status = 200
+
+[[redirects]]
+  from = "/lander/*"
+  to = "/website.html"
+  status = 200
+
+# Default redirect for main app
 [[redirects]]
   from = "/*"
   to = "/index.html"
