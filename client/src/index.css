@@ -15,18 +15,18 @@
   --elevate-2: rgba(0,0,0, .08);
 
   --background: 0 0% 100%;
-  --background-gradient: linear-gradient(135deg, hsl(200, 100%, 98%) 0%, hsl(220, 90%, 97%) 50%, hsl(192, 85%, 96%) 100%);
+  --background-gradient: linear-gradient(135deg, hsl(220, 100%, 99%) 0%, hsl(210, 100%, 98%) 50%, hsl(200, 100%, 98%) 100%);
 
-  --foreground: 223.64deg 14.29% 15.1%;
+  --foreground: 220 15% 8%;
 
-  --border: 192.12deg 78.78% 48.04%;
+  --border: 220 15% 90%;
 
-  --card: 220 15% 97%;
-  --card-gradient: linear-gradient(135deg, hsl(220, 20%, 99%) 0%, hsl(220, 15%, 97%) 100%);
+  --card: 0 0% 100%;
+  --card-gradient: linear-gradient(135deg, hsl(0, 0%, 100%) 0%, hsl(220, 20%, 99.5%) 100%);
 
-  --card-foreground: 220 15% 15%;
+  --card-foreground: 220 15% 10%;
 
-  --card-border: 220 15% 92%;
+  --card-border: 220 15% 88%;
 
   --sidebar: 220 15% 95%;
   --sidebar-gradient: linear-gradient(180deg, hsl(220, 18%, 97%) 0%, hsl(220, 15%, 95%) 100%);
@@ -51,9 +51,9 @@
 
   --popover-border: 220 15% 87%;
 
-  --primary: 192.12deg 78.78% 48.04%;
+  --primary: 220 90% 50%;
 
-  --primary-foreground: 220 90% 98%;
+  --primary-foreground: 0 0% 100%;
 
   --secondary: 220 15% 89%;
 
@@ -83,14 +83,14 @@
   --font-serif: 'Inter', sans-serif;
   --font-mono: 'Inter', sans-serif;
   --radius: 0.7rem; /* 8px */
-  --shadow-2xs: 0px 1px 2px 0px hsl(220 15% 15% / 0.05);
-  --shadow-xs: 0px 1px 3px 0px hsl(220 15% 15% / 0.08);
-  --shadow-sm: 0px 2px 4px 0px hsl(220 15% 15% / 0.06), 0px 1px 2px -1px hsl(220 15% 15% / 0.04);
-  --shadow: 0px 4px 6px -1px hsl(220 15% 15% / 0.08), 0px 2px 4px -2px hsl(220 15% 15% / 0.06);
-  --shadow-md: 0px 6px 12px -2px hsl(220 15% 15% / 0.10), 0px 3px 6px -3px hsl(220 15% 15% / 0.08);
-  --shadow-lg: 0px 10px 20px -5px hsl(220 15% 15% / 0.12), 0px 8px 16px -6px hsl(220 15% 15% / 0.10);
-  --shadow-xl: 0px 20px 30px -10px hsl(220 15% 15% / 0.15), 0px 12px 24px -8px hsl(220 15% 15% / 0.12);
-  --shadow-2xl: 0px 25px 40px -15px hsl(220 15% 15% / 0.20);
+  --shadow-2xs: 0px 1px 2px 0px hsl(220 15% 15% / 0.04);
+  --shadow-xs: 0px 1px 3px 0px hsl(220 15% 15% / 0.06);
+  --shadow-sm: 0px 2px 6px -1px hsl(220 15% 15% / 0.08), 0px 1px 3px -1px hsl(220 15% 15% / 0.04);
+  --shadow: 0px 4px 12px -2px hsl(220 15% 15% / 0.10), 0px 2px 6px -2px hsl(220 15% 15% / 0.06);
+  --shadow-md: 0px 8px 20px -4px hsl(220 15% 15% / 0.12), 0px 4px 8px -4px hsl(220 15% 15% / 0.08);
+  --shadow-lg: 0px 12px 28px -6px hsl(220 15% 15% / 0.14), 0px 8px 16px -6px hsl(220 15% 15% / 0.10);
+  --shadow-xl: 0px 20px 40px -8px hsl(220 15% 15% / 0.16), 0px 12px 24px -8px hsl(220 15% 15% / 0.12);
+  --shadow-2xl: 0px 28px 56px -12px hsl(220 15% 15% / 0.20);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 
@@ -142,12 +142,12 @@
 
   --border: 220 15% 22%;
 
-  --card: 220 15% 14%;
-  --card-gradient: linear-gradient(135deg, hsl(220, 18%, 16%) 0%, hsl(220, 15%, 14%) 100%);
+  --card: 220 15% 12%;
+  --card-gradient: linear-gradient(135deg, hsl(220, 18%, 14%) 0%, hsl(220, 15%, 12%) 100%);
 
-  --card-foreground: 220 15% 95%;
+  --card-foreground: 220 15% 98%;
 
-  --card-border: 220 15% 18%;
+  --card-border: 220 15% 20%;
 
   --sidebar: 220 15% 16%;
   --sidebar-gradient: linear-gradient(180deg, hsl(220, 18%, 18%) 0%, hsl(220, 15%, 16%) 100%);
@@ -261,9 +261,15 @@
   /* .no-default-hover-elevate/no-default-active-elevate is an escape hatch so consumers of
    * buttons/badges can remove the automatic brightness adjustment on interactions
    * and program their own. */
-  .no-default-hover-elevate {}
+  .no-default-hover-elevate {
+    /* Intentionally empty - used as a class selector escape hatch */
+    display: inherit;
+  }
 
-  .no-default-active-elevate {}
+  .no-default-active-elevate {
+    /* Intentionally empty - used as a class selector escape hatch */
+    display: inherit;
+  }
 
 
   /**
@@ -373,3 +379,4 @@
     animation: gradient 6s ease infinite;
   }
 }
+

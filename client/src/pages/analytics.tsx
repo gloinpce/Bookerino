@@ -1,3 +1,17 @@
+import React from "react";
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      div: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
+      h1: React.DetailedHTMLProps<React.HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>;
+      p: React.DetailedHTMLProps<React.HTMLAttributes<HTMLParagraphElement>, HTMLParagraphElement>;
+      // Add any other needed HTML tags here, or use [elemName: string]: any; as a fallback:
+      [elemName: string]: any;
+    }
+  }
+}
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -6,33 +20,81 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+} from "recharts";
+
+import { useBookings } from "@/hooks/useBookings";
+import { type Booking } from "@shared/schema";
 
 export default function Analytics() {
-  const revenueData = [
-    { month: "Ian", revenue: 32000 },
-    { month: "Feb", revenue: 38000 },
-    { month: "Mar", revenue: 42000 },
-    { month: "Apr", revenue: 45000 },
-    { month: "Mai", revenue: 48000 },
-    { month: "Iun", revenue: 52000 },
-  ];
+  // Remove all random/static data injection
+  
+  // Example: Get booking data and process for revenue and occupancy
+  const { bookings } = useBookings(); // This would be populated by automation
 
-  const occupancyData = [
-    { month: "Ian", rate: 65 },
-    { month: "Feb", rate: 72 },
-    { month: "Mar", rate: 78 },
-    { month: "Apr", rate: 75 },
-    { month: "Mai", rate: 82 },
-    { month: "Iun", rate: 85 },
-  ];
+  // Process bookings for revenue per month and occupancy per month dynamically
+  const months = ["Ian", "Feb", "Mar", "Apr", "Mai", "Iun"];
+  function getMonth(date: Date): string {
+    const monthIndex = date.getMonth();
+    return months[monthIndex] || "";
+  }
 
+  // Revenue per month (based on checkIn date)
+  const revenueData = months.map((monthName) => ({
+    month: monthName,
+    revenue: bookings
+      ? bookings
+          .filter((b: Booking) => getMonth(new Date(b.checkIn)) === monthName)
+          .reduce((sum: number, b: Booking) => {
+            const price = parseFloat(b.totalPrice || "0");
+            return sum + (Number.isFinite(price) ? price : 0);
+          }, 0)
+      : 0
+  }));
+
+  // Occupancy per month (percentage of booked rooms)
+  const roomsCount = 100; // or derive dynamically if available
+  const occupancyData = months.map((monthName) => {
+    const bookingsInMonth = bookings
+      ? bookings.filter((b: Booking) => getMonth(new Date(b.checkIn)) === monthName)
+      : [];
+    // Calculate total room-nights for the month
+    const totalRoomNights = bookingsInMonth.reduce((sum: number, b: Booking) => {
+      const checkIn = new Date(b.checkIn);
+      const checkOut = new Date(b.checkOut);
+      const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+      return sum + Math.max(0, nights);
+    }, 0);
+    const daysInMonth = 30; // Ideally, use moment.js or date-fns to get the real number of days
+    const occupancyRate = roomsCount ? (totalRoomNights / (roomsCount * daysInMonth)) * 100 : 0;
+    return {
+      month: monthName,
+      rate: occupancyRate,
+    };
+  });
+
+  // Booking sources
   const bookingSources = [
-    { source: "Direct", bookings: 45 },
-    { source: "Booking.com", bookings: 62 },
-    { source: "Expedia", bookings: 38 },
-    { source: "Airbnb", bookings: 28 },
+    "direct",
+    "booking.com",
+    "expedia",
+    "airbnb",
   ];
+  const bookingSourcesData = bookingSources.map((source) => ({
+    source: source.charAt(0).toUpperCase() + source.slice(1),
+    bookings: bookings
+      ? bookings.filter((b: Booking) => b.source?.toLowerCase() === source.toLowerCase()).length
+      : 0
+  }));
 
   return (
     <div className="flex-1 overflow-auto" data-scroll-container>
@@ -120,7 +182,7 @@ export default function Analytics() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={bookingSources}>
+                <BarChart data={bookingSourcesData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="source" stroke="hsl(var(--muted-foreground))" />
                   <YAxis stroke="hsl(var(--muted-foreground))" />

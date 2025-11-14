@@ -81,10 +81,10 @@ export default function Rooms() {
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-3xl font-bold">Camere</h1>
-            <p className="text-muted-foreground">Gestionează inventarul și disponibilitatea camerelor</p>
+            <h1 className="text-4xl font-bold tracking-tight mb-2">Camere</h1>
+            <p className="text-muted-foreground text-lg">Gestionează inventarul și disponibilitatea camerelor</p>
           </div>
-          <Button onClick={handleAddNew} data-testid="button-add-room">
+          <Button onClick={handleAddNew} className="shadow-md hover:shadow-lg transition-shadow duration-200" data-testid="button-add-room">
             Adaugă Cameră
           </Button>
         </div>

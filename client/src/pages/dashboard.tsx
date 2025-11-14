@@ -68,8 +68,8 @@ export default function Dashboard() {
     <div className="flex-1 overflow-auto" data-scroll-container>
       <div className="p-6 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Panou de Control</h1>
-          <p className="text-muted-foreground">Bine ai venit la sistemul de management hotelier</p>
+          <h1 className="text-4xl font-bold tracking-tight mb-2">Panou de Control</h1>
+          <p className="text-muted-foreground text-lg">Bine ai venit la sistemul de management hotelier</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
