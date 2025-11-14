@@ -1,0 +1,39 @@
+# Netlify Build Configuration for Vite + React
+
+# Build settings
+[build]
+  # Base directory for the build
+  base = "."
+  
+  # Build command - install dependencies and build with Vite
+  # Optimized for faster builds
+  command = "npm install --legacy-peer-deps --prefer-offline --no-audit && npm run build"
+  
+  # Publish directory (where Vite outputs the built files)
+  # Based on vite.config.ts, output is in dist/public
+  publish = "dist/public"
+
+# Environment variables
+[build.environment]
+  # Vite 7 requires Node.js 20.19+ or 22.12+
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps --prefer-offline"
+  # Explicitly disable Next.js detection
+  NEXT_PRIVATE_TARGET = ""
+  # Disable telemetry to speed up builds
+  VITE_TELEMETRY_DISABLED = "1"
+
+# Explicitly disable Next.js plugin
+# This prevents Netlify from auto-detecting Next.js
+[build.processing]
+  skip_processing = false
+
+# Redirects for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# IMPORTANT: This is a Vite + React project, NOT Next.js
+# If plugins are still being installed, remove them manually in Netlify Dashboard:
+# Site settings → Build & deploy → Build plugins → Remove @netlify/plugin-nextjs
