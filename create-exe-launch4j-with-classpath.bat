@@ -28,6 +28,26 @@ REM
 set "CLASSPATH_ITEMS="
 REM ============================================
 
+REM ============================================
+REM ENVIRONMENT VARIABLES CONFIGURATION
+REM ============================================
+REM Set environment variables that will be available to the Java application
+REM Format: NAME=VALUE pairs separated by semicolons
+REM
+REM Examples:
+REM   set "ENV_VARS=DATABASE_URL=jdbc:sqlite:./bookerino.db;LOG_LEVEL=INFO"
+REM   set "ENV_VARS=DATABASE_URL=jdbc:postgresql://localhost:5432/bookerino;APP_MODE=production"
+REM
+REM Available environment variables:
+REM   DATABASE_URL - Database connection string (default: jdbc:sqlite:./bookerino.db)
+REM   LOG_LEVEL - Logging level (DEBUG, INFO, WARN, ERROR)
+REM   APP_MODE - Application mode (development, production)
+REM   JAVA_OPTS - JVM options (e.g., -Xmx512m -Xms256m)
+REM   APP_HOME - Application home directory
+REM
+set "ENV_VARS=DATABASE_URL=jdbc:sqlite:./bookerino.db"
+REM ============================================
+
 REM Check if JAR exists
 if not exist "%JAR_PATH%" (
     echo [ERROR] JAR file not found!
@@ -62,6 +82,25 @@ echo   ^<cmdLine^>^</cmdLine^>
 echo   ^<chdir^>^</chdir^>
 echo   ^<priority^>normal^</priority^>
 ) > "%LAUNCH4J_XML%"
+
+REM Add environment variables section if specified
+if not "!ENV_VARS!"=="" (
+    echo   ^<env^> >> "%LAUNCH4J_XML%"
+    
+    REM Parse semicolon-separated environment variables
+    set "ENV_ITEMS=!ENV_VARS!"
+    :parse_env
+    for /f "tokens=1* delims=;" %%A in ("!ENV_ITEMS!") do (
+        REM Split NAME=VALUE
+        for /f "tokens=1* delims==" %%C in ("%%A") do (
+            echo     ^<envVar name="%%C" value="%%D"/^> >> "%LAUNCH4J_XML%"
+        )
+        set "ENV_ITEMS=%%B"
+        if not "!ENV_ITEMS!"=="" goto parse_env
+    )
+    echo   ^</env^> >> "%LAUNCH4J_XML%"
+    echo Added environment variables: !ENV_VARS!
+)
 
 REM Add classpath section if items are specified
 if not "!CLASSPATH_ITEMS!"=="" (
@@ -138,6 +177,9 @@ if exist "%OUTPUT_EXE%" (
     echo SUCCESS! Executable created: %OUTPUT_EXE%
     if not "!CLASSPATH_ITEMS!"=="" (
         echo Classpath items included: !CLASSPATH_ITEMS!
+    )
+    if not "!ENV_VARS!"=="" (
+        echo Environment variables set: !ENV_VARS!
     )
     echo.
     del "%LAUNCH4J_XML%" 2>nul

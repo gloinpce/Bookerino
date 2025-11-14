@@ -14,6 +14,12 @@ REM Format: semicolon-separated paths relative to executable location
 REM Example: "lib\extra.jar;lib\another.jar"
 set "CLASSPATH_ITEMS="
 
+REM Environment variables (will be available to the Java application)
+REM Format: NAME=VALUE pairs separated by semicolons
+REM Example: "DATABASE_URL=jdbc:sqlite:./bookerino.db;LOG_LEVEL=INFO"
+REM Available: DATABASE_URL, LOG_LEVEL, APP_MODE, JAVA_OPTS, APP_HOME
+set "ENV_VARS=DATABASE_URL=jdbc:sqlite:./bookerino.db"
+
 REM Check if JAR exists
 if not exist "%JAR_PATH%" (
     echo [ERROR] JAR file not found!
@@ -61,6 +67,22 @@ if not "!CLASSPATH_ITEMS!"=="" (
         if not "!CP_ITEMS!"=="" goto parse_cp
     )
     echo   ^</classPath^>
+)
+REM Add environment variables if specified
+if not "!ENV_VARS!"=="" (
+    echo   ^<env^>
+    REM Parse semicolon-separated environment variables
+    set "ENV_ITEMS=!ENV_VARS!"
+    :parse_env
+    for /f "tokens=1* delims=;" %%A in ("!ENV_ITEMS!") do (
+        REM Split NAME=VALUE
+        for /f "tokens=1* delims==" %%C in ("%%A") do (
+            echo     ^<envVar name="%%C" value="%%D"/^>
+        )
+        set "ENV_ITEMS=%%B"
+        if not "!ENV_ITEMS!"=="" goto parse_env
+    )
+    echo   ^</env^>
 )
 echo   ^<downloadUrl^>http://java.com/download^</downloadUrl^>
 echo   ^<supportUrl^>^</supportUrl^>
