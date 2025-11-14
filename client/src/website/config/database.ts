@@ -24,10 +24,10 @@ export const databaseConfig = {
   logLevel: import.meta.env.VITE_LOG_LEVEL || "verbose",
   
   // Neon REST API endpoint
-  restApiUrl: import.meta.env.VITE_REST_API_URL || "https://ep-restless-tooth-agrax399.apirest.c-2.eu-central-1.aws.neon.tech/neondb/rest/v1",
+  restApiUrl: import.meta.env.VITE_REST_API_URL || "https://ep-still-breeze-agpbdu39.apirest.c-2.eu-central-1.aws.neon.tech/neondb/rest/v1",
   
   // PostgreSQL connection string (Neon Database)
-  databaseUrl: import.meta.env.VITE_DATABASE_URL || "postgresql://neondb_owner:npg_RrQlv81uSYkb@ep-restless-tooth-agrax399-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+  databaseUrl: import.meta.env.VITE_DATABASE_URL || "postgresql://neondb_owner:npg_RrQlv81uSYkb@ep-still-breeze-agpbdu39-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
   
   // Stack Auth configuration
   stackAuth: {

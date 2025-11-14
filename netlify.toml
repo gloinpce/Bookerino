@@ -6,8 +6,8 @@
   base = "."
   
   # Build command - install dependencies and build with Vite
-  # Optimized for faster builds
-  command = "npm install --legacy-peer-deps --prefer-offline --no-audit && npm run build"
+  # Clear npm cache and ensure fresh install to avoid dependency version issues
+  command = "npm cache clean --force && npm install --legacy-peer-deps --no-audit && npm run build"
   
   # Publish directory (where Vite outputs the built files)
   # Based on vite.config.ts, output is in dist/public
@@ -17,7 +17,7 @@
 [build.environment]
   # Vite 7 requires Node.js 20.19+ or 22.12+
   NODE_VERSION = "20"
-  NPM_FLAGS = "--legacy-peer-deps --prefer-offline"
+  NPM_FLAGS = "--legacy-peer-deps"
   # Explicitly disable Next.js detection
   NEXT_PRIVATE_TARGET = ""
   # Disable telemetry to speed up builds
