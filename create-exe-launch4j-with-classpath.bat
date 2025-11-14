@@ -1,6 +1,10 @@
 @echo off
-REM Create Bookerino executable using Launch4j
+REM Create Bookerino executable using Launch4j with custom classpath
 REM Download Launch4j from: http://launch4j.sourceforge.net/
+REM
+REM To add classpath items, edit the CLASSPATH_ITEMS variable below
+REM Format: semicolon-separated paths relative to executable location
+REM Example: set "CLASSPATH_ITEMS=lib\extra.jar;lib\another.jar;resources"
 
 setlocal enabledelayedexpansion
 
@@ -9,10 +13,20 @@ set "ICON_PATH=attached_assets\logo bokkerino_1759435973381.png"
 set "OUTPUT_EXE=dist\exe\Bookerino.exe"
 set "LAUNCH4J_XML=launch4j-config.xml"
 
-REM Classpath items (additional JARs or directories to add to classpath)
-REM Format: semicolon-separated paths relative to executable location
-REM Example: "lib\extra.jar;lib\another.jar"
+REM ============================================
+REM CLASSPATH CONFIGURATION
+REM ============================================
+REM Add additional JAR files or directories to classpath here
+REM Paths should be relative to where the executable will be located
+REM Multiple items separated by semicolons
+REM
+REM Examples:
+REM   set "CLASSPATH_ITEMS=lib\postgresql.jar;lib\sqlite.jar"
+REM   set "CLASSPATH_ITEMS=lib\*.jar"
+REM   set "CLASSPATH_ITEMS=resources;config"
+REM
 set "CLASSPATH_ITEMS="
+REM ============================================
 
 REM Check if JAR exists
 if not exist "%JAR_PATH%" (
@@ -47,21 +61,27 @@ echo   ^<errTitle^>Bookerino Error^</errTitle^>
 echo   ^<cmdLine^>^</cmdLine^>
 echo   ^<chdir^>^</chdir^>
 echo   ^<priority^>normal^</priority^>
-REM Note: To add classpath items, edit CLASSPATH_ITEMS variable at the top of this file
-REM or use create-exe-launch4j-with-classpath.bat for easier configuration
+) > "%LAUNCH4J_XML%"
+
+REM Add classpath section if items are specified
 if not "!CLASSPATH_ITEMS!"=="" (
-    echo   ^<classPath^>
-    echo     ^<mainClass^>^</mainClass^>
+    echo   ^<classPath^> >> "%LAUNCH4J_XML%"
+    echo     ^<mainClass^>^</mainClass^> >> "%LAUNCH4J_XML%"
+    
     REM Parse semicolon-separated classpath items
     set "CP_ITEMS=!CLASSPATH_ITEMS!"
     :parse_cp
     for /f "tokens=1* delims=;" %%A in ("!CP_ITEMS!") do (
-        echo     ^<cp^>%%A^</cp^>
+        echo     ^<cp^>%%A^</cp^> >> "%LAUNCH4J_XML%"
         set "CP_ITEMS=%%B"
         if not "!CP_ITEMS!"=="" goto parse_cp
     )
-    echo   ^</classPath^>
+    echo   ^</classPath^> >> "%LAUNCH4J_XML%"
+    echo Added classpath items: !CLASSPATH_ITEMS!
 )
+
+REM Continue with rest of XML
+(
 echo   ^<downloadUrl^>http://java.com/download^</downloadUrl^>
 echo   ^<supportUrl^>^</supportUrl^>
 echo   ^<stayAlive^>false^</stayAlive^>
@@ -90,7 +110,7 @@ echo     ^<internalName^>Bookerino^</internalName^>
 echo     ^<originalFilename^>Bookerino.exe^</originalFilename^>
 echo   ^</versionInfo^>
 echo ^</launch4jConfig^>
-) > "%LAUNCH4J_XML%"
+) >> "%LAUNCH4J_XML%"
 
 REM Check if Launch4j is installed
 set "LAUNCH4J_PATH="
@@ -116,12 +136,16 @@ echo Running Launch4j...
 if exist "%OUTPUT_EXE%" (
     echo.
     echo SUCCESS! Executable created: %OUTPUT_EXE%
+    if not "!CLASSPATH_ITEMS!"=="" (
+        echo Classpath items included: !CLASSPATH_ITEMS!
+    )
     echo.
     del "%LAUNCH4J_XML%" 2>nul
 ) else (
     echo.
     echo [ERROR] Failed to create executable
     echo Check Launch4j output above for errors
+    echo Configuration saved in: %LAUNCH4J_XML%
     echo.
     pause
     exit /b 1
