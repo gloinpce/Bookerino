@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { DarkVeil } from "@/components/dark-veil";
 import { initStackAuth } from "./lib/stackAuth";
+import Navbar from "./components/Navbar";
 import Index from "./pages/Index";
 import Pricing from "./pages/Pricing";
 import Success from "./pages/Success";
@@ -28,6 +29,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <Navbar />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/lander" element={<Index />} />
