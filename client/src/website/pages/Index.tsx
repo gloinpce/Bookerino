@@ -8,7 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Building2, BarChart3, Calendar, BedDouble, Users, TrendingUp, Star, Mail, Phone, MapPin, CheckCircle2, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SplitText } from "@/components/split-text";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const { toast } = useToast();
