@@ -1,12 +1,26 @@
-import { useState, FormEvent, useEffect } from "react";
+/**
+ * NOTE: This is a reference file for Figma design purposes.
+ * These files are copies of the actual source code and are not meant to compile.
+ * TypeScript errors are expected as dependencies are not available in this folder.
+ * For the actual working code, see: client/src/website/pages/Auth.tsx
+ */
+
+import React, { useState, FormEvent, useEffect } from "react";
+// @ts-ignore - Reference file, dependencies not available
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+// @ts-ignore - Reference file, dependencies not available
 import { Button } from "@/components/ui/button";
+// @ts-ignore - Reference file, dependencies not available
 import { Input } from "@/components/ui/input";
+// @ts-ignore - Reference file, dependencies not available
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
 import { Check } from "lucide-react";
+// @ts-ignore - Reference file, dependencies not available
 import { authApi } from "../lib/api";
+// @ts-ignore - Reference file, dependencies not available
 import { debug } from "../config/database";
+// @ts-ignore - Reference file, dependencies not available
 import { initStackAuth } from "../lib/stackAuth";
 
 const Auth = () => {

@@ -1,7 +1,16 @@
-import { useState, useEffect } from "react";
+/**
+ * NOTE: This is a reference file for Figma design purposes.
+ * These files are copies of the actual source code and are not meant to compile.
+ * TypeScript errors are expected as dependencies are not available in this folder.
+ * For the actual working code, see: client/src/website/components/Navbar.tsx
+ */
+
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+// @ts-ignore - Reference file, dependencies not available
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+// @ts-ignore - Reference file, dependencies not available
 import { cn } from "@/lib/utils";
 
 const Navbar = () => {

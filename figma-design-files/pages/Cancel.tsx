@@ -1,4 +1,14 @@
+/**
+ * NOTE: This is a reference file for Figma design purposes.
+ * These files are copies of the actual source code and are not meant to compile.
+ * TypeScript errors are expected as dependencies are not available in this folder.
+ * For the actual working code, see: client/src/website/pages/Cancel.tsx
+ */
+
+import React from "react";
+// @ts-ignore - Reference file, dependencies not available
 import { Card, CardContent } from "@/components/ui/card";
+// @ts-ignore - Reference file, dependencies not available
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { XCircle } from "lucide-react";

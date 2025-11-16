@@ -1,13 +1,28 @@
-import { useState, FormEvent } from "react";
+/**
+ * NOTE: This is a reference file for Figma design purposes.
+ * These files are copies of the actual source code and are not meant to compile.
+ * TypeScript errors are expected as dependencies are not available in this folder.
+ * For the actual working code, see: client/src/website/pages/Index.tsx
+ */
+
+import React, { useState, FormEvent } from "react";
+// @ts-ignore - Reference file, dependencies not available
 import { Button } from "@/components/ui/button";
+// @ts-ignore - Reference file, dependencies not available
 import { Card } from "@/components/ui/card";
+// @ts-ignore - Reference file, dependencies not available
 import { Input } from "@/components/ui/input";
+// @ts-ignore - Reference file, dependencies not available
 import { Textarea } from "@/components/ui/textarea";
+// @ts-ignore - Reference file, dependencies not available
 import { Label } from "@/components/ui/label";
+// @ts-ignore - Reference file, dependencies not available
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Building2, BarChart3, Calendar, BedDouble, Users, TrendingUp, Star, Mail, Phone, MapPin, CheckCircle2, Send } from "lucide-react";
 import { Link } from "react-router-dom";
+// @ts-ignore - Reference file, dependencies not available
 import { SplitText } from "@/components/split-text";
+// @ts-ignore - Reference file, dependencies not available
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
