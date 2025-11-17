@@ -7,7 +7,7 @@
 
 import React from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App.tsx";
+import App from "./App";
 // @ts-ignore - Reference file, dependencies not available
 import "./index.css";
 

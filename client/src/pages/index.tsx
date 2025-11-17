@@ -166,7 +166,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border bg-muted/30 py-12">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>© 2024 Bookerino. Toate drepturile rezervate.</p>
+          <p>© 2025 Bookerino. Toate drepturile rezervate.</p>
         </div>
       </footer>
     </div>

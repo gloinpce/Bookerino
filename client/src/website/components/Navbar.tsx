@@ -40,6 +40,15 @@ const Navbar = () => {
             to="/"
             className="flex items-center space-x-2 text-xl font-bold text-primary hover:opacity-80 transition-opacity"
           >
+            <img 
+              src="/attached_assets/logo bokkerino_1759435973381.png" 
+              alt="Bookerino Logo" 
+              className="h-8 w-8 object-contain"
+              onError={(e) => {
+                // Fallback if image doesn't load
+                e.currentTarget.style.display = 'none';
+              }}
+            />
             <span>Bookerino</span>
           </Link>
 

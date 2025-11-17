@@ -3,9 +3,11 @@
     "skipLibCheck": true,
     "noEmit": true,
     "allowJs": true,
-    "checkJs": false
+    "checkJs": false,
+    "jsx": "react",
+    "esModuleInterop": true
   },
-  "include": [],
-  "exclude": ["**/*"]
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
 }
 

@@ -16,19 +16,21 @@ import java.text.DecimalFormat;
 import java.util.Map;
 
 public class MainGUI extends JFrame {
-    // Theme colors matching the web app - Updated to match website design system
-    // Primary: hsl(220, 90%, 50%) = rgb(25, 113, 194)
-    // Primary Dark: hsl(220, 90%, 45%) = rgb(20, 90, 155)
-    // Ring/Chart: hsl(192.12deg 78.78% 48.04%) = rgb(34, 180, 200)
-    private static final Color PRIMARY_COLOR = new Color(25, 113, 194); // hsl(220, 90%, 50%) - matches website primary
-    private static final Color PRIMARY_DARK = new Color(20, 90, 155); // hsl(220, 90%, 45%)
-    private static final Color ACCENT_COLOR = new Color(34, 180, 200); // hsl(192.12deg 78.78% 48.04%) - chart/ring color
+    // Theme colors matching global.css - Updated to match React desktop app design system
+    // Primary: hsl(210, 100%, 50%) = rgb(0, 136, 255) - #0088ff
+    // Primary Dark: hsl(220, 90%, 60%) = rgb(51, 153, 255) - #3399ff
+    // Accent/Ring: hsl(210, 100%, 50%) = rgb(0, 136, 255)
+    // Green for demo button: rgb(34, 197, 94) - #22c55e
+    private static final Color PRIMARY_COLOR = new Color(0, 136, 255); // hsl(210, 100%, 50%) - matches global.css primary
+    private static final Color PRIMARY_DARK = new Color(51, 153, 255); // hsl(220, 90%, 60%)
+    private static final Color ACCENT_COLOR = new Color(0, 136, 255); // hsl(210, 100%, 50%)
     private static final Color CARD_COLOR = new Color(255, 255, 255); // White cards
-    private static final Color CARD_BORDER = new Color(220, 220, 230); // hsl(220, 15%, 88%)
-    private static final Color BACKGROUND_LIGHT = new Color(250, 252, 255); // hsl(220, 100%, 99%)
-    private static final Color BACKGROUND_DARK = new Color(240, 248, 250); // hsl(200, 100%, 98%)
-    private static final Color TEXT_PRIMARY = new Color(20, 25, 30); // hsl(220, 15%, 8%)
-    private static final Color TEXT_SECONDARY = new Color(100, 110, 120);
+    private static final Color CARD_BORDER = new Color(210, 220, 230); // hsl(210, 30%, 90%)
+    // Gradient subtle background colors matching global.css
+    private static final Color BACKGROUND_LIGHT = new Color(240, 247, 255); // hsl(210, 40%, 98%) - #f0f7ff
+    private static final Color BACKGROUND_DARK = new Color(201, 224, 255); // hsl(210, 40%, 98%) gradient end - #c9e0ff
+    private static final Color TEXT_PRIMARY = new Color(51, 65, 85); // hsl(220, 15%, 20%)
+    private static final Color TEXT_SECONDARY = new Color(100, 116, 139); // hsl(220, 15%, 47%)
     private static final Color TEXT_MUTED = new Color(115, 125, 135); // hsl(220, 10%, 45%)
     
     private JTabbedPane tabbedPane;
@@ -102,7 +104,7 @@ public class MainGUI extends JFrame {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
-                // Draw gradient background matching website
+                // Draw gradient background matching global.css gradient-subtle
                 GradientPaint gradient = new GradientPaint(
                     0, 0, BACKGROUND_LIGHT,
                     getWidth(), getHeight(), BACKGROUND_DARK
