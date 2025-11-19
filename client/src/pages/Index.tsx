@@ -64,7 +64,7 @@ const Index = () => {
         <div className="absolute inset-0 overflow-hidden">
           <img 
             src={appScreenshot} 
-            alt="Bookerino App Interface" 
+            alt="Bookerino" 
             className="w-full h-full object-cover opacity-40 mix-blend-overlay"
           />
         </div>
@@ -539,11 +539,11 @@ const Index = () => {
 
       {/* CTA Section */}
       <section className="container mx-auto px-4 py-20">
-        <Card className="bg-gradient-hero p-12 text-center shadow-card">
-          <h2 className="mb-4 text-4xl font-bold text-primary-foreground">
+        <div className="text-center">
+          <h2 className="mb-4 text-4xl font-bold text-foreground">
             Gata să-ți Transformi Afacerea?
           </h2>
-          <p className="mx-auto mb-8 max-w-2xl text-lg text-primary-foreground/90">
+          <p className="mx-auto mb-8 max-w-2xl text-lg text-foreground">
             Alătură-te altor afaceri din industria ospitalității care folosesc Bookerino 
             pentru a-și simplifica operațiunile și a-și crește veniturile.
           </p>
@@ -552,19 +552,19 @@ const Index = () => {
               asChild 
               size="lg" 
               variant="outline" 
-              className="border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 transition-all hover:scale-105 w-full sm:w-auto"
+              className="transition-all hover:scale-105 w-full sm:w-auto"
             >
               <Link to="/pricing">Vezi Prețurile</Link>
             </Button>
             <Button 
               asChild 
               size="lg" 
-              className="bg-background text-primary hover:bg-background/90 shadow-card transition-all hover:scale-105 w-full sm:w-auto"
+              className="transition-all hover:scale-105 w-full sm:w-auto"
             >
               <Link to="/auth">Începe Astăzi</Link>
             </Button>
           </div>
-        </Card>
+        </div>
       </section>
 
       {/* Footer */}
