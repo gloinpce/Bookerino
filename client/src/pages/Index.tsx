@@ -17,6 +17,59 @@ const Index = () => {
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Remove any duplicate or hidden text elements on mount
+  React.useEffect(() => {
+    const removeDuplicateText = () => {
+      // Find all elements and check for duplicate content
+      const allElements = document.querySelectorAll('*');
+      
+      allElements.forEach((element) => {
+        const text = element.textContent?.trim() || '';
+        const computedStyle = window.getComputedStyle(element);
+        
+        // Check if element contains duplicate footer text patterns
+        const hasDuplicateText = (
+          text.includes('© 2023') ||
+          text.includes('support@bookerino.com') ||
+          text.includes('Centru de ajutor') ||
+          text.includes('Linkuri rapide') ||
+          (text.includes('Soluția completă de management') && !text.includes('Aplicație desktop')) ||
+          text.includes('După autentificare, puteți accesa') ||
+          (text.includes('Panoul de control') && text.includes('Rapoarte și analize') && text.includes('Setările contului')) ||
+          (text.includes('Funcționalități') && text.includes('Prețuri') && text.includes('Despre') && text.includes('Înregistrare') && text.includes('Autentificare'))
+        );
+        
+        // Only remove if it's not in the main footer or navbar
+        const isInFooter = element.closest('footer');
+        const isInNav = element.closest('nav');
+        const isInMainContent = element.closest('[id="root"] > div > div');
+        
+        if (hasDuplicateText && !isInFooter && !isInNav) {
+          // Check if element is already hidden or should be hidden
+          if (
+            computedStyle.display === 'none' ||
+            computedStyle.visibility === 'hidden' ||
+            computedStyle.opacity === '0' ||
+            element.classList.contains('hidden') ||
+            element.classList.contains('sr-only')
+          ) {
+            element.remove();
+          } else {
+            // Hide the element
+            (element as HTMLElement).style.display = 'none';
+          }
+        }
+      });
+    };
+
+    // Run on mount and after delays to catch dynamically added content
+    removeDuplicateText();
+    setTimeout(removeDuplicateText, 100);
+    setTimeout(removeDuplicateText, 500);
+    setTimeout(removeDuplicateText, 1000);
+    setTimeout(removeDuplicateText, 2000);
+  }, []);
+
   const handleContactSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
