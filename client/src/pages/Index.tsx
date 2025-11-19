@@ -25,25 +25,73 @@ const Index = () => {
       
       allElements.forEach((element) => {
         const text = element.textContent?.trim() || '';
+        const rect = element.getBoundingClientRect();
         const computedStyle = window.getComputedStyle(element);
         
-        // Check for duplicate copyright text (© 2023) that appears outside the main footer
-        const hasOldCopyright = text.includes('© 2023') && !text.includes('© 2025');
+        // Check if element is positioned in bottom left corner (where duplicate text appears)
+        const isBottomLeft = rect.bottom > window.innerHeight - 150 && rect.left < 400;
         
-        // Check if element is positioned in bottom left (likely duplicate footer)
-        const rect = element.getBoundingClientRect();
-        const isBottomLeft = rect.bottom > window.innerHeight - 100 && rect.left < 300;
+        // Check for duplicate footer text patterns
+        const hasDuplicateText = (
+          text.includes('© 2023') ||
+          (text.includes('Bookerino') && text.includes('Funcționalități') && text.includes('Prețuri') && text.includes('Suport')) ||
+          (text.includes('Funcționalități') && text.includes('Prețuri') && text.includes('Despre') && text.includes('Înregistrare') && text.includes('Autentificare')) ||
+          text.includes('Linkuri rapide') ||
+          text.includes('Centru de ajutor') ||
+          (text.includes('support@bookerino.com') && !text.includes('ferinogroup@gmail.com')) ||
+          (text.includes('Soluția completă de management') && !text.includes('Aplicație desktop')) ||
+          (text.includes('După autentificare, puteți accesa') && !element.closest('[class*="Card"]'))
+        );
         
-        // Only remove if it's duplicate text and not in the main footer
+        // Only remove if it's duplicate text and positioned in bottom left, and not in main footer/nav
         const isInMainFooter = element.closest('footer[class*="border-t border-white"]');
         const isInNav = element.closest('nav');
+        const isInSection = element.closest('section');
+        const isInCard = element.closest('[class*="Card"]');
         
-        if (hasOldCopyright && !isInMainFooter && !isInNav) {
-          // Remove the element
+        if (hasDuplicateText && isBottomLeft && !isInMainFooter && !isInNav && !isInSection && !isInCard) {
+          // Remove the element completely
           element.remove();
-        } else if (hasOldCopyright && isBottomLeft && !isInMainFooter) {
-          // Also remove if it's in bottom left and not in main footer
-          element.remove();
+        } else if (hasDuplicateText && !isInMainFooter && !isInNav) {
+          // Also check if element is hidden or should be hidden
+          if (
+            computedStyle.display === 'none' ||
+            computedStyle.visibility === 'hidden' ||
+            computedStyle.opacity === '0' ||
+            element.classList.contains('hidden') ||
+            element.classList.contains('sr-only') ||
+            (computedStyle.position === 'absolute' && rect.left < -1000)
+          ) {
+            element.remove();
+          } else if (isBottomLeft) {
+            // Force hide elements in bottom left with duplicate text
+            (element as HTMLElement).style.display = 'none';
+            (element as HTMLElement).style.visibility = 'hidden';
+            (element as HTMLElement).style.opacity = '0';
+            (element as HTMLElement).style.position = 'absolute';
+            (element as HTMLElement).style.left = '-9999px';
+          }
+        }
+      });
+      
+      // Also remove any elements that are positioned absolutely in bottom left
+      const allAbsoluteElements = document.querySelectorAll('[style*="position: absolute"], [style*="position:absolute"]');
+      allAbsoluteElements.forEach((element) => {
+        const rect = element.getBoundingClientRect();
+        const isBottomLeft = rect.bottom > window.innerHeight - 150 && rect.left < 400;
+        const text = element.textContent?.trim() || '';
+        
+        if (isBottomLeft && (
+          text.includes('Bookerino') ||
+          text.includes('Funcționalități') ||
+          text.includes('Prețuri') ||
+          text.includes('Suport') ||
+          text.includes('© 2023')
+        )) {
+          const isInMainFooter = element.closest('footer[class*="border-t border-white"]');
+          if (!isInMainFooter) {
+            element.remove();
+          }
         }
       });
     };
@@ -53,6 +101,7 @@ const Index = () => {
     setTimeout(removeDuplicateText, 100);
     setTimeout(removeDuplicateText, 500);
     setTimeout(removeDuplicateText, 1000);
+    setTimeout(removeDuplicateText, 2000);
   }, []);
 
   const handleContactSubmit = async (e: FormEvent<HTMLFormElement>) => {
