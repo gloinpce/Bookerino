@@ -84,13 +84,10 @@ const Index = () => {
                 }}
               />
             </div>
-            <h1 className="mb-6 text-5xl font-bold tracking-tight text-primary-foreground sm:text-6xl lg:text-7xl">
+            <h1 className="mb-6 text-5xl font-bold tracking-tight text-foreground dark:text-white sm:text-6xl lg:text-7xl">
               Bookerino
             </h1>
-            <p className="mx-auto mb-8 max-w-2xl text-xl text-primary-foreground/90 sm:text-2xl font-semibold">
-              Soluție Completă de Management HoReCa
-            </p>
-            <p className="mx-auto mb-12 max-w-3xl text-lg text-primary-foreground/80">
+            <p className="mx-auto mb-12 max-w-3xl text-lg text-foreground dark:text-white">
               Transformă-ți afacerea din industria ospitalității cu aplicația desktop profesională care oferă 
               analiză financiară, management camere, rezervări, integrare Booking.com, management recenzii și integrare Google Ads.
               <br />
@@ -101,20 +98,20 @@ const Index = () => {
                 asChild 
                 size="lg" 
                 variant="outline" 
-                className="border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 transition-all hover:scale-105 w-full sm:w-auto"
+                className="border-foreground dark:border-white text-foreground dark:text-white hover:bg-foreground/10 dark:hover:bg-white/10 transition-all hover:scale-105 w-full sm:w-auto"
               >
                 <Link to="/features">Descoperă Funcționalitățile</Link>
               </Button>
               <Button 
                 asChild 
                 size="lg" 
-                className="bg-background text-primary hover:bg-background/90 shadow-card transition-all hover:scale-105 w-full sm:w-auto"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-card transition-all hover:scale-105 w-full sm:w-auto"
               >
                 <Link to="/auth">Începe Perioada de Probă Gratuită</Link>
               </Button>
             </div>
             {/* Trust indicators */}
-            <div className="mt-12 flex flex-wrap justify-center gap-8 text-primary-foreground/80">
+            <div className="mt-12 flex flex-wrap justify-center gap-8 text-foreground dark:text-white/80">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-5 w-5" />
                 <span className="text-sm">7 zile probă gratuită</span>
@@ -567,53 +564,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-white/10 bg-black py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h3 className="font-bold text-lg mb-4 text-white">Bookerino</h3>
-              <p className="text-sm text-white">
-                Aplicație desktop profesională pentru management HoReCa.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4 text-white">Produs</h4>
-              <ul className="space-y-2 text-sm text-white">
-                <li><Link to="/pricing" className="hover:text-primary transition-colors">Prețuri</Link></li>
-                <li><Link to="/features" className="hover:text-primary transition-colors">Funcții</Link></li>
-                <li><Link to="/auth" className="hover:text-primary transition-colors">Începe Probă</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4 text-white">Companie</h4>
-              <ul className="space-y-2 text-sm text-white">
-                <li><Link to="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
-                <li><Link to="/privacy-policy" className="hover:text-primary transition-colors">Politica de Confidențialitate</Link></li>
-                <li><Link to="/terms-of-service" className="hover:text-primary transition-colors">Termeni și Condiții</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4 text-white">Suport</h4>
-              <ul className="space-y-2 text-white">
-                <li><Link to="/contact" className="hover:text-primary transition-colors">Ajutor</Link></li>
-                <li><Link to="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-white">
-            <p>© 2025 Bookerino. Toate drepturile rezervate.</p>
-            <div className="flex gap-4">
-              <Link to="/privacy-policy" className="hover:text-primary transition-colors">
-                Privacy Policy
-              </Link>
-              <Link to="/terms-of-service" className="hover:text-primary transition-colors">
-                Terms of Service
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
