@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 import AnimatedBackground from "../components/AnimatedBackground";
 // @ts-ignore - Figma asset imports
 const logo = "/logo.png";
-const backgroundImage = "/attached_assets/analiza%20performanta%20ss.png"; // Background image
+const backgroundImage = "/attached_assets/analiza performanta ss.png"; // Background image
 import { ImageWithFallback } from "../components/figma/imageWithFallback";
 
 const Index = () => {
