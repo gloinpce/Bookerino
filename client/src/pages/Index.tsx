@@ -20,44 +20,66 @@ const Index = () => {
   // Remove any duplicate or hidden text elements on mount
   React.useEffect(() => {
     const removeDuplicateText = () => {
-      // Find all elements and check for duplicate content
-      const allElements = document.querySelectorAll('*');
+      // Find all text nodes and check for duplicate content
+      const walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT,
+        null
+      );
       
-      allElements.forEach((element) => {
-        const text = element.textContent?.trim() || '';
-        const computedStyle = window.getComputedStyle(element);
+      const nodesToRemove: Node[] = [];
+      let node;
+      
+      while (node = walker.nextNode()) {
+        const text = node.textContent?.trim() || '';
+        const parent = node.parentElement;
         
-        // Check if element contains duplicate footer text patterns
-        const hasDuplicateText = (
-          text.includes('© 2023') ||
-          text.includes('support@bookerino.com') ||
-          text.includes('Centru de ajutor') ||
-          text.includes('Linkuri rapide') ||
-          (text.includes('Soluția completă de management') && !text.includes('Aplicație desktop')) ||
-          text.includes('După autentificare, puteți accesa') ||
-          (text.includes('Panoul de control') && text.includes('Rapoarte și analize') && text.includes('Setările contului')) ||
-          (text.includes('Funcționalități') && text.includes('Prețuri') && text.includes('Despre') && text.includes('Înregistrare') && text.includes('Autentificare'))
+        if (!parent) continue;
+        
+        // Very specific patterns for duplicate text that should be removed
+        const isDuplicateText = (
+          // Old copyright
+          (text.includes('© 2023') && !text.includes('© 2025')) ||
+          // Old email
+          (text.includes('support@bookerino.com') && !text.includes('ferinogroup@gmail.com')) ||
+          // Old help center
+          text === 'Centru de ajutor' ||
+          // Old quick links section
+          text === 'Linkuri rapide' ||
+          // Old description without desktop app mention
+          (text.includes('Soluția completă de management pentru afacerile HoReCa') && !text.includes('Aplicație desktop')) ||
+          // Old auth section text
+          (text.includes('După autentificare, puteți accesa') && parent.tagName !== 'CARD') ||
+          // Old navigation items together (should be separate)
+          (text.includes('Funcționalități') && text.includes('Prețuri') && text.includes('Despre') && text.includes('Înregistrare') && text.includes('Autentificare') && parent.tagName !== 'NAV')
         );
         
         // Only remove if it's not in the main footer or navbar
-        const isInFooter = element.closest('footer');
-        const isInNav = element.closest('nav');
-        const isInMainContent = element.closest('[id="root"] > div > div');
+        const isInFooter = parent.closest('footer');
+        const isInNav = parent.closest('nav');
+        const isInCard = parent.closest('[class*="Card"]');
+        const isInSection = parent.closest('section');
         
-        if (hasDuplicateText && !isInFooter && !isInNav) {
-          // Check if element is already hidden or should be hidden
+        if (isDuplicateText && !isInFooter && !isInNav && !isInCard && !isInSection) {
+          const computedStyle = window.getComputedStyle(parent);
+          // Only remove if parent is already hidden or is a simple text container
           if (
             computedStyle.display === 'none' ||
             computedStyle.visibility === 'hidden' ||
             computedStyle.opacity === '0' ||
-            element.classList.contains('hidden') ||
-            element.classList.contains('sr-only')
+            parent.classList.contains('hidden') ||
+            parent.classList.contains('sr-only') ||
+            (parent.children.length === 0 && parent.textContent === text)
           ) {
-            element.remove();
-          } else {
-            // Hide the element
-            (element as HTMLElement).style.display = 'none';
+            nodesToRemove.push(parent);
           }
+        }
+      }
+      
+      // Remove collected nodes
+      nodesToRemove.forEach(node => {
+        if (node.parentNode) {
+          node.parentNode.removeChild(node);
         }
       });
     };
@@ -66,8 +88,6 @@ const Index = () => {
     removeDuplicateText();
     setTimeout(removeDuplicateText, 100);
     setTimeout(removeDuplicateText, 500);
-    setTimeout(removeDuplicateText, 1000);
-    setTimeout(removeDuplicateText, 2000);
   }, []);
 
   const handleContactSubmit = async (e: FormEvent<HTMLFormElement>) => {
