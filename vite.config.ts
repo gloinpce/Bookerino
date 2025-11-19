@@ -23,10 +23,7 @@ export default defineConfig({
     minify: "esbuild",
     sourcemap: false,
     rollupOptions: {
-      input: {
-        main: path.resolve(import.meta.dirname, "client", "index.html"),
-        website: path.resolve(import.meta.dirname, "client", "website.html"),
-      },
+      input: path.resolve(import.meta.dirname, "client", "index.html"),
     },
   },
   server: {
