@@ -2,22 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hide any duplicate or hidden text elements */
-[style*="display: none"],
-[style*="visibility: hidden"],
-[style*="opacity: 0"],
-.hidden-text,
-.duplicate-footer {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  position: absolute !important;
-  left: -9999px !important;
-  width: 1px !important;
-  height: 1px !important;
-  overflow: hidden !important;
-}
-
 /* LIGHT MODE */
 :root {
   --button-outline: rgba(0,0,0, .10);
