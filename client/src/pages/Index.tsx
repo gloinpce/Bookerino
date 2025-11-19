@@ -17,6 +17,55 @@ const Index = () => {
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Hide only duplicate text in bottom left corner - very specific targeting
+  React.useEffect(() => {
+    const hideSpecificDuplicates = () => {
+      const allElements = document.querySelectorAll('*');
+      const viewportHeight = window.innerHeight;
+      
+      allElements.forEach((element) => {
+        if (!(element instanceof HTMLElement)) return;
+        
+        const rect = element.getBoundingClientRect();
+        const text = element.textContent?.trim() || '';
+        
+        // Very specific: only bottom left corner (last 250px height, left 450px)
+        const isBottomLeftCorner = rect.bottom > viewportHeight - 250 && 
+                                   rect.left < 450 && 
+                                   rect.top > viewportHeight - 400;
+        
+        // Very specific duplicate text patterns
+        const hasExactDuplicateText = (
+          (text === '© 2023 Bookerino. Toate drepturile rezervate.' || (text.includes('© 2023') && text.includes('Bookerino') && !text.includes('© 2025'))) ||
+          text === 'support@bookerino.com' ||
+          text === 'Centru de ajutor' ||
+          text === 'Linkuri rapide' ||
+          (text.includes('Bookerino') && text.includes('Funcționalități') && text.includes('Prețuri') && text.includes('Despre') && text.includes('Înregistrare') && text.includes('Autentificare') && text.length < 400 && !element.closest('nav'))
+        );
+        
+        // Only hide if VERY specific conditions are met
+        const isInMainFooter = element.closest('footer[class*="border-t border-white"]');
+        const isInNav = element.closest('nav');
+        const isInSection = element.closest('section');
+        const isInCard = element.closest('[class*="Card"]');
+        const isInForm = element.closest('form');
+        
+        // Only hide if it's in bottom left corner AND has duplicate text AND not in valid containers
+        if (hasExactDuplicateText && isBottomLeftCorner && !isInMainFooter && !isInNav && !isInSection && !isInCard && !isInForm) {
+          // Just hide, don't remove
+          element.style.display = 'none';
+          element.style.visibility = 'hidden';
+          element.style.opacity = '0';
+          element.style.height = '0';
+          element.style.overflow = 'hidden';
+        }
+      });
+    };
+
+    // Run only after page fully loads
+    setTimeout(hideSpecificDuplicates, 500);
+    setTimeout(hideSpecificDuplicates, 1500);
+  }, []);
 
   const handleContactSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
