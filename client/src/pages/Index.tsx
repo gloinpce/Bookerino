@@ -20,66 +20,30 @@ const Index = () => {
   // Remove any duplicate or hidden text elements on mount
   React.useEffect(() => {
     const removeDuplicateText = () => {
-      // Find all text nodes and check for duplicate content
-      const walker = document.createTreeWalker(
-        document.body,
-        NodeFilter.SHOW_TEXT,
-        null
-      );
+      // Find all elements and check for duplicate footer text
+      const allElements = document.querySelectorAll('*');
       
-      const nodesToRemove: Node[] = [];
-      let node;
-      
-      while (node = walker.nextNode()) {
-        const text = node.textContent?.trim() || '';
-        const parent = node.parentElement;
+      allElements.forEach((element) => {
+        const text = element.textContent?.trim() || '';
+        const computedStyle = window.getComputedStyle(element);
         
-        if (!parent) continue;
+        // Check for duplicate copyright text (© 2023) that appears outside the main footer
+        const hasOldCopyright = text.includes('© 2023') && !text.includes('© 2025');
         
-        // Very specific patterns for duplicate text that should be removed
-        const isDuplicateText = (
-          // Old copyright
-          (text.includes('© 2023') && !text.includes('© 2025')) ||
-          // Old email
-          (text.includes('support@bookerino.com') && !text.includes('ferinogroup@gmail.com')) ||
-          // Old help center
-          text === 'Centru de ajutor' ||
-          // Old quick links section
-          text === 'Linkuri rapide' ||
-          // Old description without desktop app mention
-          (text.includes('Soluția completă de management pentru afacerile HoReCa') && !text.includes('Aplicație desktop')) ||
-          // Old auth section text
-          (text.includes('După autentificare, puteți accesa') && parent.tagName !== 'CARD') ||
-          // Old navigation items together (should be separate)
-          (text.includes('Funcționalități') && text.includes('Prețuri') && text.includes('Despre') && text.includes('Înregistrare') && text.includes('Autentificare') && parent.tagName !== 'NAV')
-        );
+        // Check if element is positioned in bottom left (likely duplicate footer)
+        const rect = element.getBoundingClientRect();
+        const isBottomLeft = rect.bottom > window.innerHeight - 100 && rect.left < 300;
         
-        // Only remove if it's not in the main footer or navbar
-        const isInFooter = parent.closest('footer');
-        const isInNav = parent.closest('nav');
-        const isInCard = parent.closest('[class*="Card"]');
-        const isInSection = parent.closest('section');
+        // Only remove if it's duplicate text and not in the main footer
+        const isInMainFooter = element.closest('footer[class*="border-t border-white"]');
+        const isInNav = element.closest('nav');
         
-        if (isDuplicateText && !isInFooter && !isInNav && !isInCard && !isInSection) {
-          const computedStyle = window.getComputedStyle(parent);
-          // Only remove if parent is already hidden or is a simple text container
-          if (
-            computedStyle.display === 'none' ||
-            computedStyle.visibility === 'hidden' ||
-            computedStyle.opacity === '0' ||
-            parent.classList.contains('hidden') ||
-            parent.classList.contains('sr-only') ||
-            (parent.children.length === 0 && parent.textContent === text)
-          ) {
-            nodesToRemove.push(parent);
-          }
-        }
-      }
-      
-      // Remove collected nodes
-      nodesToRemove.forEach(node => {
-        if (node.parentNode) {
-          node.parentNode.removeChild(node);
+        if (hasOldCopyright && !isInMainFooter && !isInNav) {
+          // Remove the element
+          element.remove();
+        } else if (hasOldCopyright && isBottomLeft && !isInMainFooter) {
+          // Also remove if it's in bottom left and not in main footer
+          element.remove();
         }
       });
     };
@@ -88,6 +52,7 @@ const Index = () => {
     removeDuplicateText();
     setTimeout(removeDuplicateText, 100);
     setTimeout(removeDuplicateText, 500);
+    setTimeout(removeDuplicateText, 1000);
   }, []);
 
   const handleContactSubmit = async (e: FormEvent<HTMLFormElement>) => {
