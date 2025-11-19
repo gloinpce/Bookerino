@@ -184,38 +184,11 @@ const Auth = () => {
           <Card className="bg-primary/5 border-primary/20">
             <CardHeader>
               <CardTitle className="text-2xl">
-                {isLogin ? "Conectați-vă la aplicație" : "De ce să vă înregistrați?"}
+                {isLogin ? "Bine ați revenit!" : "De ce să vă înregistrați?"}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {isLogin ? (
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Panoul de control al afacerii</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Rapoarte și analize în timp real</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Gestionare rezervări și camere</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Integrare Google Ads</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Management recenzii clienți</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Gestionarea abonamentului</span>
-                  </li>
-                </ul>
-              ) : (
+              {!isLogin && (
                 <ul className="space-y-3">
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />

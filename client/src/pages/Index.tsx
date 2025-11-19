@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 import AnimatedBackground from "../components/AnimatedBackground";
 // @ts-ignore - Figma asset imports
 const logo = "/logo.png";
-const logoBackground = "/logo.png"; // Logo for background
+const backgroundImage = "/attached_assets/analiza%20performanta%20ss.png"; // Background image
 import { ImageWithFallback } from "../components/figma/imageWithFallback";
 
 const Index = () => {
@@ -60,16 +60,12 @@ const Index = () => {
       <AnimatedBackground />
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-hero z-10">
-        {/* Logo Background */}
-        <div className="absolute inset-0 overflow-hidden flex items-center justify-center">
+        {/* Background Image */}
+        <div className="absolute inset-0 overflow-hidden">
           <img 
-            src={logoBackground} 
+            src={backgroundImage} 
             alt="Bookerino Background" 
-            className="w-full h-full object-contain opacity-10 mix-blend-overlay dark:opacity-5"
-            style={{
-              maxWidth: '80%',
-              maxHeight: '80%',
-            }}
+            className="w-full h-full object-cover opacity-10 mix-blend-overlay dark:opacity-5"
           />
         </div>
         
@@ -568,6 +564,53 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Footer */}
+      <footer className="border-t border-white/10 bg-black py-12 relative z-10">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <h3 className="font-bold text-lg mb-4 text-white">Bookerino</h3>
+              <p className="text-sm text-white">
+                Aplicație desktop profesională pentru management HoReCa.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4 text-white">Produs</h4>
+              <ul className="space-y-2 text-sm text-white">
+                <li><Link to="/pricing" className="hover:text-primary transition-colors">Prețuri</Link></li>
+                <li><Link to="/features" className="hover:text-primary transition-colors">Funcții</Link></li>
+                <li><Link to="/auth" className="hover:text-primary transition-colors">Începe Probă</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4 text-white">Companie</h4>
+              <ul className="space-y-2 text-sm text-white">
+                <li><Link to="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
+                <li><Link to="/privacy-policy" className="hover:text-primary transition-colors">Politica de Confidențialitate</Link></li>
+                <li><Link to="/terms-of-service" className="hover:text-primary transition-colors">Termeni și Condiții</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4 text-white">Suport</h4>
+              <ul className="space-y-2 text-white">
+                <li><Link to="/contact" className="hover:text-primary transition-colors">Ajutor</Link></li>
+                <li><Link to="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-white">
+            <p>© 2025 Bookerino. Toate drepturile rezervate.</p>
+            <div className="flex gap-4">
+              <Link to="/privacy-policy" className="hover:text-primary transition-colors">
+                Privacy Policy
+              </Link>
+              <Link to="/terms-of-service" className="hover:text-primary transition-colors">
+                Terms of Service
+              </Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
