@@ -1,27 +1,12 @@
-/**
- * NOTE: This is a reference file for Figma design purposes.
- * These files are copies of the actual source code and are not meant to compile.
- * TypeScript errors are expected as dependencies are not available in this folder.
- * For the actual working code, see: client/src/website/pages/Auth.tsx
- */
-
-import React, { useState, FormEvent, useEffect } from "react";
-// @ts-ignore - Reference file, dependencies not available
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-// @ts-ignore - Reference file, dependencies not available
-import { Button } from "@/components/ui/button";
-// @ts-ignore - Reference file, dependencies not available
-import { Input } from "@/components/ui/input";
-// @ts-ignore - Reference file, dependencies not available
-import { Label } from "@/components/ui/label";
+import React, { useState, FormEvent } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import { Check } from "lucide-react";
-// @ts-ignore - Reference file, dependencies not available
-import { authApi } from "../lib/api";
-// @ts-ignore - Reference file, dependencies not available
-import { debug } from "../config/database";
-// @ts-ignore - Reference file, dependencies not available
-import { initStackAuth } from "../lib/stackAuth";
+import { Check, Shield } from "lucide-react";
+import { stackAuth } from "../lib/stackAuth";
+import AnimatedBackground from "../components/AnimatedBackground";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -29,14 +14,58 @@ const Auth = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Initialize Stack Auth on component mount
-  useEffect(() => {
-    initStackAuth();
-  }, []);
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    
+    const formData = new FormData(e.currentTarget);
+    
+    try {
+      if (isLogin) {
+        const email = formData.get("email") as string;
+        const password = formData.get("password") as string;
+        
+        const result = await stackAuth.login(email, password);
+        
+        if (result.error) {
+          setError(result.error);
+        } else if (result.token && result.user) {
+          stackAuth.setAuthData(result.token, result.user);
+          navigate("/dashboard");
+        }
+      } else {
+        const name = formData.get("name") as string;
+        const email = formData.get("email") as string;
+        const password = formData.get("password") as string;
+        const confirmPassword = formData.get("confirm-password") as string;
+        
+        if (password !== confirmPassword) {
+          setError("Parolele nu se potrivesc");
+          setLoading(false);
+          return;
+        }
+        
+        const result = await stackAuth.register(name, email, password);
+        
+        if (result.error) {
+          setError(result.error);
+        } else if (result.token && result.user) {
+          stackAuth.setAuthData(result.token, result.user);
+          navigate("/dashboard");
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "A apărut o eroare");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle pt-24 pb-20">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen relative pt-24 pb-20">
+      <AnimatedBackground />
+      <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
           {/* Auth Form */}
           <Card>
@@ -58,52 +87,7 @@ const Auth = () => {
               )}
               <form 
                 className="space-y-4"
-                onSubmit={async (e: FormEvent<HTMLFormElement>) => {
-                  e.preventDefault();
-                  setError(null);
-                  setLoading(true);
-                  
-                  const formData = new FormData(e.currentTarget);
-                  
-                  try {
-                    if (isLogin) {
-                      const email = formData.get("email") as string;
-                      const password = formData.get("password") as string;
-                      
-                      if (debug) {
-                        console.log("Attempting login for:", email);
-                      }
-                      
-                      await authApi.login(email, password);
-                      navigate("/");
-                    } else {
-                      const name = formData.get("name") as string;
-                      const email = formData.get("email") as string;
-                      const password = formData.get("password") as string;
-                      const confirmPassword = formData.get("confirm-password") as string;
-                      
-                      if (password !== confirmPassword) {
-                        setError("Parolele nu se potrivesc");
-                        setLoading(false);
-                        return;
-                      }
-                      
-                      if (debug) {
-                        console.log("Attempting registration for:", email);
-                      }
-                      
-                      await authApi.register({ name, email, password });
-                      navigate("/");
-                    }
-                  } catch (err) {
-                    setError(err instanceof Error ? err.message : "A apărut o eroare");
-                    if (debug) {
-                      console.error("Auth error:", err);
-                    }
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
+                onSubmit={handleSubmit}
               >
                 {!isLogin && (
                   <div className="space-y-2">
@@ -132,8 +116,8 @@ const Auth = () => {
                 {isLogin && (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <input type="checkbox" id="remember" name="remember" />
-                      <Label htmlFor="remember" className="cursor-pointer">
+                      <input type="checkbox" id="remember" name="remember" className="rounded" />
+                      <Label htmlFor="remember" className="cursor-pointer text-sm">
                         Ține-mă minte
                       </Label>
                     </div>
@@ -150,6 +134,22 @@ const Auth = () => {
                       ? "Autentificare" 
                       : "Începeți perioada de probă"}
                 </Button>
+
+                {isLogin && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
+                    <p className="text-sm font-semibold text-blue-900 flex items-center gap-2">
+                      <Shield className="h-4 w-4" />
+                      Cont Demo pentru Testare
+                    </p>
+                    <div className="text-sm text-blue-800 space-y-1">
+                      <p><strong>Email:</strong> demo@bookerino.net</p>
+                      <p><strong>Parolă:</strong> Demo2024!</p>
+                    </div>
+                    <p className="text-xs text-blue-600">
+                      Acest cont conține ambele abonamente (Professional și Enterprise) pentru testare completă.
+                    </p>
+                  </div>
+                )}
                 
                 <div className="text-center text-sm">
                   {isLogin ? (
@@ -181,7 +181,7 @@ const Auth = () => {
           </Card>
           
           {/* Info Section */}
-          <Card className="bg-primary/5">
+          <Card className="bg-primary/5 border-primary/20">
             <CardHeader>
               <CardTitle className="text-2xl">
                 {isLogin ? "Conectați-vă la aplicație" : "De ce să vă înregistrați?"}
@@ -196,11 +196,19 @@ const Auth = () => {
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Rapoarte și analize</span>
+                    <span>Rapoarte și analize în timp real</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Setările contului</span>
+                    <span>Gestionare rezervări și camere</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Integrare Google Ads</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Management recenzii clienți</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
@@ -225,6 +233,14 @@ const Auth = () => {
                     <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <span>Suport dedicat pentru noii clienți</span>
                   </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Integrări complete: Google Ads & Stripe</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Management profesional pentru HoReCa</span>
+                  </li>
                 </ul>
               )}
             </CardContent>
@@ -242,4 +258,3 @@ const Auth = () => {
 };
 
 export default Auth;
-

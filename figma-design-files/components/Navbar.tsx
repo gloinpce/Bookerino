@@ -1,110 +1,150 @@
-/**
- * NOTE: This is a reference file for Figma design purposes.
- * These files are copies of the actual source code and are not meant to compile.
- * TypeScript errors are expected as dependencies are not available in this folder.
- * For the actual working code, see: client/src/website/components/Navbar.tsx
- */
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-// @ts-ignore - Reference file, dependencies not available
-import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
-// @ts-ignore - Reference file, dependencies not available
-import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
+import { Menu, X, Moon, Sun } from "lucide-react";
+import { stackAuth } from "../lib/stackAuth";
+import { useTheme } from "./ThemeProvider";
+// @ts-ignore - Figma asset import
+const logo = "/logo.png"; // Placeholder for Figma asset
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const location = useLocation();
+  const { theme, toggleTheme } = useTheme();
+
+  useEffect(() => {
+    setIsAuthenticated(stackAuth.isAuthenticated());
+  }, [location]);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 10);
     };
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navLinks = [
-    { to: "/", label: "Acasă" },
-    { to: "/pricing", label: "Prețuri" },
-    { to: "/#features", label: "Funcții" },
-    { to: "/#contact", label: "Contact" },
-  ];
+  // Handle hash navigation on page load
+  useEffect(() => {
+    if (location.hash) {
+      setTimeout(() => {
+        const id = location.hash.replace('#', '');
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
+  }, [location]);
+
+  const scrollToSection = (sectionId: string) => {
+    // If not on homepage, navigate first then scroll
+    if (location.pathname !== "/") {
+      window.location.href = `/#${sectionId}`;
+      return;
+    }
+    
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+      setIsMobileMenuOpen(false);
+    }
+  };
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <nav
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-background/95 backdrop-blur-sm shadow-md"
+          ? "bg-background/95 backdrop-blur-md shadow-md border-b border-border"
           : "bg-transparent"
-      )}
+      }`}
     >
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link
-            to="/"
-            className="flex items-center space-x-2 text-xl font-bold text-primary hover:opacity-80 transition-opacity"
-          >
-            <span>Bookerino</span>
+          <Link to="/" className="flex items-center space-x-3">
+            <img 
+              src={logo} 
+              alt="Bookerino Logo" 
+              className="w-10 h-10 object-contain rounded-lg mix-blend-multiply dark:mix-blend-screen drop-shadow-lg"
+              style={{
+                imageRendering: '-webkit-optimize-contrast',
+                WebkitFontSmoothing: 'antialiased',
+                filter: 'contrast(1.1) brightness(1.05)'
+              }}
+            />
+            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-blue-600 dark:from-blue-400 dark:to-blue-500 bg-clip-text text-transparent">
+              Bookerino
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            {navLinks.map((link) => {
-              const isActive =
-                link.to === "/"
-                  ? location.pathname === "/"
-                  : location.pathname === link.to ||
-                    (link.to.startsWith("/#") &&
-                      location.pathname === "/" &&
-                      window.location.hash === link.to.slice(1));
-              
-              return link.to.startsWith("/#") ? (
-                <a
-                  key={link.to}
-                  href={link.to}
-                  className={cn(
-                    "text-sm font-medium transition-colors hover:text-primary",
-                    isActive ? "text-primary" : "text-muted-foreground"
-                  )}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const id = link.to.slice(2);
-                    const element = document.getElementById(id);
-                    if (element) {
-                      element.scrollIntoView({ behavior: "smooth" });
-                    }
-                  }}
-                >
-                  {link.label}
-                </a>
+            <Link
+              to="/"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive("/") ? "text-primary" : "text-foreground"
+              }`}
+            >
+              Acasă
+            </Link>
+            <Link
+              to="/features"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive("/features") ? "text-primary" : "text-foreground"
+              }`}
+            >
+              Funcții
+            </Link>
+            <Link
+              to="/pricing"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive("/pricing") ? "text-primary" : "text-foreground"
+              }`}
+            >
+              Prețuri
+            </Link>
+            <Link
+              to="/contact"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive("/contact") ? "text-primary" : "text-foreground"
+              }`}
+            >
+              Contact
+            </Link>
+            
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg hover:bg-muted transition-colors"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5 text-foreground" />
               ) : (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className={cn(
-                    "text-sm font-medium transition-colors hover:text-primary",
-                    isActive ? "text-primary" : "text-muted-foreground"
-                  )}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-            <Button asChild size="sm">
-              <Link to="/auth">Autentificare</Link>
-            </Button>
+                <Moon className="h-5 w-5 text-foreground" />
+              )}
+            </button>
+
+            {isAuthenticated ? (
+              <Button asChild>
+                <Link to="/dashboard">Dashboard</Link>
+              </Button>
+            ) : (
+              <Button asChild>
+                <Link to="/auth">Autentificare</Link>
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
           <button
             className="md:hidden p-2"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? (
               <X className="h-6 w-6" />
@@ -114,59 +154,77 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 space-y-2 border-t border-border">
-            {navLinks.map((link) => {
-              const isActive =
-                link.to === "/"
-                  ? location.pathname === "/"
-                  : location.pathname === link.to;
+          <div className="md:hidden py-4 bg-background border-t">
+            <div className="flex flex-col space-y-4">
+              <Link
+                to="/"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  isActive("/") ? "text-primary" : "text-foreground"
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Acasă
+              </Link>
+              <Link
+                to="/features"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  isActive("/features") ? "text-primary" : "text-foreground"
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Funcții
+              </Link>
+              <Link
+                to="/pricing"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  isActive("/pricing") ? "text-primary" : "text-foreground"
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Prețuri
+              </Link>
+              <Link
+                to="/contact"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  isActive("/contact") ? "text-primary" : "text-foreground"
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Contact
+              </Link>
               
-              return link.to.startsWith("/#") ? (
-                <a
-                  key={link.to}
-                  href={link.to}
-                  className={cn(
-                    "block px-4 py-2 text-sm font-medium rounded-md transition-colors",
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-accent"
-                  )}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsMobileMenuOpen(false);
-                    const id = link.to.slice(2);
-                    const element = document.getElementById(id);
-                    if (element) {
-                      element.scrollIntoView({ behavior: "smooth" });
-                    }
-                  }}
-                >
-                  {link.label}
-                </a>
+              <button
+                onClick={toggleTheme}
+                className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                {theme === "dark" ? (
+                  <>
+                    <Sun className="h-5 w-5" />
+                    Mod Luminos
+                  </>
+                ) : (
+                  <>
+                    <Moon className="h-5 w-5" />
+                    Mod Întunecat
+                  </>
+                )}
+              </button>
+
+              {isAuthenticated ? (
+                <Button asChild className="w-full">
+                  <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                    Dashboard
+                  </Link>
+                </Button>
               ) : (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className={cn(
-                    "block px-4 py-2 text-sm font-medium rounded-md transition-colors",
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-accent"
-                  )}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-            <div className="px-4 pt-2">
-              <Button asChild className="w-full" size="sm">
-                <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
-                  Autentificare
-                </Link>
-              </Button>
+                <Button asChild className="w-full">
+                  <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
+                    Autentificare
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
         )}
@@ -176,4 +234,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
