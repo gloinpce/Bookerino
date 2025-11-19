@@ -54,12 +54,9 @@ public class AuthManager {
         private JTextField emailField;
         private JPasswordField passwordField;
         private JButton loginBtn;
-        private JButton demoBtn;
         // Updated colors to match global.css
         private static final Color PRIMARY_COLOR = new Color(0, 136, 255); // hsl(210, 100%, 50%) - #0088ff
         private static final Color PRIMARY_DARK = new Color(51, 153, 255); // hsl(220, 90%, 60%)
-        private static final Color DEMO_BUTTON_COLOR = new Color(34, 197, 94); // Green #22c55e
-        private static final Color DEMO_BUTTON_DARK = new Color(22, 163, 74); // Darker green
         private static final Color TEXT_PRIMARY = new Color(51, 65, 85); // hsl(220, 15%, 20%)
         private static final Color TEXT_MUTED = new Color(115, 125, 135); // hsl(220, 10%, 45%)
         
@@ -166,45 +163,10 @@ public class AuthManager {
             cardContent.setOpaque(false);
             cardContent.setBorder(new EmptyBorder(0, 0, 0, 0));
             
-            // Demo button (green) - most prominent
-            demoBtn = createDemoButton("Creează Cont Demo Temporar");
-            demoBtn.addActionListener(e -> createDemoAccount());
-            demoBtn.setPreferredSize(new Dimension(0, 48));
-            
-            // Separator with "SAU" label
-            JPanel separatorPanel = new JPanel(new BorderLayout());
-            separatorPanel.setOpaque(false);
-            separatorPanel.setBorder(new EmptyBorder(20, 0, 20, 0));
-            
-            // Line
-            JPanel line = new JPanel();
-            line.setPreferredSize(new Dimension(0, 1));
-            line.setBackground(new Color(210, 220, 230));
-            
-            // Label
-            JLabel separatorLabel = new JLabel("SAU", JLabel.CENTER);
-            separatorLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-            separatorLabel.setForeground(TEXT_MUTED);
-            separatorLabel.setOpaque(true);
-            separatorLabel.setBackground(Color.WHITE);
-            separatorLabel.setBorder(new EmptyBorder(0, 12, 0, 12));
-            
-            separatorPanel.add(line, BorderLayout.CENTER);
-            separatorPanel.add(separatorLabel, BorderLayout.CENTER);
-            
             // Login form
             JPanel loginFormPanel = createEmailPhonePanel();
             
-            // Info label
-            JLabel infoLabel = new JLabel("<html><center>Orice credențiale funcționează în modul demo</center></html>", JLabel.CENTER);
-            infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-            infoLabel.setForeground(TEXT_MUTED);
-            infoLabel.setBorder(new EmptyBorder(16, 0, 0, 0));
-            
-            cardContent.add(demoBtn, BorderLayout.NORTH);
-            cardContent.add(separatorPanel, BorderLayout.CENTER);
             cardContent.add(loginFormPanel, BorderLayout.CENTER);
-            cardContent.add(infoLabel, BorderLayout.SOUTH);
             
             cardPanel.add(cardHeader, BorderLayout.NORTH);
             cardPanel.add(cardContent, BorderLayout.CENTER);
@@ -359,39 +321,6 @@ public class AuthManager {
             return label;
         }
         
-        private JButton createDemoButton(String text) {
-            JButton button = new JButton(text) {
-                @Override
-                protected void paintComponent(Graphics g) {
-                    Graphics2D g2d = (Graphics2D) g.create();
-                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    
-                    // Green gradient for demo button
-                    GradientPaint gradient = new GradientPaint(
-                        0, 0, DEMO_BUTTON_COLOR,
-                        0, getHeight(), DEMO_BUTTON_DARK
-                    );
-                    g2d.setPaint(gradient);
-                    g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-                    
-                    // Shadow effect
-                    g2d.setColor(new Color(0, 0, 0, 10));
-                    g2d.fillRoundRect(0, getHeight() - 3, getWidth(), 3, 10, 10);
-                    
-                    g2d.dispose();
-                    super.paintComponent(g);
-                }
-            };
-            button.setFont(new Font("Segoe UI", Font.BOLD, 15));
-            button.setForeground(Color.WHITE);
-            button.setBorder(new EmptyBorder(14, 30, 14, 30));
-            button.setContentAreaFilled(false);
-            button.setOpaque(false);
-            button.setFocusPainted(false);
-            button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            return button;
-        }
-        
         private JButton createStyledButton(String text, boolean primary) {
             JButton button = new JButton(text) {
                 @Override
@@ -427,13 +356,6 @@ public class AuthManager {
             return button;
         }
         
-        private void createDemoAccount() {
-            // Create demo account instantly - matching React app behavior
-            currentToken = "demo-token-" + System.currentTimeMillis();
-            currentUser = "Utilizator Demo";
-            authenticated = true;
-            dispose();
-        }
         
         private void performLogin() {
             String email = emailField.getText().trim();
@@ -447,7 +369,7 @@ public class AuthManager {
             }
             
             // In demo mode, any credentials work
-            String identifier = email.isEmpty() ? "demo@bookerino.ro" : email;
+            String identifier = email.isEmpty() ? "admin@bookerino.ro" : email;
             
             try {
                 // Try to authenticate via web API first

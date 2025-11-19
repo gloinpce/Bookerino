@@ -4,7 +4,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import { Check, Shield } from "lucide-react";
+import { Check } from "lucide-react";
 import { stackAuth } from "../lib/stackAuth";
 import AnimatedBackground from "../components/AnimatedBackground";
 
@@ -135,21 +135,6 @@ const Auth = () => {
                       : "Începeți perioada de probă"}
                 </Button>
 
-                {isLogin && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
-                    <p className="text-sm font-semibold text-blue-900 flex items-center gap-2">
-                      <Shield className="h-4 w-4" />
-                      Cont Demo pentru Testare
-                    </p>
-                    <div className="text-sm text-blue-800 space-y-1">
-                      <p><strong>Email:</strong> demo@bookerino.net</p>
-                      <p><strong>Parolă:</strong> Demo2024!</p>
-                    </div>
-                    <p className="text-xs text-blue-600">
-                      Acest cont conține ambele abonamente (Professional și Enterprise) pentru testare completă.
-                    </p>
-                  </div>
-                )}
                 
                 <div className="text-center text-sm">
                   {isLogin ? (

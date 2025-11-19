@@ -66,12 +66,12 @@ export const STACK_AUTH_CONFIG = {
     const enterpriseStart = new Date(new Date().getFullYear(), 0, 1);
     
     return {
-      email: 'demo@bookerino.net',
-      password: 'Demo2024!',
+      email: 'admin@bookerino.ro',
+      password: 'Bookerino2025!',
       user: {
         id: 'demo-user-001',
-        email: 'demo@bookerino.net',
-        name: 'Demo Bookerino',
+        email: 'admin@bookerino.ro',
+        name: 'Admin Bookerino',
         subscriptions: {
           professional: {
             active: true,
@@ -91,7 +91,7 @@ export const STACK_AUTH_CONFIG = {
           },
         },
       },
-      token: 'demo-token-bookerino-2024',
+      token: 'demo-token-bookerino-2025',
     };
   };
   
