@@ -9,8 +9,8 @@ import { Building2, BarChart3, Calendar, BedDouble, Users, TrendingUp, Mail, Pho
 import { Link } from "react-router-dom";
 import AnimatedBackground from "../components/AnimatedBackground";
 // @ts-ignore - Figma asset imports
-const logo = "/logo.png"; // Placeholder for Figma asset
-const appScreenshot = "/screenshot.png"; // Placeholder for Figma asset
+const logo = "/logo.png";
+const logoBackground = "/logo.png"; // Logo for background
 import { ImageWithFallback } from "../components/figma/imageWithFallback";
 
 const Index = () => {
@@ -60,12 +60,16 @@ const Index = () => {
       <AnimatedBackground />
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-hero z-10">
-        {/* App Screenshot Background */}
-        <div className="absolute inset-0 overflow-hidden">
+        {/* Logo Background */}
+        <div className="absolute inset-0 overflow-hidden flex items-center justify-center">
           <img 
-            src={appScreenshot} 
-            alt="Bookerino" 
-            className="w-full h-full object-cover opacity-40 mix-blend-overlay"
+            src={logoBackground} 
+            alt="Bookerino Background" 
+            className="w-full h-full object-contain opacity-10 mix-blend-overlay dark:opacity-5"
+            style={{
+              maxWidth: '80%',
+              maxHeight: '80%',
+            }}
           />
         </div>
         
