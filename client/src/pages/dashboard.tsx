@@ -1,292 +1,410 @@
-import { useQuery } from "@tanstack/react-query";
-import { type Room, type Booking, type Review } from "@shared/schema";
-import { StatCard } from "@/components/stat-card";
-import { BookingCard } from "@/components/booking-card";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { format } from "date-fns";
-import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import React, { useEffect, useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import { Link, useNavigate } from "react-router-dom";
+import { Download, CheckCircle, FileCode, Laptop, Shield, Zap, HelpCircle, LogOut, Calendar, CreditCard, Settings } from "lucide-react";
+import { stackAuth } from "../lib/stackAuth";
+import AccountSheet from "../components/AccountSheet";
+import AnimatedBackground from "../components/AnimatedBackground";
+// @ts-ignore - Figma asset import
+const logo = "/logo.png"; // Placeholder for Figma asset
 
-interface AdvancedAnalytics {
-  revenueTrend: { month: string; revenue: number }[];
-  occupancyRate: number;
-  bookingSources: { name: string; value: number }[];
-}
+const Dashboard = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+  const [downloading, setDownloading] = useState(false);
 
-export default function Dashboard() {
-  const { data: rooms, isLoading: roomsLoading } = useQuery<Room[]>({
-    queryKey: ["/api/rooms"],
-  });
+  useEffect(() => {
+    // Check if user is authenticated
+    if (!stackAuth.isAuthenticated()) {
+      navigate("/auth");
+      return;
+    }
+    
+    const userData = stackAuth.getUser();
+    setUser(userData);
+  }, [navigate]);
 
-  const { data: bookings, isLoading: bookingsLoading } = useQuery<Booking[]>({
-    queryKey: ["/api/bookings"],
-  });
-
-  const { data: reviews, isLoading: reviewsLoading } = useQuery<Review[]>({
-    queryKey: ["/api/reviews"],
-  });
-
-  const { data: analytics, isLoading: analyticsLoading } = useQuery<AdvancedAnalytics>({
-    queryKey: ["/api/analytics/advanced"],
-  });
-
-  const isLoading = roomsLoading || bookingsLoading || reviewsLoading || analyticsLoading;
-
-  const roomsList = rooms ?? [];
-  const bookingsList = bookings ?? [];
-  const reviewsList = reviews ?? [];
-
-  const getRoomName = (roomId: string) => {
-    return roomsList.find((r) => r.id === roomId)?.name || "Camera necunoscută";
+  const handleDownload = () => {
+    setDownloading(true);
+    
+    // Create a link to download the Bookerino.jar file
+    const link = document.createElement('a');
+    link.href = '/Bookerino.jar';
+    link.download = 'Bookerino.jar';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    setTimeout(() => {
+      setDownloading(false);
+    }, 2000);
   };
 
-  const stats = {
-    totalBookings: bookingsList.length,
-    availableRooms: roomsList.filter((r) => r.status === "available").length,
-    totalRooms: roomsList.length,
-    revenue: bookingsList
-      .reduce((sum, b) => {
-        const price = parseFloat(b.totalPrice || "0");
-        return sum + (Number.isFinite(price) ? price : 0);
-      }, 0)
-      .toFixed(2),
-    averageRating: reviewsList.length > 0
-      ? (reviewsList.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewsList.length).toFixed(1)
-      : "0.0",
-    totalReviews: reviewsList.length,
+  const handleLogout = () => {
+    stackAuth.logout();
+    navigate("/");
   };
 
-  const recentBookings = [...bookingsList]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 3);
+  const systemRequirements = [
+    { label: "Java Runtime", value: "JRE 11 sau mai nou" },
+    { label: "Sistem de operare", value: "Windows, macOS, Linux" },
+    { label: "RAM minim", value: "4 GB" },
+    { label: "Spațiu disc", value: "500 MB" },
+  ];
 
-  const recentReviews = [...reviewsList]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 3);
+  const features = [
+    {
+      icon: <Laptop className="h-6 w-6" />,
+      title: "Desktop Nativ",
+      description: "Aplicație desktop optimizată pentru performanță maximă"
+    },
+    {
+      icon: <Zap className="h-6 w-6" />,
+      title: "Offline Mode",
+      description: "Lucrați offline și sincronizați automat când sunteți online"
+    },
+    {
+      icon: <Shield className="h-6 w-6" />,
+      title: "Securizat",
+      description: "Datele dvs. sunt criptate și securizate"
+    },
+    {
+      icon: <FileCode className="h-6 w-6" />,
+      title: "API Integration",
+      description: "Conectare automată cu Google Ads, Stripe și altele"
+    }
+  ];
+
+  if (!user) {
+    return null;
+  }
 
   return (
-    <div className="flex-1 overflow-auto" data-scroll-container>
-      <div className="p-6 space-y-6">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2">Panou de Control</h1>
-          <p className="text-muted-foreground text-lg">Bine ai venit la sistemul de management hotelier</p>
+    <div className="min-h-screen relative pt-24 pb-20">
+      <AnimatedBackground />
+      <div className="container mx-auto px-4 relative z-10">
+        {/* Header */}
+        <div className="mb-12 text-center">
+          <div className="flex justify-center mb-6">
+            <img 
+              src={logo} 
+              alt="Bookerino Logo" 
+              className="w-20 h-20 object-contain drop-shadow-2xl mix-blend-multiply dark:mix-blend-screen rounded-2xl"
+              style={{
+                imageRendering: '-webkit-optimize-contrast',
+                WebkitFontSmoothing: 'antialiased',
+                filter: 'contrast(1.1) brightness(1.05)'
+              }}
+            />
+          </div>
+          <h1 className="text-4xl font-bold mb-4">
+            Bine ai venit, {user?.name || user?.email}!
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Descarcă aplicația Bookerino și începe să gestionezi afacerea ta HoReCa mai eficient
+          </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {isLoading ? (
-            <>
-              <Skeleton className="h-[120px]" data-testid="skeleton-stat-0" />
-              <Skeleton className="h-[120px]" data-testid="skeleton-stat-1" />
-              <Skeleton className="h-[120px]" data-testid="skeleton-stat-2" />
-              <Skeleton className="h-[120px]" data-testid="skeleton-stat-3" />
-            </>
-          ) : (
-            <>
-              <StatCard
-                title="Total Rezervări"
-                value={stats.totalBookings}
-                change={`${stats.totalBookings} rezervări active`}
-              />
-              <StatCard
-                title="Camere Disponibile"
-                value={stats.availableRooms}
-                change={`Din ${stats.totalRooms} camere totale`}
-              />
-              <StatCard
-                title="Venit Total"
-                value={`${stats.revenue} RON`}
-                change="Din toate rezervările"
-              />
-              <StatCard
-                title="Rating Mediu"
-                value={stats.averageRating}
-                change={`Pe baza a ${stats.totalReviews} recenzii`}
-              />
-            </>
-          )}
+        {/* Active Subscriptions */}
+        {user?.subscriptions && (user?.subscriptions?.professional?.active || user?.subscriptions?.enterprise?.active) && (
+          <div className="max-w-5xl mx-auto mb-12">
+            <h2 className="text-2xl font-bold mb-6 text-center">Abonamentele Tale Active</h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              {user?.subscriptions?.professional?.active && (
+                <Card className="hover-scale border-primary/50">
+                  <CardHeader className="bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/30 dark:to-slate-900/30">
+                    <div className="flex items-center justify-between">
+                      <CardTitle>
+                        {user.subscriptions.professional.plan}
+                      </CardTitle>
+                      <Badge className="bg-green-500 hover:bg-green-600">Activ</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground flex items-center gap-2">
+                          <CreditCard className="h-4 w-4" />
+                          Preț
+                        </span>
+                        <span className="font-bold text-lg">{user.subscriptions.professional.price}/{user.subscriptions.professional.billingPeriod}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          Început
+                        </span>
+                        <span>{user.subscriptions.professional.startDate}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          Următoarea factură
+                        </span>
+                        <span>{user.subscriptions.professional.nextBilling}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+              
+              {user?.subscriptions?.enterprise?.active && (
+                <Card className="hover-scale border-primary/50 relative overflow-hidden">
+                  <CardHeader className="bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/30 dark:to-slate-900/30">
+                    <div className="flex items-center justify-between">
+                      <CardTitle>
+                        {user.subscriptions.enterprise.plan}
+                      </CardTitle>
+                      <Badge className="bg-green-500 hover:bg-green-600">Activ</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground flex items-center gap-2">
+                          <CreditCard className="h-4 w-4" />
+                          Preț
+                        </span>
+                        <span className="font-bold text-lg">{user.subscriptions.enterprise.price}/{user.subscriptions.enterprise.billingPeriod}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          Început
+                        </span>
+                        <span>{user.subscriptions.enterprise.startDate}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          Următoarea factură
+                        </span>
+                        <span>{user.subscriptions.enterprise.nextBilling}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Main Download Section */}
+        <div className="max-w-5xl mx-auto mb-12">
+          <Card className="overflow-hidden border-primary shadow-lg-custom">
+            <div className="bg-gradient-hero p-8 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-3xl font-bold mb-2">Bookerino Download</h2>
+                  <p className="text-blue-100 text-lg">
+                    Versiunea 2.0.1 • Ultima actualizare: Noiembrie 2025
+                  </p>
+                </div>
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4">
+                  <img 
+                    src={logo} 
+                    alt="Bookerino Logo" 
+                    className="h-16 w-16 object-contain mix-blend-screen rounded-xl"
+                    style={{
+                      imageRendering: '-webkit-optimize-contrast',
+                      WebkitFontSmoothing: 'antialiased',
+                      filter: 'contrast(1.1) brightness(1.1)'
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <CardContent className="p-8">
+              <div className="grid md:grid-cols-2 gap-8 mb-8">
+                <div>
+                  <h3 className="text-xl font-semibold mb-4">Ce include aplicația:</h3>
+                  <ul className="space-y-3">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span>Management complet al rezervărilor</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span>Rapoarte și analize avansate</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span>Integrare Google Ads API</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span>Management recenzii clienți</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span>Sistem de plăți integrat (Stripe)</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h3 className="text-xl font-semibold mb-4">Cerințe de sistem:</h3>
+                  <div className="space-y-3">
+                    {systemRequirements.map((req, index) => (
+                      <div key={index} className="flex justify-between p-3 bg-muted rounded-lg">
+                        <span className="font-medium">{req.label}:</span>
+                        <span className="text-muted-foreground">{req.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center py-6 border-t">
+                <Button 
+                  onClick={handleDownload}
+                  disabled={downloading}
+                  size="lg"
+                  className="px-8 py-6 text-lg"
+                >
+                  <Download className="mr-2 h-5 w-5" />
+                  {downloading ? "Se descarcă..." : "Descarcă Bookerino.jar"}
+                </Button>
+                <p className="text-sm text-muted-foreground mt-4">
+                  Dimensiune: ~50 MB • Format: JAR (Java Application)
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          <Card className="lg:col-span-2">
+        {/* Features Grid */}
+        <div className="max-w-5xl mx-auto mb-12">
+          <h2 className="text-2xl font-bold mb-6 text-center">Caracteristici Principale</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map((feature, index) => (
+              <Card key={index} className="hover-scale cursor-pointer">
+                <CardContent className="p-6 text-center">
+                  <div className="inline-flex rounded-lg bg-primary/10 p-3 mb-4 text-primary">
+                    {feature.icon}
+                  </div>
+                  <h3 className="font-semibold mb-2">{feature.title}</h3>
+                  <p className="text-sm text-muted-foreground">{feature.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Installation Instructions */}
+        <div className="max-w-5xl mx-auto mb-12">
+          <Card className="hover-scale">
             <CardHeader>
-              <CardTitle>
-                Tendință Venituri
+              <CardTitle className="flex items-center gap-2">
+                <HelpCircle className="h-6 w-6 text-primary" />
+                Instrucțiuni de Instalare
               </CardTitle>
-              <CardDescription>Evoluția veniturilor în ultimele 6 luni</CardDescription>
+              <CardDescription>
+                Urmează acești pași simpli pentru a instala Bookerino
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              {analyticsLoading ? (
-                <Skeleton className="h-[300px]" data-testid="skeleton-revenue-chart" />
-              ) : analytics?.revenueTrend && analytics.revenueTrend.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={analytics.revenueTrend}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line 
-                      type="monotone" 
-                      dataKey="revenue" 
-                      stroke="hsl(var(--primary))" 
-                      strokeWidth={2}
-                      name="Venit (RON)"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-16">
-                  Nu există date disponibile
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  Rată Ocupare
-                </CardTitle>
-                <CardDescription>Camere ocupate astăzi</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {analyticsLoading ? (
-                  <Skeleton className="h-[80px]" data-testid="skeleton-occupancy" />
-                ) : (
-                  <div className="text-center">
-                    <p className="text-4xl font-bold" data-testid="text-occupancy-rate">
-                      {analytics?.occupancyRate || 0}%
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Ocupare actuală
+              <ol className="space-y-4">
+                <li className="flex gap-4">
+                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                    1
+                  </span>
+                  <div>
+                    <p className="font-semibold">Instalează Java</p>
+                    <p className="text-sm text-muted-foreground">
+                      Asigură-te că ai instalat Java Runtime Environment (JRE) 11 sau mai nou.{" "}
+                      <a 
+                        href="https://www.java.com/download/" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        Descarcă Java aici
+                      </a>
                     </p>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Surse Rezervări</CardTitle>
-                <CardDescription>Distribuție pe surse</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {analyticsLoading ? (
-                  <Skeleton className="h-[200px]" data-testid="skeleton-sources-chart" />
-                ) : analytics?.bookingSources && analytics.bookingSources.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={200}>
-                    <PieChart>
-                      <Pie
-                        data={analytics.bookingSources}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={80}
-                        fill="hsl(var(--primary))"
-                        dataKey="value"
-                      >
-                        {analytics.bookingSources.map((entry, index) => (
-                          <Cell 
-                            key={`cell-${index}`} 
-                            fill={`hsl(var(--chart-${(index % 5) + 1}))`} 
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <p className="text-sm text-muted-foreground text-center py-8">
-                    Nu există rezervări
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Rezervări Recente</CardTitle>
-                <CardDescription>Ultimele tale rezervări</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {bookingsLoading ? (
-                  <>
-                    <Skeleton className="h-[150px]" data-testid="skeleton-booking-0" />
-                    <Skeleton className="h-[150px]" data-testid="skeleton-booking-1" />
-                    <Skeleton className="h-[150px]" data-testid="skeleton-booking-2" />
-                  </>
-                ) : recentBookings.length > 0 ? (
-                  recentBookings.map((booking) => (
-                    <BookingCard
-                      key={booking.id}
-                      id={booking.id}
-                      guestName={booking.guestName}
-                      guestEmail={booking.guestEmail}
-                      roomName={getRoomName(booking.roomId)}
-                      checkIn={new Date(booking.checkIn)}
-                      checkOut={new Date(booking.checkOut)}
-                      status={booking.status as "pending" | "confirmed" | "checked-in" | "checked-out" | "cancelled"}
-                      totalPrice={booking.totalPrice}
-                    />
-                  ))
-                ) : (
-                  <p className="text-sm text-muted-foreground text-center py-8" data-testid="text-no-bookings">
-                    Nu există rezervări încă
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Recenzii Recente</CardTitle>
-              <CardDescription>Ultimele feedback-uri de la oaspeți</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {reviewsLoading ? (
-                <>
-                  <Skeleton className="h-[60px]" data-testid="skeleton-review-0" />
-                  <Skeleton className="h-[60px]" data-testid="skeleton-review-1" />
-                  <Skeleton className="h-[60px]" data-testid="skeleton-review-2" />
-                </>
-              ) : recentReviews.length > 0 ? (
-                recentReviews.map((review) => {
-                  const reviewDate = review.createdAt ? new Date(review.createdAt) : new Date();
-                  return (
-                    <div
-                      key={review.id}
-                      className="flex items-center justify-between pb-3 border-b last:border-0"
-                      data-testid={`review-item-${review.id}`}
-                    >
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{review.guestName}</p>
-                        <div className="flex items-center gap-1 mt-1">
-                          <span className="text-sm font-semibold">
-                            {review.rating || 0}/5
-                          </span>
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {format(reviewDate, "MMM d")}
-                      </p>
-                    </div>
-                  );
-                })
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-8" data-testid="text-no-reviews">
-                  Nu există recenzii încă
-                </p>
-              )}
+                </li>
+                <li className="flex gap-4">
+                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                    2
+                  </span>
+                  <div>
+                    <p className="font-semibold">Descarcă Bookerino.jar</p>
+                    <p className="text-sm text-muted-foreground">
+                      Apasă butonul de download de mai sus pentru a descărca fișierul aplicației
+                    </p>
+                  </div>
+                </li>
+                <li className="flex gap-4">
+                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                    3
+                  </span>
+                  <div>
+                    <p className="font-semibold">Rulează Aplicația</p>
+                    <p className="text-sm text-muted-foreground">
+                      Dublu-click pe fișierul Bookerino.jar sau rulează din terminal cu:{" "}
+                      <code className="bg-muted px-2 py-1 rounded text-xs">
+                        java -jar Bookerino.jar
+                      </code>
+                    </p>
+                  </div>
+                </li>
+                <li className="flex gap-4">
+                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                    4
+                  </span>
+                  <div>
+                    <p className="font-semibold">Autentifică-te</p>
+                    <p className="text-sm text-muted-foreground">
+                      Folosește credențialele contului tău Bookerino pentru a te conecta
+                    </p>
+                  </div>
+                </li>
+              </ol>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Support Section */}
+        <div className="max-w-5xl mx-auto">
+          <Card className="bg-primary/5 border-primary/20">
+            <CardContent className="p-8 text-center">
+              <h3 className="text-xl font-semibold mb-4">Ai nevoie de ajutor?</h3>
+              <p className="text-muted-foreground mb-6">
+                Echipa noastră de suport este aici pentru tine 24/7
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Button variant="outline" asChild>
+                  <a href="mailto:ferinogroup@gmail.com">
+                    Contactează Suportul
+                  </a>
+                </Button>
+                <AccountSheet>
+                  <Button variant="outline">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Setări Cont
+                  </Button>
+                </AccountSheet>
+                <Button variant="destructive" onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Deconectare
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="text-center mt-8">
+          <Link to="/" className="text-muted-foreground hover:underline">
+            ← Înapoi la pagina principală
+          </Link>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default Dashboard;
