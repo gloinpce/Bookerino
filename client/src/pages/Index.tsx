@@ -17,6 +17,44 @@ const Index = () => {
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Remove duplicate text elements in bottom left corner only
+  React.useEffect(() => {
+    const removeBottomLeftDuplicates = () => {
+      const allElements = document.querySelectorAll('*');
+      const viewportHeight = window.innerHeight;
+      
+      allElements.forEach((element) => {
+        const rect = element.getBoundingClientRect();
+        const text = element.textContent?.trim() || '';
+        
+        // Check if element is in bottom left corner (bottom 200px, left 400px)
+        const isBottomLeft = rect.bottom > viewportHeight - 200 && rect.left < 400 && rect.top > viewportHeight - 300;
+        
+        // Check for specific duplicate text patterns
+        const hasDuplicateText = (
+          (text.includes('© 2023') && !text.includes('© 2025')) ||
+          (text.includes('support@bookerino.com') && !text.includes('ferinogroup@gmail.com')) ||
+          text === 'Centru de ajutor' ||
+          text === 'Linkuri rapide' ||
+          (text.includes('Bookerino') && text.includes('Funcționalități') && text.includes('Prețuri') && text.includes('Despre') && text.includes('Înregistrare') && text.includes('Autentificare') && text.length < 500)
+        );
+        
+        // Only remove if it's in bottom left AND has duplicate text AND not in main footer/nav
+        const isInMainFooter = element.closest('footer[class*="border-t border-white"]');
+        const isInNav = element.closest('nav');
+        const isInSection = element.closest('section');
+        const isInCard = element.closest('[class*="Card"]');
+        
+        if (hasDuplicateText && isBottomLeft && !isInMainFooter && !isInNav && !isInSection && !isInCard) {
+          element.remove();
+        }
+      });
+    };
+
+    // Run after page loads
+    setTimeout(removeBottomLeftDuplicates, 100);
+    setTimeout(removeBottomLeftDuplicates, 500);
+  }, []);
 
   const handleContactSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
