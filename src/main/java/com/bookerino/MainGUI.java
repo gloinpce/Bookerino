@@ -7,7 +7,6 @@ import com.bookerino.api.BookingApiSimulator;
 import com.bookerino.api.GoogleAdsApiSimulator;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
@@ -33,10 +32,20 @@ public class MainGUI extends JFrame {
     private static final Color TEXT_SECONDARY = new Color(100, 116, 139); // hsl(220, 15%, 47%)
     private static final Color TEXT_MUTED = new Color(115, 125, 135); // hsl(220, 10%, 45%)
     
-    private JTabbedPane tabbedPane;
+    // React-style layout components
+    private JPanel sidebarPanel;
+    private JPanel topBarPanel;
+    private JPanel contentPanel;
+    private boolean sidebarOpen = true;
+    private String activeModule = "dashboard";
+    
+    // Original components
+    @SuppressWarnings("unused")
+    private JTabbedPane tabbedPane; // Kept for potential future use
     private JTable roomsTable;
     private JTable bookingsTable;
-    private JTable reviewsTable;
+    @SuppressWarnings("unused")
+    private JTable reviewsTable; // Kept for potential future use
     private DefaultTableModel roomsModel;
     private DefaultTableModel bookingsModel;
     private DefaultTableModel reviewsModel;
@@ -44,8 +53,9 @@ public class MainGUI extends JFrame {
     private JLabel totalBookingsLabel;
     private JLabel totalRevenueLabel;
     private JLabel avgRatingLabel;
-    private JLabel userLabel;
-    private JButton loginLogoutBtn;
+    private JTextField searchField;
+    private JLabel propertyNameLabel;
+    private JLabel propertyLocationLabel;
     
     public MainGUI() {
         // Set icon IMMEDIATELY before any GUI operations for Windows taskbar support
@@ -81,65 +91,578 @@ public class MainGUI extends JFrame {
     private void initializeGUI() {
         setTitle("Bookerino");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // Window size increased by 20%: 1200x800 -> 1440x960
         setSize(1440, 960);
         setLocationRelativeTo(null);
         
-        // Icon already set in constructor, but ensure it's set again here for Windows
         IconLoader.setFrameIcon(this);
-        
-        // Set custom look and feel
         setupCustomTheme();
         
-        // Set background gradient
-        setContentPane(new GradientPanel());
+        // Main container with BorderLayout
+        setLayout(new BorderLayout());
         
-        // Create menu bar
-        createMenuBar();
+        // Create sidebar (left)
+        createSidebar();
         
-        // Create tabbed pane with custom styling
-        tabbedPane = new JTabbedPane() {
+        // Create main content area (center)
+        createMainContentArea();
+        
+        // Add components to frame
+        add(sidebarPanel, BorderLayout.WEST);
+        add(contentPanel, BorderLayout.CENTER);
+    }
+    
+    private void createSidebar() {
+        // Sidebar colors: from-blue-600 to-blue-800
+        Color SIDEBAR_START = new Color(37, 99, 235); // blue-600
+        Color SIDEBAR_END = new Color(30, 64, 175);   // blue-800
+        Color SIDEBAR_BORDER = new Color(59, 130, 246); // blue-500/30
+        
+        sidebarPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
-                // Draw gradient background matching global.css gradient-subtle
+                // Gradient from blue-600 to blue-800
                 GradientPaint gradient = new GradientPaint(
-                    0, 0, BACKGROUND_LIGHT,
-                    getWidth(), getHeight(), BACKGROUND_DARK
+                    0, 0, SIDEBAR_START,
+                    0, getHeight(), SIDEBAR_END
                 );
                 g2d.setPaint(gradient);
                 g2d.fillRect(0, 0, getWidth(), getHeight());
                 g2d.dispose();
+            }
+        };
+        sidebarPanel.setLayout(new BorderLayout());
+        sidebarPanel.setPreferredSize(new Dimension(sidebarOpen ? 256 : 80, 0));
+        
+        // Logo area
+        JPanel logoPanel = new JPanel(new BorderLayout());
+        logoPanel.setOpaque(false);
+        logoPanel.setBorder(new EmptyBorder(24, 24, 24, 24));
+        
+        if (sidebarOpen) {
+            JLabel logoTitle = new JLabel("Bookerino");
+            logoTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
+            logoTitle.setForeground(Color.WHITE);
+            
+            JLabel logoSubtitle = new JLabel("HoReCa Management");
+            logoSubtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            logoSubtitle.setForeground(new Color(219, 234, 254)); // blue-100
+            
+            JPanel titlePanel = new JPanel(new BorderLayout());
+            titlePanel.setOpaque(false);
+            titlePanel.add(logoTitle, BorderLayout.CENTER);
+            titlePanel.add(logoSubtitle, BorderLayout.SOUTH);
+            
+            logoPanel.add(titlePanel, BorderLayout.CENTER);
+        }
+        
+        // Toggle button
+        JButton toggleBtn = new JButton(sidebarOpen ? "✕" : "☰") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                if (getModel().isRollover()) {
+                    g2d.setColor(new Color(59, 130, 246, 76)); // blue-500/30
+                    g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                }
+                g2d.dispose();
                 super.paintComponent(g);
             }
         };
-        tabbedPane.setOpaque(false);
-        tabbedPane.setBorder(new EmptyBorder(10, 10, 10, 10));
+        toggleBtn.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        toggleBtn.setForeground(Color.WHITE);
+        toggleBtn.setOpaque(false);
+        toggleBtn.setContentAreaFilled(false);
+        toggleBtn.setBorderPainted(false);
+        toggleBtn.setBorder(new EmptyBorder(8, 8, 8, 8));
+        toggleBtn.addActionListener(e -> toggleSidebar());
         
-        // Customize tab appearance
-        UIManager.put("TabbedPane.selected", PRIMARY_COLOR);
-        UIManager.put("TabbedPane.background", new Color(0, 0, 0, 0));
-        UIManager.put("TabbedPane.contentAreaColor", new Color(0, 0, 0, 0));
+        if (sidebarOpen) {
+            logoPanel.add(toggleBtn, BorderLayout.EAST);
+        } else {
+            logoPanel.add(toggleBtn, BorderLayout.CENTER);
+        }
         
-        // Rooms tab
-        tabbedPane.addTab("Camere", createRoomsPanel());
+        // Border
+        JPanel borderPanel = new JPanel();
+        borderPanel.setOpaque(false);
+        borderPanel.setPreferredSize(new Dimension(0, 1));
+        borderPanel.setBackground(SIDEBAR_BORDER);
         
-        // Bookings tab
-        tabbedPane.addTab("Rezervări", createBookingsPanel());
+        // Navigation menu
+        JPanel navPanel = createNavigationMenu();
         
-        // Reviews tab
-        tabbedPane.addTab("Recenzii", createReviewsPanel());
+        // User profile area
+        JPanel userPanel = createUserProfilePanel();
         
-        // Analytics tab
-        tabbedPane.addTab("Analitică", createAnalyticsPanel());
+        sidebarPanel.add(logoPanel, BorderLayout.NORTH);
+        sidebarPanel.add(borderPanel, BorderLayout.NORTH);
+        sidebarPanel.add(navPanel, BorderLayout.CENTER);
+        sidebarPanel.add(userPanel, BorderLayout.SOUTH);
+    }
+    
+    private JPanel createNavigationMenu() {
+        JPanel navPanel = new JPanel();
+        navPanel.setOpaque(false);
+        navPanel.setLayout(new BoxLayout(navPanel, BoxLayout.Y_AXIS));
+        navPanel.setBorder(new EmptyBorder(16, 16, 16, 16));
         
-        // Settings tab (moved next to Analytics)
-        tabbedPane.addTab("Setări", createSettingsPanel());
+        String[] menuItems = {"Dashboard", "Rezervări", "Camere", "Oaspeți", "Analiză Performanță", "Rapoarte Financiare", "Setări"};
+        String[] menuIds = {"dashboard", "bookings", "rooms", "guests", "analytics", "financial", "settings"};
         
-        getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(tabbedPane, BorderLayout.CENTER);
+        for (int i = 0; i < menuItems.length; i++) {
+            final String moduleId = menuIds[i];
+            JButton menuBtn = createMenuButton(menuItems[i], moduleId.equals(activeModule));
+            menuBtn.addActionListener(e -> switchModule(moduleId));
+            navPanel.add(menuBtn);
+            navPanel.add(Box.createVerticalStrut(8));
+        }
+        
+        return navPanel;
+    }
+    
+    private JButton createMenuButton(String label, boolean active) {
+        JButton btn = new JButton(sidebarOpen ? label : "") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                if (active) {
+                    // Active: white background with blue text
+                    g2d.setColor(Color.WHITE);
+                    g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                    // Shadow
+                    g2d.setColor(new Color(0, 0, 0, 20));
+                    g2d.fillRoundRect(0, getHeight() - 2, getWidth(), 2, 8, 8);
+                } else if (getModel().isRollover()) {
+                    // Hover: blue-500/30
+                    g2d.setColor(new Color(59, 130, 246, 76));
+                    g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                }
+                g2d.dispose();
+                super.paintComponent(g);
+            }
+        };
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        btn.setForeground(active ? PRIMARY_COLOR : new Color(219, 234, 254)); // blue-100
+        btn.setOpaque(false);
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setHorizontalAlignment(sidebarOpen ? SwingConstants.LEFT : SwingConstants.CENTER);
+        btn.setBorder(new EmptyBorder(12, sidebarOpen ? 16 : 0, 12, 16));
+        btn.setPreferredSize(new Dimension(sidebarOpen ? 0 : 48, 48));
+        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 48));
+        
+        return btn;
+    }
+    
+    private JPanel createUserProfilePanel() {
+        JPanel userPanel = new JPanel(new BorderLayout());
+        userPanel.setOpaque(false);
+        userPanel.setBorder(new EmptyBorder(16, 16, 16, 16));
+        
+        // Border
+        JPanel borderPanel = new JPanel();
+        borderPanel.setOpaque(false);
+        borderPanel.setPreferredSize(new Dimension(0, 1));
+        borderPanel.setBackground(new Color(59, 130, 246, 76));
+        userPanel.add(borderPanel, BorderLayout.NORTH);
+        
+        // User info
+        JPanel userInfoPanel = new JPanel(new BorderLayout());
+        userInfoPanel.setOpaque(false);
+        
+        if (sidebarOpen) {
+            // Avatar
+            JPanel avatarPanel = new JPanel() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2d = (Graphics2D) g.create();
+                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2d.setColor(new Color(96, 165, 250)); // blue-400
+                    g2d.fillOval(0, 0, getWidth(), getHeight());
+                    g2d.setColor(Color.WHITE);
+                    g2d.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                    FontMetrics fm = g2d.getFontMetrics();
+                    String initials = AuthManager.getCurrentUser() != null && AuthManager.getCurrentUser().length() > 0 
+                        ? AuthManager.getCurrentUser().substring(0, 1).toUpperCase() : "U";
+                    int x = (getWidth() - fm.stringWidth(initials)) / 2;
+                    int y = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
+                    g2d.drawString(initials, x, y);
+                    g2d.dispose();
+                }
+            };
+            avatarPanel.setPreferredSize(new Dimension(32, 32));
+            avatarPanel.setOpaque(false);
+            
+            // User details
+            JLabel userNameLabel = new JLabel(AuthManager.getCurrentUser() != null ? AuthManager.getCurrentUser() : "User");
+            userNameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            userNameLabel.setForeground(Color.WHITE);
+            
+            JLabel userEmailLabel = new JLabel("demo@bookerino.ro");
+            userEmailLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            userEmailLabel.setForeground(new Color(219, 234, 254));
+            
+            JPanel detailsPanel = new JPanel(new BorderLayout());
+            detailsPanel.setOpaque(false);
+            detailsPanel.add(userNameLabel, BorderLayout.CENTER);
+            detailsPanel.add(userEmailLabel, BorderLayout.SOUTH);
+            detailsPanel.setBorder(new EmptyBorder(0, 12, 0, 0));
+            
+            userInfoPanel.add(avatarPanel, BorderLayout.WEST);
+            userInfoPanel.add(detailsPanel, BorderLayout.CENTER);
+            
+            // Logout button
+            JButton logoutBtn = new JButton("🚪") {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2d = (Graphics2D) g.create();
+                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    if (getModel().isRollover()) {
+                        g2d.setColor(new Color(59, 130, 246, 76));
+                        g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                    }
+                    g2d.dispose();
+                    super.paintComponent(g);
+                }
+            };
+            logoutBtn.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+            logoutBtn.setForeground(new Color(219, 234, 254));
+            logoutBtn.setOpaque(false);
+            logoutBtn.setContentAreaFilled(false);
+            logoutBtn.setBorderPainted(false);
+            logoutBtn.setBorder(new EmptyBorder(4, 4, 4, 4));
+            logoutBtn.addActionListener(e -> handleLogout());
+            
+            userInfoPanel.add(logoutBtn, BorderLayout.EAST);
+        } else {
+            // Collapsed: just avatar
+            JPanel avatarPanel = new JPanel() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2d = (Graphics2D) g.create();
+                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2d.setColor(new Color(96, 165, 250));
+                    g2d.fillOval(0, 0, getWidth(), getHeight());
+                    g2d.setColor(Color.WHITE);
+                    g2d.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                    FontMetrics fm = g2d.getFontMetrics();
+                    String initials = AuthManager.getCurrentUser() != null && AuthManager.getCurrentUser().length() > 0 
+                        ? AuthManager.getCurrentUser().substring(0, 1).toUpperCase() : "U";
+                    int x = (getWidth() - fm.stringWidth(initials)) / 2;
+                    int y = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
+                    g2d.drawString(initials, x, y);
+                    g2d.dispose();
+                }
+            };
+            avatarPanel.setPreferredSize(new Dimension(32, 32));
+            avatarPanel.setOpaque(false);
+            avatarPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    handleLogout();
+                }
+            });
+            userInfoPanel.add(avatarPanel, BorderLayout.CENTER);
+        }
+        
+        userPanel.add(userInfoPanel, BorderLayout.CENTER);
+        return userPanel;
+    }
+    
+    private void createMainContentArea() {
+        contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setOpaque(false);
+        
+        // Top bar
+        createTopBar();
+        
+        // Main content with gradient background
+        JPanel mainContent = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Gradient matching global.css gradient-subtle
+                Color[] gradientColors = {
+                    new Color(255, 255, 255),
+                    new Color(240, 247, 255),
+                    new Color(201, 224, 255),
+                    new Color(168, 207, 255),
+                    new Color(214, 235, 255),
+                    new Color(240, 247, 255)
+                };
+                
+                int width = getWidth();
+                int height = getHeight();
+                for (int i = 0; i < gradientColors.length - 1; i++) {
+                    float startX = (float) i / (gradientColors.length - 1) * width;
+                    float endX = (float) (i + 1) / (gradientColors.length - 1) * width;
+                    GradientPaint gradient = new GradientPaint(
+                        startX, 0, gradientColors[i],
+                        endX, height, gradientColors[i + 1]
+                    );
+                    g2d.setPaint(gradient);
+                    g2d.fillRect((int)startX, 0, (int)(endX - startX), height);
+                }
+                g2d.dispose();
+            }
+        };
+        mainContent.setLayout(new BorderLayout());
+        mainContent.setBorder(new EmptyBorder(32, 32, 32, 32));
+        
+        // Content based on active module
+        JPanel moduleContent = createModuleContent(activeModule);
+        mainContent.add(moduleContent, BorderLayout.CENTER);
+        
+        contentPanel.add(topBarPanel, BorderLayout.NORTH);
+        contentPanel.add(mainContent, BorderLayout.CENTER);
+    }
+    
+    private void createTopBar() {
+        topBarPanel = new JPanel(new BorderLayout());
+        topBarPanel.setOpaque(false);
+        topBarPanel.setBorder(new EmptyBorder(16, 32, 16, 32));
+        
+        // Semi-transparent white background with blur effect simulation
+        JPanel topBarBg = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f));
+                g2d.setColor(Color.WHITE);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+                // Border
+                g2d.setColor(new Color(226, 232, 240)); // slate-200
+                g2d.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
+                g2d.dispose();
+            }
+        };
+        topBarBg.setLayout(new BorderLayout());
+        topBarBg.setOpaque(false);
+        
+        // Search field
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        searchPanel.setOpaque(false);
+        searchPanel.setPreferredSize(new Dimension(0, 40));
+        searchPanel.setMaximumSize(new Dimension(600, 40));
+        
+        searchField = new JTextField() {
+            @Override
+            public void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (getText().isEmpty() && !hasFocus()) {
+                    Graphics2D g2d = (Graphics2D) g.create();
+                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2d.setColor(new Color(TEXT_MUTED.getRed(), TEXT_MUTED.getGreen(), TEXT_MUTED.getBlue(), 150));
+                    g2d.setFont(getFont());
+                    FontMetrics fm = g2d.getFontMetrics();
+                    int x = 40;
+                    int y = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
+                    g2d.drawString("Caută rezervări, oaspeți, camere...", x, y);
+                    g2d.dispose();
+                }
+            }
+        };
+        searchField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        searchField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(226, 232, 240), 1),
+            new EmptyBorder(10, 40, 10, 15)
+        ));
+        searchField.setBackground(new Color(248, 250, 252)); // slate-50
+        searchField.setForeground(TEXT_PRIMARY);
+        searchField.setOpaque(true);
+        
+        // Search icon (simulated with label)
+        JLabel searchIcon = new JLabel("🔍");
+        searchIcon.setBorder(new EmptyBorder(0, 12, 0, 0));
+        searchIcon.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        
+        searchPanel.add(searchIcon, BorderLayout.WEST);
+        searchPanel.add(searchField, BorderLayout.CENTER);
+        
+        // Right side: notifications and property info
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 0));
+        rightPanel.setOpaque(false);
+        
+        // Notification button
+        JButton notificationBtn = new JButton("🔔") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                if (getModel().isRollover()) {
+                    g2d.setColor(new Color(241, 245, 249)); // slate-100
+                    g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                }
+                g2d.dispose();
+                super.paintComponent(g);
+            }
+        };
+        notificationBtn.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        notificationBtn.setForeground(TEXT_PRIMARY);
+        notificationBtn.setOpaque(false);
+        notificationBtn.setContentAreaFilled(false);
+        notificationBtn.setBorderPainted(false);
+        notificationBtn.setBorder(new EmptyBorder(8, 8, 8, 8));
+        notificationBtn.setPreferredSize(new Dimension(40, 40));
+        
+        // Red dot indicator
+        JPanel indicator = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(new Color(239, 68, 68)); // red-500
+                g2d.fillOval(0, 0, getWidth(), getHeight());
+                g2d.dispose();
+            }
+        };
+        indicator.setPreferredSize(new Dimension(8, 8));
+        indicator.setOpaque(false);
+        
+        JPanel notificationContainer = new JPanel(null); // Use null layout for overlay
+        notificationContainer.setOpaque(false);
+        notificationContainer.setPreferredSize(new Dimension(40, 40));
+        notificationBtn.setBounds(0, 0, 40, 40);
+        indicator.setBounds(32, 2, 8, 8);
+        notificationContainer.add(notificationBtn);
+        notificationContainer.add(indicator);
+        
+        // Property info
+        JPanel propertyPanel = new JPanel(new BorderLayout());
+        propertyPanel.setOpaque(false);
+        propertyPanel.setBackground(new Color(248, 250, 252));
+        propertyPanel.setBorder(new EmptyBorder(8, 12, 8, 12));
+        
+        propertyNameLabel = new JLabel("Proprietatea Ta");
+        propertyNameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        propertyNameLabel.setForeground(TEXT_PRIMARY);
+        
+        propertyLocationLabel = new JLabel("România");
+        propertyLocationLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        propertyLocationLabel.setForeground(TEXT_SECONDARY);
+        
+        JPanel propertyInfo = new JPanel(new BorderLayout());
+        propertyInfo.setOpaque(false);
+        propertyInfo.add(propertyNameLabel, BorderLayout.CENTER);
+        propertyInfo.add(propertyLocationLabel, BorderLayout.SOUTH);
+        
+        propertyPanel.add(propertyInfo, BorderLayout.CENTER);
+        
+        rightPanel.add(notificationContainer);
+        rightPanel.add(propertyPanel);
+        
+        topBarBg.add(searchPanel, BorderLayout.WEST);
+        topBarBg.add(rightPanel, BorderLayout.EAST);
+        
+        topBarPanel.add(topBarBg, BorderLayout.CENTER);
+    }
+    
+    private JPanel createModuleContent(String module) {
+        JPanel content = new JPanel();
+        content.setOpaque(false);
+        content.setLayout(new BorderLayout());
+        
+        switch (module) {
+            case "dashboard":
+                return createDashboardPanel();
+            case "bookings":
+                return createBookingsPanel();
+            case "rooms":
+                return createRoomsPanel();
+            case "guests":
+                return createGuestsPanel();
+            case "analytics":
+                return createAnalyticsPanel();
+            case "financial":
+                return createFinancialPanel();
+            case "settings":
+                return createSettingsPanel();
+            default:
+                return createDashboardPanel();
+        }
+    }
+    
+    
+    private void switchModule(String moduleId) {
+        activeModule = moduleId;
+        // Update navigation buttons by recreating sidebar
+        sidebarPanel.removeAll();
+        createSidebar();
+        sidebarPanel.revalidate();
+        sidebarPanel.repaint();
+        
+        // Update content panel
+        JPanel mainContent = (JPanel) ((JPanel) contentPanel.getComponent(1)).getComponent(0);
+        mainContent.removeAll();
+        mainContent.add(createModuleContent(moduleId), BorderLayout.CENTER);
+        revalidate();
+        repaint();
+    }
+    
+    private void toggleSidebar() {
+        sidebarOpen = !sidebarOpen;
+        // Recreate sidebar with new state
+        sidebarPanel.removeAll();
+        createSidebar();
+        sidebarPanel.setPreferredSize(new Dimension(sidebarOpen ? 256 : 80, 0));
+        revalidate();
+        repaint();
+    }
+    
+    private void handleLogout() {
+        int confirm = JOptionPane.showConfirmDialog(this,
+            "Sigur doriți să vă deconectați?",
+            "Deconectare", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            AuthManager.logout();
+            dispose();
+            if (!AuthManager.showLoginDialog(null)) {
+                System.exit(0);
+            } else {
+                new MainGUI().setVisible(true);
+            }
+        }
+    }
+    
+    // Placeholder methods for modules
+    private JPanel createDashboardPanel() {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        panel.setLayout(new BorderLayout());
+        
+        JLabel title = new JLabel("Bine ai venit în Bookerino!");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        title.setForeground(TEXT_PRIMARY);
+        title.setBorder(new EmptyBorder(0, 0, 8, 0));
+        
+        JLabel subtitle = new JLabel("Sistemul tău de management HoReCa este gata de utilizare.");
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        subtitle.setForeground(TEXT_MUTED);
+        
+        JPanel header = new JPanel(new BorderLayout());
+        header.setOpaque(false);
+        header.add(title, BorderLayout.NORTH);
+        header.add(subtitle, BorderLayout.SOUTH);
+        
+        panel.add(header, BorderLayout.NORTH);
+        return panel;
+    }
+    
+    private JPanel createGuestsPanel() {
+        return createDashboardPanel(); // Placeholder
+    }
+    
+    private JPanel createFinancialPanel() {
+        return createDashboardPanel(); // Placeholder
     }
     
     private void setupCustomTheme() {
@@ -165,82 +688,6 @@ public class MainGUI extends JFrame {
         }
     }
     
-    private void createMenuBar() {
-        JMenuBar menuBar = new JMenuBar();
-        menuBar.setBackground(CARD_COLOR);
-        menuBar.setBorder(new LineBorder(CARD_BORDER, 1));
-        
-        // Add logo to menu bar
-        ImageIcon logoIcon = IconLoader.loadLogo(32, 32);
-        if (logoIcon != null) {
-            JLabel logoLabel = new JLabel(logoIcon);
-            logoLabel.setBorder(new EmptyBorder(5, 10, 5, 10));
-            menuBar.add(logoLabel);
-        }
-        
-        JMenu fileMenu = new JMenu("Fișier");
-        fileMenu.setForeground(TEXT_PRIMARY);
-        JMenuItem exitItem = new JMenuItem("Ieșire");
-        exitItem.addActionListener(e -> System.exit(0));
-        fileMenu.add(exitItem);
-        
-        JMenu settingsMenu = new JMenu("Setări");
-        settingsMenu.setForeground(TEXT_PRIMARY);
-        JMenuItem integrationsItem = new JMenuItem("Integrări API");
-        integrationsItem.addActionListener(e -> showSettingsDialog());
-        settingsMenu.add(integrationsItem);
-        
-        JMenu helpMenu = new JMenu("Ajutor");
-        helpMenu.setForeground(TEXT_PRIMARY);
-        JMenuItem aboutItem = new JMenuItem("Despre");
-        aboutItem.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this,
-                "Bookerino - Sistem de Gestionare Hotel\nVersiunea 1.0.0",
-                "Despre", JOptionPane.INFORMATION_MESSAGE);
-        });
-        helpMenu.add(aboutItem);
-        
-        // User info and logout
-        userLabel = new JLabel("Utilizator: " + AuthManager.getCurrentUser());
-        userLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        userLabel.setForeground(TEXT_SECONDARY);
-        userLabel.setBorder(new EmptyBorder(0, 20, 0, 10));
-        
-        loginLogoutBtn = new JButton(AuthManager.isAuthenticated() ? "Deconectare" : "Autentificare");
-        loginLogoutBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        loginLogoutBtn.setForeground(PRIMARY_COLOR);
-        loginLogoutBtn.setBorderPainted(false);
-        loginLogoutBtn.setContentAreaFilled(false);
-        loginLogoutBtn.addActionListener(e -> {
-            if (AuthManager.isAuthenticated()) {
-                int confirm = JOptionPane.showConfirmDialog(this,
-                    "Sigur doriți să vă deconectați?",
-                    "Deconectare", JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
-                    AuthManager.logout();
-                    dispose();
-                    if (!AuthManager.showLoginDialog(null)) {
-                        System.exit(0);
-                    } else {
-                        new MainGUI().setVisible(true);
-                    }
-                }
-            } else {
-                if (AuthManager.showLoginDialog(this)) {
-                    userLabel.setText("Utilizator: " + AuthManager.getCurrentUser());
-                    loginLogoutBtn.setText("Deconectare");
-                }
-            }
-        });
-        
-        menuBar.add(fileMenu);
-        menuBar.add(settingsMenu);
-        menuBar.add(helpMenu);
-        menuBar.add(Box.createHorizontalGlue());
-        menuBar.add(userLabel);
-        menuBar.add(loginLogoutBtn);
-        setJMenuBar(menuBar);
-    }
     
     private JPanel createRoomsPanel() {
         JPanel panel = new RoundedPanel();
@@ -463,52 +910,6 @@ public class MainGUI extends JFrame {
         
         JButton addBtn = createStyledButton("Adaugă Rezervare", true);
         addBtn.addActionListener(e -> showAddBookingDialog());
-        
-        buttonPanel.add(refreshBtn);
-        buttonPanel.add(addBtn);
-        
-        panel.add(headerLabel, BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        panel.add(buttonPanel, BorderLayout.SOUTH);
-        
-        return panel;
-    }
-    
-    private JPanel createReviewsPanel() {
-        JPanel panel = new RoundedPanel();
-        panel.setLayout(new BorderLayout(15, 15));
-        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
-        panel.setBackground(new Color(0, 0, 0, 0));
-        
-        // Header
-        JLabel headerLabel = new JLabel("Gestionare Recenzii", JLabel.LEFT);
-        headerLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        headerLabel.setForeground(TEXT_PRIMARY);
-        headerLabel.setBorder(new EmptyBorder(0, 0, 15, 0));
-        
-        // Table
-        String[] columns = {"ID", "Cameră", "Nume Client", "Rating", "Comentariu", "Data"};
-        reviewsModel = new DefaultTableModel(columns, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        reviewsTable = createStyledTable(reviewsModel);
-        JScrollPane scrollPane = new JScrollPane(reviewsTable);
-        scrollPane.setBorder(new RoundedBorder(CARD_BORDER, 11));
-        scrollPane.setOpaque(false);
-        scrollPane.getViewport().setBackground(Color.WHITE);
-        
-        // Buttons panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        buttonPanel.setOpaque(false);
-        
-        JButton refreshBtn = createStyledButton("Actualizează", false);
-        refreshBtn.addActionListener(e -> loadReviews());
-        
-        JButton addBtn = createStyledButton("Adaugă Recenzie", true);
-        addBtn.addActionListener(e -> showAddReviewDialog());
         
         buttonPanel.add(refreshBtn);
         buttonPanel.add(addBtn);
@@ -881,25 +1282,18 @@ public class MainGUI extends JFrame {
         }
     }
     
-    // Gradient background panel
-    private class GradientPanel extends JPanel {
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2d = (Graphics2D) g.create();
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            
-            // Match the web app's gradient: hsl(220, 100%, 99%) to hsl(200, 100%, 98%)
-            GradientPaint gradient = new GradientPaint(
-                0, 0, BACKGROUND_LIGHT,
-                getWidth(), getHeight(), BACKGROUND_DARK
-            );
-            g2d.setPaint(gradient);
-            g2d.fillRect(0, 0, getWidth(), getHeight());
-            g2d.dispose();
-        }
-    }
-    
     private void loadData() {
+        // Initialize models if not already initialized
+        if (reviewsModel == null) {
+            String[] columns = {"ID", "Cameră", "Nume Client", "Rating", "Comentariu", "Data"};
+            reviewsModel = new DefaultTableModel(columns, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+        }
+        
         loadRooms();
         loadBookings();
         loadReviews();
@@ -1410,6 +1804,7 @@ public class MainGUI extends JFrame {
         dialog.setVisible(true);
     }
     
+    @SuppressWarnings("unused")
     private void showAddReviewDialog() {
         JDialog dialog = createStyledDialog("Adaugă Recenzie Nouă", 450, 400);
         
@@ -1831,14 +2226,6 @@ public class MainGUI extends JFrame {
         mainPanel.add(tabbedPane, BorderLayout.CENTER);
         
         return mainPanel;
-    }
-    
-    // Settings dialog (kept for menu access - redirects to Settings tab)
-    private void showSettingsDialog() {
-        // Switch to Settings tab (index 4 - after Camere, Rezervări, Recenzii, Analitică)
-        if (tabbedPane != null) {
-            tabbedPane.setSelectedIndex(4);
-        }
     }
     
     // Save API settings to database
