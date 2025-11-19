@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide duplicate footer text in bottom left corner */
+body > *:not(footer):not(nav) {
+  position: relative;
+}
+
+/* Target elements in bottom left that contain duplicate footer text */
+body > *:not(footer):not(nav):has-text("© 2023"),
+body > *:not(footer):not(nav):has-text("support@bookerino.com"),
+body > *:not(footer):not(nav):has-text("Linkuri rapide"),
+body > *:not(footer):not(nav):has-text("Centru de ajutor") {
+  position: absolute;
+  left: -9999px !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
 /* LIGHT MODE */
 :root {
   --button-outline: rgba(0,0,0, .10);
