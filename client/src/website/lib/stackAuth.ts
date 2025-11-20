@@ -58,8 +58,10 @@ export async function stackAuthSignUp(data: {
   });
 
   if (!response.ok) {
+    // Clone the response to read the body without consuming the original
+    const responseClone = response.clone();
     // Read response as text first, then try to parse as JSON
-    const errorText = await response.text();
+    const errorText = await responseClone.text();
     let error: { message?: string };
     try {
       error = JSON.parse(errorText);
@@ -100,8 +102,10 @@ export async function stackAuthSignIn(
   });
 
   if (!response.ok) {
+    // Clone the response to read the body without consuming the original
+    const responseClone = response.clone();
     // Read response as text first, then try to parse as JSON
-    const errorText = await response.text();
+    const errorText = await responseClone.text();
     let error: { message?: string };
     try {
       error = JSON.parse(errorText);
