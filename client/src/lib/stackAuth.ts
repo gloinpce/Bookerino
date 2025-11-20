@@ -141,12 +141,30 @@ export const STACK_AUTH_CONFIG = {
         });
   
         if (!response.ok) {
-          throw new Error('Înregistrare eșuată. Email-ul ar putea fi deja folosit.');
+          // Try to get error message from response
+          let errorMessage = 'Înregistrare eșuată. Email-ul ar putea fi deja folosit.';
+          try {
+            const errorData = await response.json();
+            if (errorData.error || errorData.message) {
+              errorMessage = errorData.error || errorData.message;
+            }
+          } catch (e) {
+            // If response is not JSON, use default message
+            const responseText = await response.text();
+            console.error('Register API error response:', response.status, responseText);
+          }
+          throw new Error(errorMessage);
         }
   
         return await response.json();
       } catch (error) {
         console.error('Register error:', error);
+        // Check if it's a network error or API unavailable
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+          return {
+            error: 'Nu s-a putut conecta la server. Verificați conexiunea la internet sau contactați suportul.',
+          };
+        }
         return {
           error: error instanceof Error ? error.message : 'A apărut o eroare la înregistrare',
         };
