@@ -5,6 +5,7 @@
 import { stackAuthConfig } from "../config/database";
 
 const STACK_AUTH_API_URL = "https://api.stack-auth.com/api/v1";
+const STACK_AUTH_BASE_URL = "https://api.stack-auth.com/api/v1";
 
 export interface StackAuthUser {
   id: string;
@@ -43,43 +44,53 @@ export async function stackAuthSignUp(data: {
   password: string;
   name?: string;
 }): Promise<{ session: StackAuthSession; user: StackAuthUser }> {
-  const response = await fetch(`${STACK_AUTH_API_URL}/auth/sign-up`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-stack-project-id": stackAuthConfig.projectId,
-      "x-stack-publishable-key": stackAuthConfig.publishableClientKey,
-    },
-    body: JSON.stringify({
-      email: data.email,
-      password: data.password,
-      name: data.name,
-    }),
-  });
+  try {
+    const response = await fetch(`${STACK_AUTH_BASE_URL}/auth/password/sign-up`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-stack-project-id": stackAuthConfig.projectId,
+        "x-stack-publishable-key": stackAuthConfig.publishableClientKey,
+      },
+      body: JSON.stringify({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+      }),
+    });
 
-  // Read response body as text once
-  const responseText = await response.text();
-  
-  if (!response.ok) {
-    // Parse error response
-    let error: { message?: string };
-    try {
-      error = JSON.parse(responseText);
-    } catch {
-      error = { message: responseText || "Sign up failed" };
+    // Read response body as text once
+    const responseText = await response.text();
+    
+    if (!response.ok) {
+      // Parse error response
+      let error: { message?: string; error?: string };
+      try {
+        error = JSON.parse(responseText);
+      } catch {
+        error = { message: responseText || "Sign up failed" };
+      }
+      const errorMessage = error.message || error.error || "Sign up failed";
+      throw new Error(errorMessage);
     }
-    throw new Error(error.message || "Sign up failed");
-  }
 
-  // Parse success response
-  const result = JSON.parse(responseText);
-  
-  // Store session token
-  if (result.session?.sessionId) {
-    localStorage.setItem("stack_auth_session", result.session.sessionId);
+    // Parse success response
+    const result = JSON.parse(responseText);
+    
+    // Store session token
+    if (result.session?.sessionId) {
+      localStorage.setItem("stack_auth_session", result.session.sessionId);
+    }
+    
+    return result;
+  } catch (error) {
+    // Handle network errors and other fetch failures
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error("Nu s-a putut conecta la serverul de autentificare. Verificați conexiunea la internet.");
+    }
+    // Re-throw other errors as-is
+    throw error;
   }
-  
-  return result;
 }
 
 /**
@@ -89,42 +100,75 @@ export async function stackAuthSignIn(
   email: string,
   password: string
 ): Promise<{ session: StackAuthSession; user: StackAuthUser }> {
-  const response = await fetch(`${STACK_AUTH_API_URL}/auth/sign-in`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-stack-project-id": stackAuthConfig.projectId,
-      "x-stack-publishable-key": stackAuthConfig.publishableClientKey,
-    },
-    body: JSON.stringify({
-      email,
-      password,
-    }),
-  });
+  try {
+    const response = await fetch(`${STACK_AUTH_BASE_URL}/auth/password/sign-in`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-stack-project-id": stackAuthConfig.projectId,
+        "x-stack-publishable-key": stackAuthConfig.publishableClientKey,
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
 
-  // Read response body as text once
-  const responseText = await response.text();
-  
-  if (!response.ok) {
-    // Parse error response
-    let error: { message?: string };
-    try {
-      error = JSON.parse(responseText);
-    } catch {
-      error = { message: responseText || "Sign in failed" };
+    // Read response body as text once
+    const responseText = await response.text();
+    
+    if (!response.ok) {
+      // Parse error response
+      let error: { message?: string; error?: string };
+      try {
+        error = JSON.parse(responseText);
+      } catch {
+        error = { message: responseText || "Sign in failed" };
+      }
+      const errorMessage = error.message || error.error || "Sign in failed";
+      throw new Error(errorMessage);
     }
-    throw new Error(error.message || "Sign in failed");
-  }
 
-  // Parse success response
-  const result = JSON.parse(responseText);
-  
-  // Store session token
-  if (result.session?.sessionId) {
-    localStorage.setItem("stack_auth_session", result.session.sessionId);
+    // Parse success response
+    const result = JSON.parse(responseText);
+    
+    // Stack Auth returns access_token, refresh_token, and user_id
+    // Store tokens for session management
+    if (result.access_token) {
+      localStorage.setItem("stack_auth_access_token", result.access_token);
+    }
+    if (result.refresh_token) {
+      localStorage.setItem("stack_auth_refresh_token", result.refresh_token);
+    }
+    if (result.user_id) {
+      localStorage.setItem("stack_auth_user_id", result.user_id);
+    }
+    
+    // Need to fetch user details separately
+    // For now, return basic structure
+    return {
+      session: {
+        sessionId: result.access_token || "",
+        userId: result.user_id || "",
+        expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days
+        user: {
+          id: result.user_id || "",
+          email: email,
+        },
+      },
+      user: {
+        id: result.user_id || "",
+        email: email,
+      },
+    };
+  } catch (error) {
+    // Handle network errors and other fetch failures
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error("Nu s-a putut conecta la serverul de autentificare. Verificați conexiunea la internet.");
+    }
+    // Re-throw other errors as-is
+    throw error;
   }
-  
-  return result;
 }
 
 /**
