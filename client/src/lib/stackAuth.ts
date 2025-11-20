@@ -105,19 +105,21 @@ export const STACK_AUTH_CONFIG = {
           token: DEV_ACCOUNT.token,
         };
       }
-  
+
       try {
-        const response = await fetch(`${STACK_AUTH_CONFIG.apiUrl}/auth/login`, {
+        // Use local API endpoint (Neon PostgreSQL)
+        const apiUrl = window.location.origin;
+        const response = await fetch(`${apiUrl}/api/auth/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-Stack-Project-Id': STACK_AUTH_CONFIG.projectId,
           },
           body: JSON.stringify({ email, password }),
         });
   
         if (!response.ok) {
-          throw new Error('Autentificare eșuată. Verificați email-ul și parola.');
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || 'Autentificare eșuată. Verificați email-ul și parola.');
         }
   
         return await response.json();
@@ -131,11 +133,12 @@ export const STACK_AUTH_CONFIG = {
   
     async register(name: string, email: string, password: string): Promise<AuthResponse> {
       try {
-        const response = await fetch(`${STACK_AUTH_CONFIG.apiUrl}/auth/register`, {
+        // Use local API endpoint (Neon PostgreSQL)
+        const apiUrl = window.location.origin;
+        const response = await fetch(`${apiUrl}/api/auth/register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-Stack-Project-Id': STACK_AUTH_CONFIG.projectId,
           },
           body: JSON.stringify({ name, email, password }),
         });
