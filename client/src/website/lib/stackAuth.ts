@@ -55,7 +55,6 @@ export async function stackAuthSignUp(data: {
       body: JSON.stringify({
         email: data.email,
         password: data.password,
-        name: data.name,
       }),
     });
 
@@ -77,12 +76,80 @@ export async function stackAuthSignUp(data: {
     // Parse success response
     const result = JSON.parse(responseText);
     
-    // Store session token
-    if (result.session?.sessionId) {
-      localStorage.setItem("stack_auth_session", result.session.sessionId);
+    // Stack Auth returns access_token, refresh_token, and user_id
+    // Store tokens for session management
+    if (result.access_token) {
+      localStorage.setItem("stack_auth_access_token", result.access_token);
+    }
+    if (result.refresh_token) {
+      localStorage.setItem("stack_auth_refresh_token", result.refresh_token);
+    }
+    if (result.user_id) {
+      localStorage.setItem("stack_auth_user_id", result.user_id);
     }
     
-    return result;
+    // Update user name if provided (Stack Auth sign-up doesn't accept name field)
+    if (data.name) {
+      try {
+        await fetch(`${STACK_AUTH_BASE_URL}/users/me`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "x-stack-project-id": stackAuthConfig.projectId,
+            "x-stack-publishable-key": stackAuthConfig.publishableClientKey,
+            "Authorization": `Bearer ${result.access_token}`,
+          },
+          body: JSON.stringify({
+            display_name: data.name,
+          }),
+        });
+      } catch (err) {
+        console.warn("Could not update user name:", err);
+      }
+    }
+    
+    // Fetch user details using the access token
+    let userDetails: StackAuthUser = {
+      id: result.user_id || "",
+      email: data.email,
+      name: data.name,
+    };
+    
+    try {
+      // Fetch current user details from Stack Auth
+      const userResponse = await fetch(`${STACK_AUTH_BASE_URL}/users/me`, {
+        method: "GET",
+        headers: {
+          "x-stack-project-id": stackAuthConfig.projectId,
+          "x-stack-publishable-key": stackAuthConfig.publishableClientKey,
+          "Authorization": `Bearer ${result.access_token}`,
+        },
+      });
+      
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        userDetails = {
+          id: userData.id || result.user_id || "",
+          email: userData.primary_email || data.email,
+          name: userData.display_name || data.name,
+          emailVerified: userData.primary_email_verified || false,
+        };
+      }
+    } catch (err) {
+      // If fetching user details fails, use basic info
+      console.warn("Could not fetch user details:", err);
+    }
+    
+    // Transform to match expected format
+    return {
+      session: {
+        sessionId: result.access_token || "",
+        userId: result.user_id || "",
+        expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days
+        user: userDetails,
+      },
+      user: userDetails,
+    };
   } catch (error) {
     // Handle network errors and other fetch failures
     if (error instanceof TypeError && error.message.includes('fetch')) {
@@ -144,22 +211,46 @@ export async function stackAuthSignIn(
       localStorage.setItem("stack_auth_user_id", result.user_id);
     }
     
-    // Need to fetch user details separately
-    // For now, return basic structure
+    // Fetch user details using the access token
+    let userDetails: StackAuthUser = {
+      id: result.user_id || "",
+      email: email,
+    };
+    
+    try {
+      // Fetch current user details from Stack Auth
+      const userResponse = await fetch(`${STACK_AUTH_BASE_URL}/users/me`, {
+        method: "GET",
+        headers: {
+          "x-stack-project-id": stackAuthConfig.projectId,
+          "x-stack-publishable-key": stackAuthConfig.publishableClientKey,
+          "Authorization": `Bearer ${result.access_token}`,
+        },
+      });
+      
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        userDetails = {
+          id: userData.id || result.user_id || "",
+          email: userData.primary_email || email,
+          name: userData.display_name,
+          emailVerified: userData.primary_email_verified || false,
+        };
+      }
+    } catch (err) {
+      // If fetching user details fails, use basic info
+      console.warn("Could not fetch user details:", err);
+    }
+    
+    // Return session and user data
     return {
       session: {
         sessionId: result.access_token || "",
         userId: result.user_id || "",
         expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days
-        user: {
-          id: result.user_id || "",
-          email: email,
-        },
+        user: userDetails,
       },
-      user: {
-        id: result.user_id || "",
-        email: email,
-      },
+      user: userDetails,
     };
   } catch (error) {
     // Handle network errors and other fetch failures
@@ -175,17 +266,17 @@ export async function stackAuthSignIn(
  * Sign out current user
  */
 export async function stackAuthSignOut(): Promise<void> {
-  const sessionId = localStorage.getItem("stack_auth_session");
+  const accessToken = localStorage.getItem("stack_auth_access_token");
   
-  if (sessionId) {
+  if (accessToken) {
     try {
-      await fetch(`${STACK_AUTH_API_URL}/auth/sign-out`, {
-        method: "POST",
+      // Stack Auth uses DELETE /auth/sessions/current for sign out
+      await fetch(`${STACK_AUTH_BASE_URL}/auth/sessions/current`, {
+        method: "DELETE",
         headers: {
-          "Content-Type": "application/json",
           "x-stack-project-id": stackAuthConfig.projectId,
           "x-stack-publishable-key": stackAuthConfig.publishableClientKey,
-          "x-stack-session-id": sessionId,
+          "Authorization": `Bearer ${accessToken}`,
         },
       });
     } catch (error) {
@@ -193,39 +284,61 @@ export async function stackAuthSignOut(): Promise<void> {
     }
   }
   
-  localStorage.removeItem("stack_auth_session");
+  // Clear all auth tokens
+  localStorage.removeItem("stack_auth_access_token");
+  localStorage.removeItem("stack_auth_refresh_token");
+  localStorage.removeItem("stack_auth_user_id");
+  localStorage.removeItem("stack_auth_session"); // Legacy cleanup
 }
 
 /**
  * Get current session
  */
 export async function getStackAuthSession(): Promise<StackAuthSession | null> {
-  const sessionId = localStorage.getItem("stack_auth_session");
+  const accessToken = localStorage.getItem("stack_auth_access_token");
+  const userId = localStorage.getItem("stack_auth_user_id");
   
-  if (!sessionId) {
+  if (!accessToken || !userId) {
     return null;
   }
 
   try {
-    const response = await fetch(`${STACK_AUTH_API_URL}/auth/session`, {
+    // Verify token is still valid by fetching current user details
+    const response = await fetch(`${STACK_AUTH_BASE_URL}/users/me`, {
       method: "GET",
       headers: {
         "x-stack-project-id": stackAuthConfig.projectId,
         "x-stack-publishable-key": stackAuthConfig.publishableClientKey,
-        "x-stack-session-id": sessionId,
+        "Authorization": `Bearer ${accessToken}`,
       },
     });
 
     if (!response.ok) {
-      localStorage.removeItem("stack_auth_session");
+      // Token invalid, clear storage
+      localStorage.removeItem("stack_auth_access_token");
+      localStorage.removeItem("stack_auth_refresh_token");
+      localStorage.removeItem("stack_auth_user_id");
       return null;
     }
 
-    const result = await response.json();
-    return result.session || null;
+    const userData = await response.json();
+    
+    return {
+      sessionId: accessToken,
+      userId: userData.id || userId,
+      expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days
+      user: {
+        id: userData.id || userId,
+        email: userData.primary_email || "",
+        name: userData.display_name,
+        emailVerified: userData.primary_email_verified || false,
+      },
+    };
   } catch (error) {
     console.error("Get session error:", error);
-    localStorage.removeItem("stack_auth_session");
+    localStorage.removeItem("stack_auth_access_token");
+    localStorage.removeItem("stack_auth_refresh_token");
+    localStorage.removeItem("stack_auth_user_id");
     return null;
   }
 }
