@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Check, Mail, Lock, User } from "lucide-react";
 import { useUser, useStackApp } from "@stackframe/react";
+import type { Result } from "@stackframe/react";
 import { debug } from "../config/database";
 
 const Auth = () => {
@@ -67,26 +68,30 @@ const Auth = () => {
       setError(null);
 
       try {
-        const result = await app.callOAuthCallback();
+        // Use SDK callOAuthCallback method with Result type
+        const result: Result<any, any> = await app.callOAuthCallback();
         
         if (result.status === "success") {
-          // Success - redirect to home
+          // Success - user is signed in via OAuth
           navigate("/", { replace: true });
         } else {
-          // Handle specific error cases
-          const errorMessage = result.error || "Autentificarea OAuth a eșuat.";
+          // Handle SDK error types
+          const errorMessage = result.error?.message || result.error || "Autentificarea OAuth a eșuat.";
+          const errorCode = result.error?.code;
           
-          // Check for account merging errors
-          if (errorMessage.includes("duplicate") || errorMessage.includes("already exists")) {
+          // Check for specific SDK error codes
+          if (errorCode === "OAuthAccountAlreadyLinked" || errorMessage.includes("duplicate") || errorMessage.includes("already exists")) {
             setError(
               "Un cont cu această adresă de email există deja. " +
               "Vă rugăm să vă autentificați cu email și parolă sau să conectați contul OAuth din setări."
             );
-          } else if (errorMessage.includes("link") || errorMessage.includes("verification")) {
+          } else if (errorCode === "OAuthAccountLinkFailed" || errorMessage.includes("link") || errorMessage.includes("verification")) {
             setError(
               "Nu s-a putut conecta contul OAuth. " +
               "Asigurați-vă că adresa de email este verificată și încercați din nou."
             );
+          } else if (errorCode === "OAuthProviderError") {
+            setError("Eroare de la providerul OAuth. Vă rugăm să încercați din nou.");
           } else {
             setError(`Autentificare eșuată: ${errorMessage}`);
           }
@@ -250,15 +255,26 @@ const Auth = () => {
                         console.log("Attempting login for:", email);
                       }
                       
-                      const result = await app.signInWithCredential({
+                      // Use SDK signInWithCredential with noRedirect to handle navigation manually
+                      const result: Result<undefined, any> = await app.signInWithCredential({
                         email,
                         password,
+                        noRedirect: true, // Prevent automatic redirect, handle it manually
                       });
                       
                       if (result.status === "error") {
-                        setError(result.error || "Autentificare eșuată. Verificați email-ul și parola.");
+                        // Handle SDK error types
+                        const errorMessage = result.error?.message || result.error || "Autentificare eșuată. Verificați email-ul și parola.";
+                        
+                        // Check for specific error types
+                        if (result.error?.code === "EmailPasswordMismatch") {
+                          setError("Email sau parolă incorectă. Vă rugăm să încercați din nou.");
+                        } else {
+                          setError(errorMessage);
+                        }
                       } else {
-                        navigate("/");
+                        // Success - user is now signed in
+                        navigate("/", { replace: true });
                       }
                     } else {
                       const name = formData.get("name") as string;
@@ -276,31 +292,46 @@ const Auth = () => {
                         console.log("Attempting registration for:", email);
                       }
                       
-                      const result = await app.signUpWithCredential({
+                      // Use SDK signUpWithCredential with noRedirect
+                      const result: Result<undefined, any> = await app.signUpWithCredential({
                         email,
                         password,
                         displayName: name,
+                        noRedirect: true, // Prevent automatic redirect
                       });
                       
                       if (result.status === "error") {
-                        setError(result.error || "Înregistrare eșuată. Vă rugăm să încercați din nou.");
+                        // Handle SDK error types
+                        const errorMessage = result.error?.message || result.error || "Înregistrare eșuată.";
+                        
+                        if (result.error?.code === "UserWithEmailAlreadyExists") {
+                          setError("Un cont cu această adresă de email există deja. Vă rugăm să vă autentificați.");
+                          setIsLogin(true);
+                        } else if (result.error?.code === "PasswordRequirementsNotMet") {
+                          setError("Parola nu îndeplinește cerințele minime. Vă rugăm să folosiți o parolă mai puternică.");
+                        } else {
+                          setError(errorMessage);
+                        }
                       } else {
-                        // Auto sign-in after sign-up
-                        const signInResult = await app.signInWithCredential({
+                        // Success - auto sign-in after sign-up
+                        const signInResult: Result<undefined, any> = await app.signInWithCredential({
                           email,
                           password,
+                          noRedirect: true,
                         });
                         
                         if (signInResult.status === "error") {
-                          setError("Cont creat, dar autentificarea a eșuat. Vă rugăm să vă autentificați manual.");
+                          setError("Cont creat cu succes! Vă rugăm să vă autentificați manual.");
                           setIsLogin(true);
                         } else {
-                          navigate("/");
+                          navigate("/", { replace: true });
                         }
                       }
                     }
                   } catch (err) {
-                    setError(err instanceof Error ? err.message : "A apărut o eroare");
+                    // Handle unexpected errors
+                    const errorMessage = err instanceof Error ? err.message : "A apărut o eroare neașteptată";
+                    setError(errorMessage);
                     if (debug) {
                       console.error("Auth error:", err);
                     }
@@ -341,9 +372,49 @@ const Auth = () => {
                         Ține-mă minte
                       </Label>
                     </div>
-                    <Link to="#" className="text-sm text-primary hover:underline">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const emailInput = document.getElementById("email") as HTMLInputElement;
+                        const email = emailInput.value;
+                        
+                        if (!email) {
+                          setError("Vă rugăm să introduceți adresa de email pentru resetarea parolei");
+                          return;
+                        }
+                        
+                        setLoading(true);
+                        setError(null);
+                        setSuccessMessage(null);
+                        
+                        try {
+                          // Use SDK sendForgotPasswordEmail method
+                          const result: Result<undefined, any> = await app.sendForgotPasswordEmail(email);
+                          
+                          if (result.status === "error") {
+                            const errorMessage = result.error?.message || result.error || "Eroare la trimiterea email-ului de resetare";
+                            
+                            if (result.error?.code === "UserNotFound") {
+                              setError("Nu există un cont cu această adresă de email.");
+                            } else {
+                              setError(errorMessage);
+                            }
+                          } else {
+                            setSuccessMessage(`Email de resetare parolă trimis la ${email}. Verificați inbox-ul.`);
+                          }
+                        } catch (err) {
+                          setError(err instanceof Error ? err.message : "Eroare la trimiterea email-ului");
+                          if (debug) {
+                            console.error("Forgot password error:", err);
+                          }
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                      className="text-sm text-primary hover:underline"
+                    >
                       Ați uitat parola?
-                    </Link>
+                    </button>
                   </div>
                 )}
                 
@@ -418,9 +489,21 @@ const Auth = () => {
                           setError(null);
                           
                           try {
-                            await app.sendMagicLinkEmail({ email });
-                            setSuccessMessage(`Cod de autentificare trimis la ${email}`);
-                            setOtpStep("code");
+                            // Use SDK sendMagicLinkEmail method (takes email as string, not object)
+                            const result: Result<{ nonce: string }, any> = await app.sendMagicLinkEmail(email);
+                            
+                            if (result.status === "error") {
+                              const errorMessage = result.error?.message || result.error || "Eroare la trimiterea codului";
+                              
+                              if (result.error?.code === "RedirectUrlNotWhitelisted") {
+                                setError("URL-ul de redirecționare nu este permis. Contactați suportul.");
+                              } else {
+                                setError(errorMessage);
+                              }
+                            } else {
+                              setSuccessMessage(`Cod de autentificare trimis la ${email}`);
+                              setOtpStep("code");
+                            }
                           } catch (err) {
                             setError(err instanceof Error ? err.message : "Eroare la trimiterea codului");
                             if (debug) {
@@ -465,12 +548,17 @@ const Auth = () => {
                           setError(null);
                           
                           try {
-                            const result = await app.signInWithMagicLink({ code });
+                            // Use SDK signInWithMagicLink method
+                            // Note: signInWithMagicLink may use different parameter name
+                            // Check SDK docs - it might be 'code' or 'nonce'
+                            const result: Result<any, any> = await app.signInWithMagicLink({ code });
                             
                             if (result.status === "error") {
-                              setError(result.error || "Verificare eșuată. Verificați codul și încercați din nou.");
+                              const errorMessage = result.error?.message || result.error || "Verificare eșuată. Verificați codul și încercați din nou.";
+                              setError(errorMessage);
                             } else {
-                              navigate("/");
+                              // Success - user is signed in
+                              navigate("/", { replace: true });
                             }
                           } catch (err) {
                             setError(err instanceof Error ? err.message : "Eroare la verificare");
@@ -518,17 +606,13 @@ const Auth = () => {
                       setSuccessMessage(null);
                       
                       try {
-                        // Sign in with Google OAuth
-                        // This will redirect to Google's authorization page
-                        await app.signInWithOAuth("google", {
-                          // Optional: Add scopes if you need access to Google APIs
-                          // scopes: [
-                          //   "https://www.googleapis.com/auth/userinfo.email",
-                          //   "https://www.googleapis.com/auth/userinfo.profile",
-                          // ],
-                        });
-                        // Note: User will be redirected, so this code may not execute
-                        // The OAuth callback handler will process the result
+                        // Use SDK signInWithOAuth method
+                        // This initiates OAuth flow and redirects to provider
+                        await app.signInWithOAuth("google");
+                        // Note: User will be redirected to Google's authorization page
+                        // After authorization, Google redirects back to /oauth
+                        // The OAuth callback handler (useEffect above) will process the result
+                        // This code may not execute if redirect happens immediately
                       } catch (err) {
                         setLoading(false);
                         const errorMessage = err instanceof Error ? err.message : "Eroare necunoscută";

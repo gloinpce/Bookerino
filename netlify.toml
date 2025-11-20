@@ -23,6 +23,10 @@
   NEXT_PRIVATE_TARGET = ""
   # Disable telemetry to speed up builds
   VITE_TELEMETRY_DISABLED = "1"
+  # Fix Neon extension logger error - set LOG_LEVEL to match extension expectations
+  LOG_LEVEL = "info"
+  # Netlify DB will automatically set DATABASE_URL and NETLIFY_DATABASE_URL
+  # These are available during build and in Netlify Functions
 
 # Explicitly disable Next.js plugin
 # This prevents Netlify from auto-detecting Next.js

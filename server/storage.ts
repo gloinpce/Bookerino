@@ -68,14 +68,23 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  // Helper to ensure database is available
+  private ensureDatabase(): void {
+    if (!isDatabaseAvailable() || !db) {
+      throw new Error("Database not available. Netlify DB will be created on first build.");
+    }
+  }
+
   // User operations (required for Replit Auth)
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
+    this.ensureDatabase();
+    const [user] = await db!.select().from(users).where(eq(users.id, id));
     return user;
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
+    this.ensureDatabase();
+    const [user] = await db!
       .insert(users)
       .values(userData)
       .onConflictDoUpdate({
@@ -91,11 +100,13 @@ export class DatabaseStorage implements IStorage {
 
   // Room operations
   async getRooms(): Promise<Room[]> {
-    return await db.select().from(rooms);
+    this.ensureDatabase();
+    return await db!.select().from(rooms);
   }
 
   async getRoom(id: string): Promise<Room | undefined> {
-    const [room] = await db.select().from(rooms).where(eq(rooms.id, id));
+    this.ensureDatabase();
+    const [room] = await db!.select().from(rooms).where(eq(rooms.id, id));
     return room;
   }
 
@@ -235,26 +246,31 @@ export class DatabaseStorage implements IStorage {
 
   // Integration operations
   async getIntegrations(): Promise<Integration[]> {
-    return await db.select().from(integrations);
+    this.ensureDatabase();
+    return await db!.select().from(integrations);
   }
 
   async getIntegration(id: string): Promise<Integration | undefined> {
-    const [integration] = await db.select().from(integrations).where(eq(integrations.id, id));
+    this.ensureDatabase();
+    const [integration] = await db!.select().from(integrations).where(eq(integrations.id, id));
     return integration;
   }
 
   async getIntegrationByPlatform(platform: string): Promise<Integration | undefined> {
-    const [integration] = await db.select().from(integrations).where(eq(integrations.platform, platform));
+    this.ensureDatabase();
+    const [integration] = await db!.select().from(integrations).where(eq(integrations.platform, platform));
     return integration;
   }
 
   async createIntegration(integrationData: InsertIntegration): Promise<Integration> {
-    const [integration] = await db.insert(integrations).values(integrationData).returning();
+    this.ensureDatabase();
+    const [integration] = await db!.insert(integrations).values(integrationData).returning();
     return integration;
   }
 
   async updateIntegration(id: string, integrationData: Partial<InsertIntegration>): Promise<Integration> {
-    const [integration] = await db
+    this.ensureDatabase();
+    const [integration] = await db!
       .update(integrations)
       .set({ ...integrationData, updatedAt: new Date() })
       .where(eq(integrations.id, id))
@@ -263,26 +279,31 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteIntegration(id: string): Promise<void> {
-    await db.delete(integrations).where(eq(integrations.id, id));
+    this.ensureDatabase();
+    await db!.delete(integrations).where(eq(integrations.id, id));
   }
 
   // Meal operations
   async getMeals(): Promise<Meal[]> {
-    return await db.select().from(meals);
+    this.ensureDatabase();
+    return await db!.select().from(meals);
   }
 
   async getMeal(id: string): Promise<Meal | undefined> {
-    const [meal] = await db.select().from(meals).where(eq(meals.id, id));
+    this.ensureDatabase();
+    const [meal] = await db!.select().from(meals).where(eq(meals.id, id));
     return meal;
   }
 
   async createMeal(mealData: InsertMeal): Promise<Meal> {
-    const [meal] = await db.insert(meals).values(mealData).returning();
+    this.ensureDatabase();
+    const [meal] = await db!.insert(meals).values(mealData).returning();
     return meal;
   }
 
   async updateMeal(id: string, mealData: Partial<InsertMeal>): Promise<Meal> {
-    const [meal] = await db
+    this.ensureDatabase();
+    const [meal] = await db!
       .update(meals)
       .set({ ...mealData, updatedAt: new Date() })
       .where(eq(meals.id, id))
@@ -291,15 +312,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteMeal(id: string): Promise<void> {
-    await db.delete(meals).where(eq(meals.id, id));
+    this.ensureDatabase();
+    await db!.delete(meals).where(eq(meals.id, id));
   }
 
   async incrementMealConsumption(id: string): Promise<Meal> {
+    this.ensureDatabase();
     const meal = await this.getMeal(id);
     if (!meal) {
       throw new Error("Meal not found");
     }
-    const [updatedMeal] = await db
+    const [updatedMeal] = await db!
       .update(meals)
       .set({ 
         consumptionCount: (meal.consumptionCount || 0) + 1,

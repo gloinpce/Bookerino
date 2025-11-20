@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 // import { setupAuth, authenticateJWT } from "./replitAuth"; // Commented out - using local auth
 import { insertRoomSchema, insertBookingSchema, insertReviewSchema, updateReviewResponseSchema, insertIntegrationSchema, insertMealSchema } from "@shared/schema";
-import { db } from "./db";
+import { db, isDatabaseAvailable } from "./db";
 import { users } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
@@ -39,8 +39,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // await setupAuth(app);
 
   // Local Auth routes (using Neon PostgreSQL)
+  // Note: Stack Auth handles user account creation via /auth page
+  // This endpoint is for syncing Stack Auth users to Netlify DB (optional)
   app.post('/api/auth/register', async (req, res) => {
     try {
+      // Check if database is available (Netlify DB)
+      if (!isDatabaseAvailable() || !db) {
+        return res.status(503).json({ 
+          error: 'Database not available. Netlify DB will be created on first build.',
+          note: 'User accounts are managed by Stack Auth. Use /auth page to create accounts.'
+        });
+      }
+
       const { name, email, password } = req.body;
 
       if (!name || !email || !password) {

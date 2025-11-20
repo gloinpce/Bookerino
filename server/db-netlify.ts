@@ -1,27 +1,24 @@
 /**
- * Database connection configuration
- * Supports both Netlify DB (automatic) and manual DATABASE_URL
- * 
- * Netlify DB automatically sets:
- * - NETLIFY_DATABASE_URL (preferred)
- * - DATABASE_URL (fallback)
+ * Database connection for Netlify DB (Neon)
+ * Automatically uses NETLIFY_DATABASE_URL or DATABASE_URL from Netlify environment
  */
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "@shared/schema";
 
-// Netlify DB provides NETLIFY_DATABASE_URL, fallback to DATABASE_URL
+// Netlify DB automatically provides these environment variables:
+// - NETLIFY_DATABASE_URL (preferred for Netlify DB)
+// - DATABASE_URL (fallback)
 const databaseUrl = process.env.NETLIFY_DATABASE_URL || process.env.DATABASE_URL;
 
 if (!databaseUrl) {
   console.warn(
     "⚠️ DATABASE_URL not set. Netlify DB will create it automatically on first build.\n" +
-    "If running locally, use 'netlify dev' or set DATABASE_URL manually.\n" +
-    "For production, ensure Netlify DB is configured in Netlify Dashboard."
+    "If running locally, use 'netlify dev' or set DATABASE_URL manually."
   );
-  // Don't throw error - allow graceful degradation for development
 }
 
+// Create connection pool
 const pool = databaseUrl
   ? new Pool({
       connectionString: databaseUrl,
@@ -29,7 +26,7 @@ const pool = databaseUrl
     })
   : null;
 
-// Create Drizzle instance only if pool exists
+// Create Drizzle instance
 export const db = pool ? drizzle(pool, { schema }) : null;
 
 // Export pool for direct access if needed
