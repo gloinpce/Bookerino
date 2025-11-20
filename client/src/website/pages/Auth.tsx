@@ -5,20 +5,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SignIn, SignUp } from "@stackframe/react";
+import { useUser } from "@stackframe/react";
 import { authApi } from "../lib/api";
 import { debug } from "../config/database";
-import { initStackAuth } from "../lib/stackAuth";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [useStackComponents, setUseStackComponents] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const user = useUser();
 
-  // Initialize Stack Auth on component mount
+  // Redirect if already logged in
   useEffect(() => {
-    initStackAuth();
-  }, []);
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-subtle pt-24 pb-20">
@@ -42,7 +47,24 @@ const Auth = () => {
                   {error}
                 </div>
               )}
-              <form 
+              
+              {useStackComponents ? (
+                // Use Stack Auth components
+                <div className="space-y-4">
+                  {isLogin ? <SignIn /> : <SignUp />}
+                  <div className="text-center text-sm">
+                    <button
+                      type="button"
+                      onClick={() => setUseStackComponents(false)}
+                      className="text-muted-foreground hover:underline"
+                    >
+                      Folosiți formularul custom
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                // Custom form
+                <form 
                 className="space-y-4"
                 onSubmit={async (e: FormEvent<HTMLFormElement>) => {
                   e.preventDefault();
@@ -162,7 +184,17 @@ const Auth = () => {
                     </p>
                   )}
                 </div>
+                <div className="text-center text-sm mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setUseStackComponents(true)}
+                    className="text-muted-foreground hover:underline"
+                  >
+                    Folosiți componentele Stack Auth
+                  </button>
+                </div>
               </form>
+              )}
             </CardContent>
           </Card>
           

@@ -3,11 +3,13 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUser, UserButton } from "@stackframe/react";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const user = useUser();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -95,9 +97,21 @@ const Navbar = () => {
                 </Link>
               );
             })}
-            <Button asChild size="sm">
-              <Link to="/auth">Autentificare</Link>
-            </Button>
+            {user ? (
+              <div className="flex items-center gap-4">
+                <Link
+                  to="/profile"
+                  className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
+                >
+                  Profil
+                </Link>
+                <UserButton />
+              </div>
+            ) : (
+              <Button asChild size="sm">
+                <Link to="/auth">Autentificare</Link>
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -161,12 +175,27 @@ const Navbar = () => {
                 </Link>
               );
             })}
-            <div className="px-4 pt-2">
-              <Button asChild className="w-full" size="sm">
-                <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
-                  Autentificare
-                </Link>
-              </Button>
+            <div className="px-4 pt-2 space-y-2">
+              {user ? (
+                <>
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 text-sm font-medium rounded-md transition-colors text-muted-foreground hover:bg-accent"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Profil
+                  </Link>
+                  <div className="flex justify-center">
+                    <UserButton />
+                  </div>
+                </>
+              ) : (
+                <Button asChild className="w-full" size="sm">
+                  <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
+                    Autentificare
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
         )}
