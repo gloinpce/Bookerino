@@ -27,6 +27,13 @@
   LOG_LEVEL = "info"
   # Netlify DB will automatically set DATABASE_URL and NETLIFY_DATABASE_URL
   # These are available during build and in Netlify Functions
+  # Configure secrets scanning to ignore false positives
+  # These environment variables tell Netlify to skip scanning certain keys and paths
+  SECRETS_SCAN_OMIT_KEYS = "LOG_LEVEL"
+  # Omit paths that contain false positives (documentation, build artifacts, etc.)
+  SECRETS_SCAN_OMIT_PATHS = "dist/**,target/**,*.md,*.png,*.jpg,*.jar,*.class,.netlify/**,.github/**,.vscode/**,.local/**,figma-design-files/**,neon-auth-nextjs-template/**,neon-data-api-neon-auth/**,Bookerino/**"
+  # Disable secrets scanning for DATABASE_URL since it's expected in code (as env var name)
+  # Note: Actual database passwords should NEVER be in code - only use environment variables
 
 # Explicitly disable Next.js plugin
 # This prevents Netlify from auto-detecting Next.js

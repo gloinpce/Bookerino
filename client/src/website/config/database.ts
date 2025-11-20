@@ -28,7 +28,9 @@ export const databaseConfig = {
   
   // PostgreSQL connection string (Neon Database)
   // Database: neondb, Role: neondb_owner
-  databaseUrl: import.meta.env.VITE_DATABASE_URL || "postgresql://neondb_owner:npg_RrQlv81uSYkb@ep-restless-tooth-agrax399-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+  // IMPORTANT: Never hardcode credentials! Always use environment variables.
+  // Set VITE_DATABASE_URL in Netlify Dashboard → Site settings → Environment variables
+  databaseUrl: import.meta.env.VITE_DATABASE_URL || "",
   
   // Stack Auth configuration
   stackAuth: {
