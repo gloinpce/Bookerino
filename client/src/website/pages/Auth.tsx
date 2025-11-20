@@ -3,27 +3,137 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link, useNavigate } from "react-router-dom";
-import { Check } from "lucide-react";
-import { SignIn, SignUp } from "@stackframe/react";
-import { useUser } from "@stackframe/react";
-import { authApi } from "../lib/api";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Check, Mail, Lock, User } from "lucide-react";
+import { useUser, useStackApp } from "@stackframe/react";
 import { debug } from "../config/database";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [useStackComponents, setUseStackComponents] = useState(false);
+  const [authMethod, setAuthMethod] = useState<"password" | "otp" | "oauth">("password");
+  const [otpStep, setOtpStep] = useState<"email" | "code">("email");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const user = useUser();
+  const app = useStackApp();
+  const isOAuthCallback = location.pathname === "/oauth";
 
   // Redirect if already logged in
   useEffect(() => {
-    if (user) {
+    if (user && !isOAuthCallback) {
       navigate("/");
     }
-  }, [user, navigate]);
+  }, [user, navigate, isOAuthCallback]);
+
+  // Handle OAuth callback with comprehensive error handling
+  useEffect(() => {
+    if (!isOAuthCallback) return;
+
+    const handleOAuthCallback = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      const state = params.get("state");
+      const error = params.get("error");
+      const errorDescription = params.get("error_description");
+
+      // Handle OAuth provider errors (user denied, etc.)
+      if (error) {
+        setLoading(false);
+        setError(
+          errorDescription || 
+          error === "access_denied" 
+            ? "Autentificarea a fost anulată. Vă rugăm să încercați din nou." 
+            : `Eroare OAuth: ${error}`
+        );
+        setAuthMethod("oauth");
+        // Clean URL
+        window.history.replaceState({}, document.title, "/oauth");
+        return;
+      }
+
+      // Check for required OAuth parameters
+      if (!code || !state) {
+        setLoading(false);
+        setError("Parametri OAuth lipsă. Vă rugăm să încercați din nou.");
+        setAuthMethod("oauth");
+        navigate("/auth");
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const result = await app.callOAuthCallback();
+        
+        if (result.status === "success") {
+          // Success - redirect to home
+          navigate("/", { replace: true });
+        } else {
+          // Handle specific error cases
+          const errorMessage = result.error || "Autentificarea OAuth a eșuat.";
+          
+          // Check for account merging errors
+          if (errorMessage.includes("duplicate") || errorMessage.includes("already exists")) {
+            setError(
+              "Un cont cu această adresă de email există deja. " +
+              "Vă rugăm să vă autentificați cu email și parolă sau să conectați contul OAuth din setări."
+            );
+          } else if (errorMessage.includes("link") || errorMessage.includes("verification")) {
+            setError(
+              "Nu s-a putut conecta contul OAuth. " +
+              "Asigurați-vă că adresa de email este verificată și încercați din nou."
+            );
+          } else {
+            setError(`Autentificare eșuată: ${errorMessage}`);
+          }
+          
+          setAuthMethod("oauth");
+          // Clean URL
+          window.history.replaceState({}, document.title, "/oauth");
+        }
+      } catch (err) {
+        // Network or unexpected errors
+        const errorMessage = err instanceof Error ? err.message : "Eroare necunoscută";
+        
+        if (errorMessage.includes("network") || errorMessage.includes("fetch")) {
+          setError("Nu s-a putut conecta la server. Verificați conexiunea la internet și încercați din nou.");
+        } else {
+          setError(`A apărut o eroare la autentificare: ${errorMessage}`);
+        }
+        
+        setAuthMethod("oauth");
+        if (debug) {
+          console.error("OAuth callback error:", err);
+        }
+        // Clean URL
+        window.history.replaceState({}, document.title, "/oauth");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    handleOAuthCallback();
+  }, [app, navigate, isOAuthCallback, debug]);
+
+  // Show loading state for OAuth callback
+  if (isOAuthCallback && loading) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle pt-24 pb-20 flex items-center justify-center">
+        <Card className="max-w-md w-full">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <p className="text-muted-foreground">Se procesează autentificarea OAuth...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-subtle pt-24 pb-20">
@@ -33,12 +143,18 @@ const Auth = () => {
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">
-                {isLogin ? "Autentificare" : "Înregistrare"}
+                {isOAuthCallback 
+                  ? "Autentificare OAuth" 
+                  : isLogin 
+                    ? "Autentificare" 
+                    : "Înregistrare"}
               </CardTitle>
               <CardDescription>
-                {isLogin 
-                  ? "Accesați contul dvs. Bookerino" 
-                  : "Începeți perioada de probă gratuită de 7 zile"}
+                {isOAuthCallback
+                  ? "Finalizarea autentificării OAuth"
+                  : isLogin 
+                    ? "Accesați contul dvs. Bookerino" 
+                    : "Începeți perioada de probă gratuită de 7 zile"}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -48,22 +164,74 @@ const Auth = () => {
                 </div>
               )}
               
-              {useStackComponents ? (
-                // Use Stack Auth components
-                <div className="space-y-4">
-                  {isLogin ? <SignIn /> : <SignUp />}
-                  <div className="text-center text-sm">
-                    <button
-                      type="button"
-                      onClick={() => setUseStackComponents(false)}
-                      className="text-muted-foreground hover:underline"
-                    >
-                      Folosiți formularul custom
-                    </button>
-                  </div>
+              {successMessage && (
+                <div className="mb-4 p-3 bg-green-500/10 text-green-600 dark:text-green-400 text-sm rounded-md">
+                  {successMessage}
                 </div>
-              ) : (
-                // Custom form
+              )}
+
+              {/* Auth Method Selector - Hide on OAuth callback */}
+              {!isOAuthCallback && (
+                <div className="mb-4 flex gap-2">
+                  <Button
+                    type="button"
+                    variant={authMethod === "password" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      setAuthMethod("password");
+                      setOtpStep("email");
+                      setError(null);
+                    }}
+                    className="flex-1"
+                  >
+                    <Lock className="h-4 w-4 mr-2" />
+                    Parolă
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={authMethod === "otp" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      setAuthMethod("otp");
+                      setOtpStep("email");
+                      setError(null);
+                    }}
+                    className="flex-1"
+                  >
+                    <Mail className="h-4 w-4 mr-2" />
+                    Cod email
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={authMethod === "oauth" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      setAuthMethod("oauth");
+                      setError(null);
+                    }}
+                    className="flex-1"
+                  >
+                    OAuth
+                  </Button>
+                </div>
+              )}
+
+              {/* Show OAuth method if on OAuth callback page */}
+              {isOAuthCallback && authMethod !== "oauth" && (
+                <div className="mb-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => navigate("/auth")}
+                  >
+                    ← Înapoi la autentificare
+                  </Button>
+                </div>
+              )}
+
+              {/* Password Authentication Form */}
+              {authMethod === "password" && (
                 <form 
                 className="space-y-4"
                 onSubmit={async (e: FormEvent<HTMLFormElement>) => {
@@ -82,8 +250,16 @@ const Auth = () => {
                         console.log("Attempting login for:", email);
                       }
                       
-                      await authApi.login(email, password);
-                      navigate("/");
+                      const result = await app.signInWithCredential({
+                        email,
+                        password,
+                      });
+                      
+                      if (result.status === "error") {
+                        setError(result.error || "Autentificare eșuată. Verificați email-ul și parola.");
+                      } else {
+                        navigate("/");
+                      }
                     } else {
                       const name = formData.get("name") as string;
                       const email = formData.get("email") as string;
@@ -100,8 +276,28 @@ const Auth = () => {
                         console.log("Attempting registration for:", email);
                       }
                       
-                      await authApi.register({ name, email, password });
-                      navigate("/");
+                      const result = await app.signUpWithCredential({
+                        email,
+                        password,
+                        displayName: name,
+                      });
+                      
+                      if (result.status === "error") {
+                        setError(result.error || "Înregistrare eșuată. Vă rugăm să încercați din nou.");
+                      } else {
+                        // Auto sign-in after sign-up
+                        const signInResult = await app.signInWithCredential({
+                          email,
+                          password,
+                        });
+                        
+                        if (signInResult.status === "error") {
+                          setError("Cont creat, dar autentificarea a eșuat. Vă rugăm să vă autentificați manual.");
+                          setIsLogin(true);
+                        } else {
+                          navigate("/");
+                        }
+                      }
                     }
                   } catch (err) {
                     setError(err instanceof Error ? err.message : "A apărut o eroare");
@@ -184,16 +380,198 @@ const Auth = () => {
                     </p>
                   )}
                 </div>
-                <div className="text-center text-sm mt-4">
-                  <button
-                    type="button"
-                    onClick={() => setUseStackComponents(true)}
-                    className="text-muted-foreground hover:underline"
-                  >
-                    Folosiți componentele Stack Auth
-                  </button>
-                </div>
               </form>
+              )}
+
+              {/* OTP/Magic Link Authentication Form */}
+              {authMethod === "otp" && (
+                <div className="space-y-4">
+                  {otpStep === "email" ? (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="otp-email">Adresă de email</Label>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="otp-email"
+                            type="email"
+                            placeholder="email@exemplu.com"
+                            className="pl-10"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        className="w-full"
+                        disabled={loading}
+                        onClick={async () => {
+                          const emailInput = document.getElementById("otp-email") as HTMLInputElement;
+                          const email = emailInput.value;
+                          
+                          if (!email) {
+                            setError("Vă rugăm să introduceți adresa de email");
+                            return;
+                          }
+                          
+                          setLoading(true);
+                          setError(null);
+                          
+                          try {
+                            await app.sendMagicLinkEmail({ email });
+                            setSuccessMessage(`Cod de autentificare trimis la ${email}`);
+                            setOtpStep("code");
+                          } catch (err) {
+                            setError(err instanceof Error ? err.message : "Eroare la trimiterea codului");
+                            if (debug) {
+                              console.error("Send magic link error:", err);
+                            }
+                          } finally {
+                            setLoading(false);
+                          }
+                        }}
+                      >
+                        {loading ? "Se trimite..." : "Trimite cod"}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="otp-code">Cod de autentificare</Label>
+                        <Input
+                          id="otp-code"
+                          type="text"
+                          placeholder="Introduceți codul din email"
+                          required
+                        />
+                        <p className="text-sm text-muted-foreground">
+                          Verificați email-ul pentru codul de autentificare
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        className="w-full"
+                        disabled={loading}
+                        onClick={async () => {
+                          const codeInput = document.getElementById("otp-code") as HTMLInputElement;
+                          const code = codeInput.value;
+                          
+                          if (!code) {
+                            setError("Vă rugăm să introduceți codul");
+                            return;
+                          }
+                          
+                          setLoading(true);
+                          setError(null);
+                          
+                          try {
+                            const result = await app.signInWithMagicLink({ code });
+                            
+                            if (result.status === "error") {
+                              setError(result.error || "Verificare eșuată. Verificați codul și încercați din nou.");
+                            } else {
+                              navigate("/");
+                            }
+                          } catch (err) {
+                            setError(err instanceof Error ? err.message : "Eroare la verificare");
+                            if (debug) {
+                              console.error("Magic link sign in error:", err);
+                            }
+                          } finally {
+                            setLoading(false);
+                          }
+                        }}
+                      >
+                        {loading ? "Se verifică..." : "Verifică cod"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => {
+                          setOtpStep("email");
+                          setError(null);
+                          setSuccessMessage(null);
+                        }}
+                      >
+                        ← Înapoi
+                      </Button>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* OAuth Authentication */}
+              {authMethod === "oauth" && (
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground text-center">
+                    Autentificați-vă folosind unul dintre providerii OAuth
+                  </p>
+                  <Button
+                    type="button"
+                    className="w-full"
+                    variant="outline"
+                    disabled={loading}
+                    onClick={async () => {
+                      setLoading(true);
+                      setError(null);
+                      setSuccessMessage(null);
+                      
+                      try {
+                        // Sign in with Google OAuth
+                        // This will redirect to Google's authorization page
+                        await app.signInWithOAuth("google", {
+                          // Optional: Add scopes if you need access to Google APIs
+                          // scopes: [
+                          //   "https://www.googleapis.com/auth/userinfo.email",
+                          //   "https://www.googleapis.com/auth/userinfo.profile",
+                          // ],
+                        });
+                        // Note: User will be redirected, so this code may not execute
+                        // The OAuth callback handler will process the result
+                      } catch (err) {
+                        setLoading(false);
+                        const errorMessage = err instanceof Error ? err.message : "Eroare necunoscută";
+                        
+                        if (errorMessage.includes("network") || errorMessage.includes("fetch")) {
+                          setError("Nu s-a putut conecta la serverul OAuth. Verificați conexiunea la internet.");
+                        } else if (errorMessage.includes("popup") || errorMessage.includes("blocked")) {
+                          setError("Popup-ul a fost blocat. Vă rugăm să permiteți popup-uri pentru acest site.");
+                        } else {
+                          setError(`Eroare la inițializarea autentificării Google: ${errorMessage}`);
+                        }
+                        
+                        if (debug) {
+                          console.error("Google OAuth initialization error:", err);
+                        }
+                      }
+                    }}
+                  >
+                    <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24">
+                      <path
+                        fill="currentColor"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      />
+                      <path
+                        fill="currentColor"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      />
+                      <path
+                        fill="currentColor"
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                      />
+                      <path
+                        fill="currentColor"
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                      />
+                    </svg>
+                    {loading ? "Se procesează..." : "Autentificare cu Google"}
+                  </Button>
+                  
+                  <div className="text-center text-sm text-muted-foreground">
+                    Alți provideri OAuth vor fi disponibili în curând
+                  </div>
+                </div>
               )}
             </CardContent>
           </Card>

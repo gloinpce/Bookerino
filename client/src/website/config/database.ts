@@ -32,13 +32,15 @@ export const databaseConfig = {
   
   // Stack Auth configuration
   stackAuth: {
-    projectId: import.meta.env.VITE_STACK_PROJECT_ID || "a84c6c76-faaa-49dc-9afc-6ff8e1656eab",
+    projectId: import.meta.env.VITE_STACK_PROJECT_ID || "94d1506e-966f-4a6b-a8a6-6be48b783282",
     publishableClientKey: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || "pck_hp7qzx3dmnbatmbz5z6tp6dj6rd3b11j9vybrngm4savg",
     // Note: secretServerKey should only be used server-side, not in client code
     // It's included here for reference but should never be exposed to the client
     secretServerKey: import.meta.env.VITE_STACK_SECRET_SERVER_KEY || "",
     // JWKS URL for token verification - constructed from project ID
-    jwksUrl: `https://api.stack-auth.com/api/v1/projects/${import.meta.env.VITE_STACK_PROJECT_ID || "a84c6c76-faaa-49dc-9afc-6ff8e1656eab"}/.well-known/jwks.json`,
+    jwksUrl: `https://api.stack-auth.com/api/v1/projects/${import.meta.env.VITE_STACK_PROJECT_ID || "94d1506e-966f-4a6b-a8a6-6be48b783282"}/.well-known/jwks.json`,
+    // Anonymous JWKS URL for anonymous token verification
+    anonymousJwksUrl: `https://api.stack-auth.com/api/v1/projects/${import.meta.env.VITE_STACK_PROJECT_ID || "94d1506e-966f-4a6b-a8a6-6be48b783282"}/.well-known/jwks.json?include_anonymous=true`,
   },
   
   // API Base URL (constructed from port, fallback to REST API if no port)

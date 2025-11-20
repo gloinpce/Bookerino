@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { DarkVeil } from "@/components/dark-veil";
 import { StackProvider } from "@stackframe/react";
 import { stackClientApp } from "./lib/stackClient";
+import { ProductionBanner } from "./components/ProductionBanner";
 import Navbar from "./components/Navbar";
 import Index from "./pages/Index";
 import Pricing from "./pages/Pricing";
@@ -15,6 +16,7 @@ import Cancel from "./pages/Cancel";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { OAuthErrorBoundary } from "./components/OAuthErrorBoundary";
 // Use dynamic import for Auth to fix potential import error
 const Auth = lazy(() => import("./pages/Auth"));
 
@@ -28,14 +30,24 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Navbar />
-          <Routes>
+          <OAuthErrorBoundary>
+            <ProductionBanner />
+            <Navbar />
+            <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/lander" element={<Index />} />
             <Route 
               path="/auth" 
               element={
                 <Suspense fallback={<div className="flex h-screen items-center justify-center">Se încarcă...</div>}>
+                  <Auth />
+                </Suspense>
+              } 
+            />
+            <Route 
+              path="/oauth" 
+              element={
+                <Suspense fallback={<div className="flex h-screen items-center justify-center">Se procesează autentificarea...</div>}>
                   <Auth />
                 </Suspense>
               } 
@@ -54,6 +66,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </OAuthErrorBoundary>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

@@ -1,10 +1,11 @@
 // Stack Auth Configuration
-// Project ID: a84c6c76-faaa-49dc-9afc-6ff8e1656eab
-// JWKS URL: https://api.stack-auth.com/api/v1/projects/a84c6c76-faaa-49dc-9afc-6ff8e1656eab/.well-known/jwks.json
+// Project ID: 94d1506e-966f-4a6b-a8a6-6be48b783282
+// JWKS URL: https://api.stack-auth.com/api/v1/projects/94d1506e-966f-4a6b-a8a6-6be48b783282/.well-known/jwks.json
 
 export const STACK_AUTH_CONFIG = {
-    projectId: 'a84c6c76-faaa-49dc-9afc-6ff8e1656eab',
-    jwksUrl: 'https://api.stack-auth.com/api/v1/projects/a84c6c76-faaa-49dc-9afc-6ff8e1656eab/.well-known/jwks.json',
+    projectId: '94d1506e-966f-4a6b-a8a6-6be48b783282',
+    jwksUrl: 'https://api.stack-auth.com/api/v1/projects/94d1506e-966f-4a6b-a8a6-6be48b783282/.well-known/jwks.json',
+    anonymousJwksUrl: 'https://api.stack-auth.com/api/v1/projects/94d1506e-966f-4a6b-a8a6-6be48b783282/.well-known/jwks.json?include_anonymous=true',
     apiUrl: 'https://api.stack-auth.com/api/v1',
   };
   

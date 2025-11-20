@@ -8,6 +8,15 @@ import { users } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import {
+  sendEmail,
+  sendWelcomeEmail,
+  sendPasswordResetEmail,
+  sendEmailVerificationEmail,
+  sendTrialEndingReminderEmail,
+  sendSubscriptionConfirmationEmail,
+  sendFeatureUpdateEmail,
+} from "./email";
 
 // JWT Authentication Middleware
 const authenticateJWT = async (req: any, res: any, next: any) => {
@@ -376,6 +385,176 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error incrementing meal consumption:", error);
       res.status(500).json({ message: "Failed to increment meal consumption" });
+    }
+  });
+
+  // Email API routes
+  // Send custom email
+  app.post("/api/email/send", authenticateJWT, async (req, res) => {
+    try {
+      const { userIds, subject, html, templateId, variables, notificationCategoryName } = req.body;
+
+      if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+        return res.status(400).json({ error: "userIds must be a non-empty array" });
+      }
+
+      if (!subject && !templateId) {
+        return res.status(400).json({ error: "subject or templateId is required" });
+      }
+
+      const result = await sendEmail({
+        userIds,
+        subject,
+        html,
+        templateId,
+        variables,
+        notificationCategoryName,
+      });
+
+      if (result.status === "error") {
+        return res.status(400).json({ error: result.error?.message || "Failed to send email" });
+      }
+
+      res.json({ success: true, message: result.message });
+    } catch (error) {
+      console.error("Error sending email:", error);
+      res.status(500).json({ error: "Failed to send email" });
+    }
+  });
+
+  // Send welcome email
+  app.post("/api/email/welcome", authenticateJWT, async (req, res) => {
+    try {
+      const { userId, userName } = req.body;
+
+      if (!userId) {
+        return res.status(400).json({ error: "userId is required" });
+      }
+
+      const result = await sendWelcomeEmail(userId, userName);
+
+      if (result.status === "error") {
+        return res.status(400).json({ error: result.error?.message || "Failed to send welcome email" });
+      }
+
+      res.json({ success: true, message: "Welcome email sent successfully" });
+    } catch (error) {
+      console.error("Error sending welcome email:", error);
+      res.status(500).json({ error: "Failed to send welcome email" });
+    }
+  });
+
+  // Send password reset email
+  app.post("/api/email/password-reset", async (req, res) => {
+    try {
+      const { userId, resetUrl } = req.body;
+
+      if (!userId || !resetUrl) {
+        return res.status(400).json({ error: "userId and resetUrl are required" });
+      }
+
+      const result = await sendPasswordResetEmail(userId, resetUrl);
+
+      if (result.status === "error") {
+        return res.status(400).json({ error: result.error?.message || "Failed to send password reset email" });
+      }
+
+      res.json({ success: true, message: "Password reset email sent successfully" });
+    } catch (error) {
+      console.error("Error sending password reset email:", error);
+      res.status(500).json({ error: "Failed to send password reset email" });
+    }
+  });
+
+  // Send email verification
+  app.post("/api/email/verify", authenticateJWT, async (req, res) => {
+    try {
+      const { userId, verificationUrl } = req.body;
+
+      if (!userId || !verificationUrl) {
+        return res.status(400).json({ error: "userId and verificationUrl are required" });
+      }
+
+      const result = await sendEmailVerificationEmail(userId, verificationUrl);
+
+      if (result.status === "error") {
+        return res.status(400).json({ error: result.error?.message || "Failed to send verification email" });
+      }
+
+      res.json({ success: true, message: "Verification email sent successfully" });
+    } catch (error) {
+      console.error("Error sending verification email:", error);
+      res.status(500).json({ error: "Failed to send verification email" });
+    }
+  });
+
+  // Send trial ending reminder
+  app.post("/api/email/trial-reminder", authenticateJWT, async (req, res) => {
+    try {
+      const { userId, userName, daysRemaining } = req.body;
+
+      if (!userId || !userName || daysRemaining === undefined) {
+        return res.status(400).json({ error: "userId, userName, and daysRemaining are required" });
+      }
+
+      const result = await sendTrialEndingReminderEmail(userId, userName, daysRemaining);
+
+      if (result.status === "error") {
+        return res.status(400).json({ error: result.error?.message || "Failed to send trial reminder email" });
+      }
+
+      res.json({ success: true, message: "Trial reminder email sent successfully" });
+    } catch (error) {
+      console.error("Error sending trial reminder email:", error);
+      res.status(500).json({ error: "Failed to send trial reminder email" });
+    }
+  });
+
+  // Send subscription confirmation
+  app.post("/api/email/subscription-confirmation", authenticateJWT, async (req, res) => {
+    try {
+      const { userId, userName, planName, amount } = req.body;
+
+      if (!userId || !userName || !planName || !amount) {
+        return res.status(400).json({ error: "userId, userName, planName, and amount are required" });
+      }
+
+      const result = await sendSubscriptionConfirmationEmail(userId, userName, planName, amount);
+
+      if (result.status === "error") {
+        return res.status(400).json({ error: result.error?.message || "Failed to send subscription confirmation email" });
+      }
+
+      res.json({ success: true, message: "Subscription confirmation email sent successfully" });
+    } catch (error) {
+      console.error("Error sending subscription confirmation email:", error);
+      res.status(500).json({ error: "Failed to send subscription confirmation email" });
+    }
+  });
+
+  // Send feature update email (marketing)
+  app.post("/api/email/feature-update", authenticateJWT, async (req, res) => {
+    try {
+      const { userIds, featureName, featureDescription, featureUrl } = req.body;
+
+      if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+        return res.status(400).json({ error: "userIds must be a non-empty array" });
+      }
+
+      if (!featureName || !featureDescription) {
+        return res.status(400).json({ error: "featureName and featureDescription are required" });
+      }
+
+      const result = await sendFeatureUpdateEmail(userIds, featureName, featureDescription, featureUrl);
+
+      if (result.status === "error") {
+        return res.status(400).json({ error: result.error?.message || "Failed to send feature update email" });
+      }
+
+      res.json({ success: true, message: "Feature update email sent successfully" });
+    } catch (error) {
+      console.error("Error sending feature update email:", error);
+      res.status(500).json({ error: "Failed to send feature update email" });
     }
   });
 
