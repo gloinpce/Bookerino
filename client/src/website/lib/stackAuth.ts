@@ -57,21 +57,22 @@ export async function stackAuthSignUp(data: {
     }),
   });
 
+  // Read response body as text once
+  const responseText = await response.text();
+  
   if (!response.ok) {
-    // Clone the response to read the body without consuming the original
-    const responseClone = response.clone();
-    // Read response as text first, then try to parse as JSON
-    const errorText = await responseClone.text();
+    // Parse error response
     let error: { message?: string };
     try {
-      error = JSON.parse(errorText);
+      error = JSON.parse(responseText);
     } catch {
-      error = { message: errorText || "Sign up failed" };
+      error = { message: responseText || "Sign up failed" };
     }
     throw new Error(error.message || "Sign up failed");
   }
 
-  const result = await response.json();
+  // Parse success response
+  const result = JSON.parse(responseText);
   
   // Store session token
   if (result.session?.sessionId) {
@@ -101,21 +102,22 @@ export async function stackAuthSignIn(
     }),
   });
 
+  // Read response body as text once
+  const responseText = await response.text();
+  
   if (!response.ok) {
-    // Clone the response to read the body without consuming the original
-    const responseClone = response.clone();
-    // Read response as text first, then try to parse as JSON
-    const errorText = await responseClone.text();
+    // Parse error response
     let error: { message?: string };
     try {
-      error = JSON.parse(errorText);
+      error = JSON.parse(responseText);
     } catch {
-      error = { message: errorText || "Sign in failed" };
+      error = { message: responseText || "Sign in failed" };
     }
     throw new Error(error.message || "Sign in failed");
   }
 
-  const result = await response.json();
+  // Parse success response
+  const result = JSON.parse(responseText);
   
   // Store session token
   if (result.session?.sessionId) {
