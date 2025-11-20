@@ -16,7 +16,7 @@
 
 # Environment variables
 [build.environment]
-  # Vite 7 requires Node.js 20.19+ or 22.12+
+  # Vite 6 requires Node.js 18+ or 20+
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
   # Explicitly disable Next.js detection
