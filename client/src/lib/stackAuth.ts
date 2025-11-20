@@ -3,8 +3,9 @@
 // JWKS URL: https://api.stack-auth.com/api/v1/projects/a84c6c76-faaa-49dc-9afc-6ff8e1656eab/.well-known/jwks.json
 
 export const STACK_AUTH_CONFIG = {
-    projectId: 'a84c6c76-faaa-49dc-9afc-6ff8e1656eab',
-    jwksUrl: 'https://api.stack-auth.com/api/v1/projects/a84c6c76-faaa-49dc-9afc-6ff8e1656eab/.well-known/jwks.json',
+    projectId: import.meta.env.VITE_STACK_PROJECT_ID || 'a84c6c76-faaa-49dc-9afc-6ff8e1656eab',
+    publishableClientKey: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || 'pck_hp7qzx3dmnbatmbz5z6tp6dj6rd3b11j9vybrngm4savg',
+    jwksUrl: `https://api.stack-auth.com/api/v1/projects/${import.meta.env.VITE_STACK_PROJECT_ID || 'a84c6c76-faaa-49dc-9afc-6ff8e1656eab'}/.well-known/jwks.json`,
     apiUrl: 'https://api.stack-auth.com/api/v1',
   };
   
@@ -107,22 +108,34 @@ export const STACK_AUTH_CONFIG = {
       }
 
       try {
-        // Use local API endpoint (Neon PostgreSQL)
-        const apiUrl = window.location.origin;
-        const response = await fetch(`${apiUrl}/api/auth/login`, {
+        // Use Stack Auth API
+        const response = await fetch(`${STACK_AUTH_CONFIG.apiUrl}/auth/sign-in`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'x-stack-project-id': STACK_AUTH_CONFIG.projectId,
+            'x-stack-publishable-key': STACK_AUTH_CONFIG.publishableClientKey,
           },
           body: JSON.stringify({ email, password }),
         });
   
+        // Read response body as text once
+        const responseText = await response.text();
+  
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error || 'Autentificare eșuată. Verificați email-ul și parola.');
+          // Parse error response
+          let errorMessage = 'Autentificare eșuată. Verificați email-ul și parola.';
+          try {
+            const errorData = JSON.parse(responseText);
+            errorMessage = errorData.error || errorData.message || errorMessage;
+          } catch (e) {
+            errorMessage = responseText || errorMessage;
+          }
+          throw new Error(errorMessage);
         }
   
-        return await response.json();
+        // Parse success response
+        return JSON.parse(responseText);
       } catch (error) {
         console.error('Login error:', error);
         return {
@@ -133,33 +146,38 @@ export const STACK_AUTH_CONFIG = {
   
     async register(name: string, email: string, password: string): Promise<AuthResponse> {
       try {
-        // Use local API endpoint (Neon PostgreSQL)
-        const apiUrl = window.location.origin;
-        const response = await fetch(`${apiUrl}/api/auth/register`, {
+        // Use Stack Auth API
+        const response = await fetch(`${STACK_AUTH_CONFIG.apiUrl}/auth/sign-up`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'x-stack-project-id': STACK_AUTH_CONFIG.projectId,
+            'x-stack-publishable-key': STACK_AUTH_CONFIG.publishableClientKey,
           },
           body: JSON.stringify({ name, email, password }),
         });
   
+        // Read response body as text once
+        const responseText = await response.text();
+  
         if (!response.ok) {
-          // Try to get error message from response
+          // Parse error response
           let errorMessage = 'Înregistrare eșuată. Email-ul ar putea fi deja folosit.';
           try {
-            const errorData = await response.json();
+            const errorData = JSON.parse(responseText);
             if (errorData.error || errorData.message) {
               errorMessage = errorData.error || errorData.message;
             }
           } catch (e) {
-            // If response is not JSON, use default message
-            const responseText = await response.text();
-            console.error('Register API error response:', response.status, responseText);
+            // If response is not JSON, use the text as error message
+            errorMessage = responseText || errorMessage;
           }
           throw new Error(errorMessage);
         }
   
-        return await response.json();
+        // Parse success response
+        const result = JSON.parse(responseText);
+        return result;
       } catch (error) {
         console.error('Register error:', error);
         // Check if it's a network error or API unavailable
