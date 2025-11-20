@@ -58,7 +58,14 @@ export async function stackAuthSignUp(data: {
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: "Sign up failed" }));
+    // Read response as text first, then try to parse as JSON
+    const errorText = await response.text();
+    let error: { message?: string };
+    try {
+      error = JSON.parse(errorText);
+    } catch {
+      error = { message: errorText || "Sign up failed" };
+    }
     throw new Error(error.message || "Sign up failed");
   }
 
@@ -93,7 +100,14 @@ export async function stackAuthSignIn(
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: "Sign in failed" }));
+    // Read response as text first, then try to parse as JSON
+    const errorText = await response.text();
+    let error: { message?: string };
+    try {
+      error = JSON.parse(errorText);
+    } catch {
+      error = { message: errorText || "Sign in failed" };
+    }
     throw new Error(error.message || "Sign in failed");
   }
 

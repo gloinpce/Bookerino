@@ -52,7 +52,9 @@ export async function apiRequest(
   });
 
   if (!response.ok) {
-    const errorText = await response.text().catch(() => response.statusText);
+    // Clone the response to read the body without consuming the original
+    const responseClone = response.clone();
+    const errorText = await responseClone.text().catch(() => response.statusText);
     throw new Error(`API Error ${response.status}: ${errorText}`);
   }
 
@@ -163,7 +165,9 @@ export const neonApi = {
     });
     
     if (!response.ok) {
-      const errorText = await response.text().catch(() => response.statusText);
+      // Clone the response to read the body without consuming the original
+      const responseClone = response.clone();
+      const errorText = await responseClone.text().catch(() => response.statusText);
       throw new Error(`Neon API Error ${response.status}: ${errorText}`);
     }
     
@@ -198,7 +202,9 @@ export const neonApi = {
     });
     
     if (!response.ok) {
-      const errorText = await response.text().catch(() => response.statusText);
+      // Clone the response to read the body without consuming the original
+      const responseClone = response.clone();
+      const errorText = await responseClone.text().catch(() => response.statusText);
       throw new Error(`Neon API Error ${response.status}: ${errorText}`);
     }
     
@@ -243,7 +249,9 @@ export const neonApi = {
     });
     
     if (!response.ok) {
-      const errorText = await response.text().catch(() => response.statusText);
+      // Clone the response to read the body without consuming the original
+      const responseClone = response.clone();
+      const errorText = await responseClone.text().catch(() => response.statusText);
       throw new Error(`Neon API Error ${response.status}: ${errorText}`);
     }
     
@@ -281,7 +289,9 @@ export const neonApi = {
     });
     
     if (!response.ok) {
-      const errorText = await response.text().catch(() => response.statusText);
+      // Clone the response to read the body without consuming the original
+      const responseClone = response.clone();
+      const errorText = await responseClone.text().catch(() => response.statusText);
       throw new Error(`Neon API Error ${response.status}: ${errorText}`);
     }
   },

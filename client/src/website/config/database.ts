@@ -32,8 +32,11 @@ export const databaseConfig = {
   // Stack Auth configuration
   stackAuth: {
     projectId: import.meta.env.VITE_STACK_PROJECT_ID || "a84c6c76-faaa-49dc-9afc-6ff8e1656eab",
-    publishableClientKey: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || "pck_2pfmrsp33j9rm2nbzyjhtky9k99368t0tgdq2b1nvb4cg",
-    secretServerKey: import.meta.env.VITE_STACK_SECRET_SERVER_KEY || "ssk_k945n3dndhc27ntzbd8cx7t8adpzjnk70katsbrtn82v8",
+    publishableClientKey: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || "pck_hp7qzx3dmnbatmbz5z6tp6dj6rd3b11j9vybrngm4savg",
+    // Note: secretServerKey should only be used server-side, not in client code
+    // It's included here for reference but should never be exposed to the client
+    secretServerKey: import.meta.env.VITE_STACK_SECRET_SERVER_KEY || "",
+    // JWKS URL for token verification - constructed from project ID
     jwksUrl: `https://api.stack-auth.com/api/v1/projects/${import.meta.env.VITE_STACK_PROJECT_ID || "a84c6c76-faaa-49dc-9afc-6ff8e1656eab"}/.well-known/jwks.json`,
   },
   
