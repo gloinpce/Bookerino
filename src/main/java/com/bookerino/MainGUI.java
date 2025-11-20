@@ -304,7 +304,7 @@ public class MainGUI extends JFrame {
             userNameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
             userNameLabel.setForeground(Color.WHITE);
             
-            JLabel userEmailLabel = new JLabel("demo@bookerino.ro");
+            JLabel userEmailLabel = new JLabel("admin@bookerino.ro");
             userEmailLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
             userEmailLabel.setForeground(new Color(219, 234, 254));
             

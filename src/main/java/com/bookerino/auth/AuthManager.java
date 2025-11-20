@@ -368,11 +368,21 @@ public class AuthManager {
                 return;
             }
             
-            // In demo mode, any credentials work
-            String identifier = email.isEmpty() ? "admin@bookerino.ro" : email;
+            // Developer account credentials (private access only)
+            final String DEV_EMAIL = "admin@bookerino.ro";
+            final String DEV_PASSWORD = "Bookerino2025!";
             
+            // Check if developer account
+            if (email.equals(DEV_EMAIL) && password.equals(DEV_PASSWORD)) {
+                currentToken = "dev-token-bookerino-2025";
+                currentUser = "Developer Bookerino";
+                authenticated = true;
+                dispose();
+                return;
+            }
+            
+            // Try to authenticate via web API
             try {
-                // Try to authenticate via web API first
                 JSONObject requestBody = new JSONObject();
                 requestBody.put("email", email);
                 requestBody.put("password", hashPassword(password));
@@ -382,22 +392,18 @@ public class AuthManager {
                 if (response != null && response.contains("token")) {
                     JSONObject jsonResponse = new JSONObject(response);
                     currentToken = jsonResponse.getString("token");
-                    currentUser = jsonResponse.optString("user", identifier);
+                    currentUser = jsonResponse.optString("user", email);
                     authenticated = true;
                     dispose();
                 } else {
-                    // Fallback: Create demo account with provided credentials (like React app)
-                    currentToken = "demo-token-" + System.currentTimeMillis();
-                    currentUser = email.isEmpty() ? "Admin User" : email;
-                    authenticated = true;
-                    dispose();
+                    JOptionPane.showMessageDialog(this,
+                        "Autentificare eșuată. Verificați email-ul și parola.",
+                        "Eroare de autentificare", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (Exception e) {
-                // Fallback: Create demo account (like React app)
-                currentToken = "demo-token-" + System.currentTimeMillis();
-                currentUser = email.isEmpty() ? "Admin User" : email;
-                authenticated = true;
-                dispose();
+                JOptionPane.showMessageDialog(this,
+                    "Eroare la conectarea la server. Verificați conexiunea la internet.",
+                    "Eroare de conexiune", JOptionPane.ERROR_MESSAGE);
             }
         }
         

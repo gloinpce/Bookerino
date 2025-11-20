@@ -56,8 +56,8 @@ export const STACK_AUTH_CONFIG = {
     return nextBilling;
   };
   
-  // Demo Account Credentials
-  const getDemoAccount = () => {
+  // Developer Account Credentials (private - only for developer access)
+  const getDeveloperAccount = () => {
     // Professional subscription start date (1 month ago from today)
     const professionalStart = new Date();
     professionalStart.setMonth(professionalStart.getMonth() - 1);
@@ -69,9 +69,9 @@ export const STACK_AUTH_CONFIG = {
       email: 'admin@bookerino.ro',
       password: 'Bookerino2025!',
       user: {
-        id: 'demo-user-001',
+        id: 'dev-user-001',
         email: 'admin@bookerino.ro',
-        name: 'Admin Bookerino',
+        name: 'Developer Bookerino',
         subscriptions: {
           professional: {
             active: true,
@@ -91,18 +91,18 @@ export const STACK_AUTH_CONFIG = {
           },
         },
       },
-      token: 'demo-token-bookerino-2025',
+      token: 'dev-token-bookerino-2025',
     };
   };
   
   export const stackAuth = {
     async login(email: string, password: string): Promise<AuthResponse> {
-      // Check if demo account
-      const DEMO_ACCOUNT = getDemoAccount();
-      if (email === DEMO_ACCOUNT.email && password === DEMO_ACCOUNT.password) {
+      // Check if developer account (private access only)
+      const DEV_ACCOUNT = getDeveloperAccount();
+      if (email === DEV_ACCOUNT.email && password === DEV_ACCOUNT.password) {
         return {
-          user: DEMO_ACCOUNT.user,
-          token: DEMO_ACCOUNT.token,
+          user: DEV_ACCOUNT.user,
+          token: DEV_ACCOUNT.token,
         };
       }
   

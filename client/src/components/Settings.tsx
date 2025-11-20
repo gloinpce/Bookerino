@@ -135,7 +135,7 @@ export function Settings({ user }: SettingsProps) {
                 <Label htmlFor="property-name">Nume Proprietate</Label>
                 <Input 
                   id="property-name" 
-                  defaultValue={user?.propertyName || "Hotel Demo"} 
+                  defaultValue={user?.propertyName || ""} 
                 />
               </div>
               <div className="space-y-2">

@@ -13,32 +13,6 @@ export function Login({ onLoginSuccess }: LoginProps) {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleCreateDemoAccount = () => {
-    setIsLoading(true);
-    
-    // Simulate loading
-    setTimeout(() => {
-      const demoUser = {
-        id: `demo-${Date.now()}`,
-        name: "Utilizator Demo",
-        email: "demo@bookerino.ro",
-        propertyName: "Hotel Demo",
-        propertyLocation: "București",
-        subscription: "Professional (Demo)",
-        isDemo: true,
-        createdAt: new Date().toISOString()
-      };
-
-      // Save to localStorage
-      const token = `demo-token-${Date.now()}`;
-      localStorage.setItem("bookerino_auth_token", token);
-      localStorage.setItem("bookerino_user", JSON.stringify(demoUser));
-
-      setIsLoading(false);
-      toast.success("Cont demo creat cu succes!");
-      onLoginSuccess(demoUser);
-    }, 1000);
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,31 +47,9 @@ export function Login({ onLoginSuccess }: LoginProps) {
         return;
       }
     } catch (error) {
-      // API call failed, create demo account with provided credentials
-      console.log("API unavailable, creating demo account");
-    }
-
-    // Create demo account with user-provided email
-    setTimeout(() => {
-      const demoUser = {
-        id: `demo-${Date.now()}`,
-        name: "Admin User",
-        email: email,
-        propertyName: "Hotel Grand Plaza",
-        propertyLocation: "București",
-        subscription: "Professional",
-        isDemo: true,
-        createdAt: new Date().toISOString()
-      };
-
-      const token = `demo-token-${Date.now()}`;
-      localStorage.setItem("bookerino_auth_token", token);
-      localStorage.setItem("bookerino_user", JSON.stringify(demoUser));
-
       setIsLoading(false);
-      toast.success("Cont demo creat cu succes!");
-      onLoginSuccess(demoUser);
-    }, 1000);
+      toast.error("Eroare la autentificare. Verificați conexiunea la internet.");
+    }
   };
 
   return (
@@ -112,25 +64,6 @@ export function Login({ onLoginSuccess }: LoginProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Demo Account Button */}
-          <Button
-            onClick={handleCreateDemoAccount}
-            disabled={isLoading}
-            className="w-full bg-green-600 hover:bg-green-700 text-white shadow-card"
-            size="lg"
-          >
-            {isLoading ? "Se creează..." : "Creează Cont Demo Temporar"}
-          </Button>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">SAU</span>
-            </div>
-          </div>
-
           {/* Login Form */}
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
@@ -173,9 +106,6 @@ export function Login({ onLoginSuccess }: LoginProps) {
             </Button>
           </form>
 
-          <p className="text-xs text-center text-muted-foreground mt-4">
-            Orice credențiale funcționează în modul demo
-          </p>
         </CardContent>
       </Card>
     </div>
