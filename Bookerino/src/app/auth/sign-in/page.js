@@ -1,6 +1,6 @@
 "use client";
 
-import { SignIn, useStackApp, useUser } from "@stackframe/stack";
+import { CredentialSignIn, OAuthButton, OAuthButtonGroup, useStackApp, useUser } from "@stackframe/stack";
 import Link from "next/link";
 
 export default function SignInPage() {
@@ -50,13 +50,31 @@ export default function SignInPage() {
             Access your hotel management dashboard
           </p>
           <div className="mt-4 text-center text-xs text-gray-500">
-            <p>SDK Features: useStackApp, useUser hooks</p>
-            <p>Components: SignIn, CurrentUser management</p>
+            <p>Components: CredentialSignIn, OAuthButton, OAuthButtonGroup</p>
+            <p>Hooks: useStackApp, useUser</p>
           </div>
         </div>
 
+        {/* Email/Password Sign In */}
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <SignIn />
+          <div className="mb-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Sign in with Email</h3>
+            <CredentialSignIn />
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            </div>
+          </div>
+
+          {/* OAuth Sign In */}
+          <div className="mt-6">
+            <OAuthButtonGroup />
+          </div>
         </div>
 
         <div className="text-center">
@@ -71,14 +89,14 @@ export default function SignInPage() {
           </p>
         </div>
 
-        {/* SDK Information Panel */}
+        {/* Components Information Panel */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-blue-900 mb-2">SDK Integration Active</h3>
+          <h3 className="text-sm font-medium text-blue-900 mb-2">Stack Auth Components</h3>
           <div className="text-xs text-blue-700 space-y-1">
-            <p>• StackClientApp configured with project ID</p>
-            <p>• Server-side StackServerApp with Next.js cookies</p>
-            <p>• CurrentUser hook for authentication state</p>
-            <p>• ContactChannel support for email communication</p>
+            <p>• CredentialSignIn: Email/password authentication</p>
+            <p>• OAuthButtonGroup: Multiple OAuth providers</p>
+            <p>• useUser: Real-time user state management</p>
+            <p>• useStackApp: App-level authentication methods</p>
           </div>
         </div>
       </div>

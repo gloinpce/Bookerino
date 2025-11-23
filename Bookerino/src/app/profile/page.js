@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser, useStackApp } from "@stackframe/stack";
+import { useUser, useStackApp, AccountSettings, UserButton } from "@stackframe/stack";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
@@ -81,6 +81,23 @@ export default function ProfilePage() {
           </div>
 
           <div className="px-6 py-6 space-y-8">
+            {/* Header with User Button */}
+            <div className="flex justify-between items-center pb-4 border-b border-gray-200">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Account Settings</h1>
+                <p className="text-gray-600">Manage your account preferences and settings</p>
+              </div>
+              <UserButton />
+            </div>
+
+            {/* Account Settings Component */}
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Account Management</h2>
+              <div className="bg-gray-50 rounded-lg p-6">
+                <AccountSettings />
+              </div>
+            </div>
+
             {/* User Information */}
             <div>
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Account Information</h2>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser, useStackApp } from "@stackframe/stack";
+import { useUser, useStackApp, UserButton } from "@stackframe/stack";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -49,6 +49,20 @@ export default function Home() {
   if (user) {
     return (
       <div className="min-h-screen bg-gray-50">
+        {/* Header with User Button */}
+        <header className="bg-white shadow">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center">
+                <h1 className="text-2xl font-bold text-gray-900">Bookerino</h1>
+              </div>
+              <div className="flex items-center space-x-4">
+                <UserButton />
+              </div>
+            </div>
+          </div>
+        </header>
+
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -149,19 +163,13 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="space-x-4">
+            <div className="text-center">
               <Link
                 href="/profile"
-                className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition-colors"
+                className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition-colors inline-block"
               >
-                View Profile
+                View Full Profile
               </Link>
-              <button
-                onClick={() => user.signOut()}
-                className="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700 transition-colors"
-              >
-                Sign Out
-              </button>
             </div>
           </div>
         </div>
