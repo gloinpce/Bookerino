@@ -24,7 +24,7 @@ export const databaseConfig = {
   logLevel: import.meta.env.VITE_LOG_LEVEL || "verbose",
   
   // Neon REST API endpoint
-  restApiUrl: import.meta.env.VITE_REST_API_URL || "https://ep-restless-tooth-agrax399.apirest.c-2.eu-central-1.aws.neon.tech/neondb/rest/v1",
+  restApiUrl: import.meta.env.VITE_REST_API_URL || "",
   
   // PostgreSQL connection string (Neon Database)
   // Database: neondb, Role: neondb_owner
@@ -34,8 +34,8 @@ export const databaseConfig = {
   
   // Stack Auth configuration
   stackAuth: {
-    projectId: import.meta.env.VITE_STACK_PROJECT_ID || "94d1506e-966f-4a6b-a8a6-6be48b783282",
-    publishableClientKey: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || "pck_hp7qzx3dmnbatmbz5z6tp6dj6rd3b11j9vybrngm4savg",
+    projectId: import.meta.env.VITE_STACK_PROJECT_ID || "",
+    publishableClientKey: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || "",
     // Note: secretServerKey should only be used server-side, not in client code
     // It's included here for reference but should never be exposed to the client
     secretServerKey: import.meta.env.VITE_STACK_SECRET_SERVER_KEY || "",

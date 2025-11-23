@@ -29,7 +29,7 @@
   # These are available during build and in Netlify Functions
   # Configure secrets scanning to ignore false positives
   # These environment variables tell Netlify to skip scanning certain keys and paths
-  SECRETS_SCAN_OMIT_KEYS = "LOG_LEVEL"
+  SECRETS_SCAN_OMIT_KEYS = "LOG_LEVEL,VITE_STACK_PROJECT_ID,VITE_STACK_PUBLISHABLE_CLIENT_KEY,VITE_STACK_SECRET_SERVER_KEY,VITE_DATABASE_URL"
   # Omit paths that contain false positives (documentation, build artifacts, etc.)
   SECRETS_SCAN_OMIT_PATHS = "dist/**,target/**,*.md,*.png,*.jpg,*.jar,*.class,.netlify/**,.github/**,.vscode/**,.local/**,figma-design-files/**,Bookerino/**"
   # Disable secrets scanning for DATABASE_URL since it's expected in code (as env var name)
