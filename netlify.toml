@@ -8,7 +8,8 @@
   # Build command - install dependencies and build with Vite
   # Remove node_modules and package-lock.json to fix Rollup native module issues
   # Then do a fresh install with optional dependencies and build
-  command = "rm -rf node_modules package-lock.json && npm cache clean --force && npm install --legacy-peer-deps --include=optional --no-audit && npm run build"
+  # .npmrc ensures optional dependencies are always installed
+  command = "rm -rf node_modules package-lock.json && npm cache clean --force && npm install --no-audit && npm run build"
   
   # Publish directory (where Vite outputs the built files)
   # Based on vite.config.ts, output is in dist/public
@@ -53,7 +54,7 @@
 
 # Dev server configuration
 [dev]
-  command = "npm run dev"
+  command = "npm install --no-audit && npm run dev"
   port = 5173
   publish = "dist/public"
 

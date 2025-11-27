@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:fix": "npm install --legacy-peer-deps --include=optional --no-audit @rollup/rollup-linux-x64-gnu 2>/dev/null || npm install --legacy-peer-deps --include=optional --no-audit && vite",
     "build": "vite build",
     "preview": "vite preview",
     "dev:next": "next dev",
