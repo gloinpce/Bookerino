@@ -10,4 +10,5 @@ export const stackClientApp = new StackClientApp({
     afterSignOut: "/",
     afterSignUp: "/",
   },
+  apiUrl: "/api/stack",
 });

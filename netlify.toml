@@ -51,6 +51,12 @@
   status = 200
   force = false
 
+# Dev server configuration
+[dev]
+  command = "npm run dev"
+  port = 5173
+  publish = "dist/public"
+
 # IMPORTANT: This is a Vite + React project, NOT Next.js
 # If plugins are still being installed, remove them manually in Netlify Dashboard:
 # Site settings → Build & deploy → Build plugins → Remove @netlify/plugin-nextjs
