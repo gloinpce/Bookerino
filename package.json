@@ -10,6 +10,7 @@
     "dev:next": "next dev",
     "build:next": "next build",
     "start": "next start",
+    "server": "node server/app.js",
     "lint": "eslint",
     "lint:fix": "eslint --fix"
   },
@@ -40,6 +41,7 @@
     "@radix-ui/react-toggle": "^1.1.10",
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.1.16",
+    "@neondatabase/serverless": "^0.10.0",
     "@netlify/neon": "^0.1.0",
     "@stackframe/react": "^2.8.52",
     "@stackframe/stack": "^2.8.52",
@@ -51,6 +53,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "dotenv": "^16.4.5",
     "drizzle-orm": "^0.36.4",
     "drizzle-zod": "^0.5.1",
     "embla-carousel-react": "^8.6.0",
