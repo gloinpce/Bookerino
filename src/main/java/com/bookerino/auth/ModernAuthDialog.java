@@ -59,11 +59,12 @@ public class ModernAuthDialog extends JDialog {
         // Animated background panel
         backgroundPanel = new AnimatedBackgroundPanel();
         backgroundPanel.setLayout(new GridBagLayout());
+        backgroundPanel.setOpaque(false); // Important: allow children to be visible
         setContentPane(backgroundPanel);
         
         // Main container with two columns (matching React design)
         JPanel mainContainer = new JPanel(new GridBagLayout());
-        mainContainer.setOpaque(false);
+        mainContainer.setOpaque(false); // Transparent to show background
         mainContainer.setPreferredSize(new Dimension(1000, 700));
         
         GridBagConstraints gbc = new GridBagConstraints();
@@ -73,13 +74,15 @@ public class ModernAuthDialog extends JDialog {
         JPanel authCard = createAuthCard();
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.weightx = 1.0;
+        gbc.weightx = 0.5;
         gbc.fill = GridBagConstraints.BOTH;
+        gbc.anchor = GridBagConstraints.CENTER;
         mainContainer.add(authCard, gbc);
         
         // Right column - Info Card
         JPanel infoCard = createInfoCard();
         gbc.gridx = 1;
+        gbc.weightx = 0.5;
         gbc.insets = new Insets(0, 0, 0, 0);
         mainContainer.add(infoCard, gbc);
         
@@ -92,12 +95,17 @@ public class ModernAuthDialog extends JDialog {
         mainGbc.fill = GridBagConstraints.NONE;
         mainGbc.anchor = GridBagConstraints.CENTER;
         backgroundPanel.add(mainContainer, mainGbc);
+        
+        // Ensure components are visible
+        validate();
+        repaint();
     }
     
     private JPanel createAuthCard() {
         JPanel card = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
+                super.paintComponent(g); // CRITICAL: Paint children first
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
@@ -114,9 +122,10 @@ public class ModernAuthDialog extends JDialog {
         };
         card.setLayout(new BorderLayout());
         card.setBorder(new EmptyBorder(40, 40, 40, 40));
-        card.setOpaque(true);
+        card.setOpaque(true); // CRITICAL: Must be opaque
         card.setBackground(CARD_BG);
-        card.setPreferredSize(new Dimension(480, 0));
+        card.setPreferredSize(new Dimension(480, 650));
+        card.setMinimumSize(new Dimension(400, 500));
         
         // Header
         JPanel header = new JPanel(new BorderLayout());
@@ -341,6 +350,7 @@ public class ModernAuthDialog extends JDialog {
         JPanel card = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
+                super.paintComponent(g); // Paint children first
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
@@ -362,8 +372,11 @@ public class ModernAuthDialog extends JDialog {
         };
         card.setLayout(new BorderLayout());
         card.setBorder(new EmptyBorder(40, 40, 40, 40));
-        card.setOpaque(false);
-        card.setPreferredSize(new Dimension(480, 0));
+        card.setOpaque(true); // Must be opaque to show content
+        card.setBackground(new Color(PRIMARY_COLOR.getRed(), PRIMARY_COLOR.getGreen(), PRIMARY_COLOR.getBlue(), 13));
+        card.setPreferredSize(new Dimension(480, 650));
+        card.setMinimumSize(new Dimension(400, 500));
+        card.setMaximumSize(new Dimension(600, Integer.MAX_VALUE));
         
         JLabel title = new JLabel(isLogin ? "Conectați-vă la aplicație" : "De ce să vă înregistrați?");
         title.setFont(new Font("Segoe UI", Font.BOLD, 24));
@@ -754,6 +767,7 @@ public class ModernAuthDialog extends JDialog {
         
         @Override
         protected void paintComponent(Graphics g) {
+            super.paintComponent(g); // Important: paint children first
             Graphics2D g2d = (Graphics2D) g.create();
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             
@@ -770,11 +784,11 @@ public class ModernAuthDialog extends JDialog {
             g2d.setPaint(baseGradient);
             g2d.fillRect(0, 0, getWidth(), getHeight());
             
-            // Animated orbs with blur effect simulation
+            // Animated orbs with blur effect simulation (behind content)
             for (Orb orb : orbs) {
                 // Multiple layers for blur effect
                 for (int i = 0; i < 3; i++) {
-                    float alpha = 0.3f / (i + 1);
+                    float alpha = 0.2f / (i + 1); // Reduced opacity so content is visible
                     int size = orb.size + (i * 20);
                     Color orbColor = new Color(
                         PRIMARY_COLOR.getRed(),
