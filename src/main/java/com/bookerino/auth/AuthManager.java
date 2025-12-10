@@ -16,8 +16,8 @@ import org.json.JSONObject;
 
 public class AuthManager {
     private static final String AUTH_SERVER_URL = "http://localhost:5000/api/auth"; // Default, can be configured
-    private static String currentToken = null;
-    private static String currentUser = null;
+    static String currentToken = null;
+    static String currentUser = null;
     
     public static boolean isAuthenticated() {
         return currentToken != null && !currentToken.isEmpty();
@@ -44,7 +44,7 @@ public class AuthManager {
                 frame = (Frame) window;
             }
         }
-        LoginDialog dialog = new LoginDialog(frame);
+        ModernAuthDialog dialog = new ModernAuthDialog(frame);
         dialog.setVisible(true);
         return dialog.isAuthenticated();
     }

@@ -13,6 +13,10 @@ import java.awt.*;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.util.Map;
+import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.Timer;
 
 public class MainGUI extends JFrame {
     // Theme colors matching global.css - Updated to match React desktop app design system
@@ -381,44 +385,26 @@ public class MainGUI extends JFrame {
         // Top bar
         createTopBar();
         
-        // Main content with gradient background
-        JPanel mainContent = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
-                // Gradient matching global.css gradient-subtle
-                Color[] gradientColors = {
-                    new Color(255, 255, 255),
-                    new Color(240, 247, 255),
-                    new Color(201, 224, 255),
-                    new Color(168, 207, 255),
-                    new Color(214, 235, 255),
-                    new Color(240, 247, 255)
-                };
-                
-                int width = getWidth();
-                int height = getHeight();
-                for (int i = 0; i < gradientColors.length - 1; i++) {
-                    float startX = (float) i / (gradientColors.length - 1) * width;
-                    float endX = (float) (i + 1) / (gradientColors.length - 1) * width;
-                    GradientPaint gradient = new GradientPaint(
-                        startX, 0, gradientColors[i],
-                        endX, height, gradientColors[i + 1]
-                    );
-                    g2d.setPaint(gradient);
-                    g2d.fillRect((int)startX, 0, (int)(endX - startX), height);
-                }
-                g2d.dispose();
-            }
-        };
+        // Main content with animated gradient background (matching AnimatedBackground.tsx)
+        AnimatedContentPanel mainContent = new AnimatedContentPanel();
         mainContent.setLayout(new BorderLayout());
         mainContent.setBorder(new EmptyBorder(32, 32, 32, 32));
         
         // Content based on active module
         JPanel moduleContent = createModuleContent(activeModule);
         mainContent.add(moduleContent, BorderLayout.CENTER);
+        
+        // Start animation timer
+        Timer animationTimer = new Timer(16, e -> mainContent.animate());
+        animationTimer.start();
+        
+        // Start live data update timer (update every 30 seconds)
+        Timer dataUpdateTimer = new Timer(30000, e -> {
+            if (activeModule.equals("dashboard")) {
+                SwingUtilities.invokeLater(() -> loadData());
+            }
+        });
+        dataUpdateTimer.start();
         
         contentPanel.add(topBarPanel, BorderLayout.NORTH);
         contentPanel.add(mainContent, BorderLayout.CENTER);
@@ -633,28 +619,381 @@ public class MainGUI extends JFrame {
         }
     }
     
-    // Placeholder methods for modules
+    // Modern Dashboard Panel matching React Dashboard.tsx design
     private JPanel createDashboardPanel() {
         JPanel panel = new JPanel();
         panel.setOpaque(false);
-        panel.setLayout(new BorderLayout());
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(16, 0, 16, 0);
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         
-        JLabel title = new JLabel("Bine ai venit în Bookerino!");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 32));
-        title.setForeground(TEXT_PRIMARY);
-        title.setBorder(new EmptyBorder(0, 0, 8, 0));
+        // Welcome Header with animated gradient
+        JPanel headerPanel = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Animated gradient background
+                GradientPaint gradient = new GradientPaint(
+                    0, 0, PRIMARY_COLOR,
+                    getWidth(), getHeight(), PRIMARY_DARK
+                );
+                g2d.setPaint(gradient);
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 16, 16);
+                
+                g2d.dispose();
+            }
+        };
+        headerPanel.setOpaque(false);
+        headerPanel.setBorder(new EmptyBorder(32, 32, 32, 32));
+        headerPanel.setPreferredSize(new Dimension(0, 180));
         
-        JLabel subtitle = new JLabel("Sistemul tău de management HoReCa este gata de utilizare.");
-        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        subtitle.setForeground(TEXT_MUTED);
+        String userName = AuthManager.getCurrentUser() != null ? AuthManager.getCurrentUser() : "Utilizator";
+        JLabel welcomeLabel = new JLabel("Bine ai venit, " + userName + "!");
+        welcomeLabel.setFont(new Font("Segoe UI", Font.BOLD, 36));
+        welcomeLabel.setForeground(Color.WHITE);
         
-        JPanel header = new JPanel(new BorderLayout());
-        header.setOpaque(false);
-        header.add(title, BorderLayout.NORTH);
-        header.add(subtitle, BorderLayout.SOUTH);
+        JLabel subtitleLabel = new JLabel("Panoul de control al afacerii tale HoReCa");
+        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        subtitleLabel.setForeground(new Color(255, 255, 255, 200));
+        subtitleLabel.setBorder(new EmptyBorder(8, 0, 0, 0));
         
-        panel.add(header, BorderLayout.NORTH);
+        JPanel textPanel = new JPanel(new BorderLayout());
+        textPanel.setOpaque(false);
+        textPanel.add(welcomeLabel, BorderLayout.NORTH);
+        textPanel.add(subtitleLabel, BorderLayout.SOUTH);
+        
+        headerPanel.add(textPanel, BorderLayout.CENTER);
+        
+        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridwidth = 4;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        panel.add(headerPanel, gbc);
+        
+        // Statistics Cards Grid (4 columns matching React design)
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 0.25;
+        gbc.weighty = 0;
+        
+        // Total Rooms Card
+        gbc.gridx = 0; gbc.gridy = 1;
+        panel.add(createModernStatCard("Total Camere", totalRoomsLabel = new JLabel("0"), "🏨", PRIMARY_COLOR), gbc);
+        
+        // Total Bookings Card
+        gbc.gridx = 1; gbc.gridy = 1;
+        panel.add(createModernStatCard("Total Rezervări", totalBookingsLabel = new JLabel("0"), "📅", new Color(34, 197, 94)), gbc);
+        
+        // Total Revenue Card
+        gbc.gridx = 2; gbc.gridy = 1;
+        panel.add(createModernStatCard("Venit Total", totalRevenueLabel = new JLabel("0.00 RON"), "💰", new Color(251, 191, 36)), gbc);
+        
+        // Average Rating Card
+        gbc.gridx = 3; gbc.gridy = 1;
+        panel.add(createModernStatCard("Rating Mediu", avgRatingLabel = new JLabel("0.00/5"), "⭐", new Color(168, 85, 247)), gbc);
+        
+        // Quick Actions Section
+        gbc.gridx = 0; gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.weightx = 0.5;
+        gbc.fill = GridBagConstraints.BOTH;
+        panel.add(createQuickActionsPanel(), gbc);
+        
+        // Recent Activity Section
+        gbc.gridx = 2; gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.weightx = 0.5;
+        panel.add(createRecentActivityPanel(), gbc);
+        
+        // API Statistics Section (if enabled)
+        if (BookingApiSimulator.isEnabled() || GoogleAdsApiSimulator.isEnabled()) {
+            gbc.gridx = 0; gbc.gridy = 3;
+            gbc.gridwidth = 4;
+            gbc.weightx = 1.0;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(createApiStatsPanel(), gbc);
+        }
+        
+        // Load initial data
+        SwingUtilities.invokeLater(() -> loadData());
+        
         return panel;
+    }
+    
+    // Modern Statistics Card Component (matching React Card design)
+    private JPanel createModernStatCard(String title, JLabel valueLabel, String icon, Color accentColor) {
+        JPanel card = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // White card background
+                g2d.setColor(CARD_COLOR);
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                
+                // Subtle shadow
+                g2d.setColor(new Color(0, 0, 0, 8));
+                g2d.fillRoundRect(2, getHeight() - 2, getWidth() - 4, 2, 12, 12);
+                
+                // Accent border on top
+                g2d.setColor(accentColor);
+                g2d.setStroke(new BasicStroke(3));
+                g2d.drawLine(0, 0, getWidth(), 0);
+                
+                g2d.dispose();
+            }
+        };
+        card.setLayout(new BorderLayout());
+        card.setBorder(new EmptyBorder(20, 20, 20, 20));
+        card.setOpaque(false);
+        card.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        // Add hover effect
+        card.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                card.setBorder(new EmptyBorder(18, 20, 22, 20));
+                card.repaint();
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                card.setBorder(new EmptyBorder(20, 20, 20, 20));
+                card.repaint();
+            }
+        });
+        
+        // Icon and Title
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setOpaque(false);
+        
+        JLabel iconLabel = new JLabel(icon);
+        iconLabel.setFont(new Font("Segoe UI", Font.PLAIN, 32));
+        iconLabel.setBorder(new EmptyBorder(0, 0, 8, 0));
+        
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        titleLabel.setForeground(TEXT_SECONDARY);
+        
+        headerPanel.add(iconLabel, BorderLayout.NORTH);
+        headerPanel.add(titleLabel, BorderLayout.SOUTH);
+        
+        // Value
+        valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        valueLabel.setForeground(TEXT_PRIMARY);
+        valueLabel.setBorder(new EmptyBorder(8, 0, 0, 0));
+        
+        card.add(headerPanel, BorderLayout.NORTH);
+        card.add(valueLabel, BorderLayout.CENTER);
+        
+        return card;
+    }
+    
+    // Quick Actions Panel
+    private JPanel createQuickActionsPanel() {
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(CARD_COLOR);
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                g2d.setColor(new Color(0, 0, 0, 8));
+                g2d.fillRoundRect(2, getHeight() - 2, getWidth() - 4, 2, 12, 12);
+                g2d.dispose();
+            }
+        };
+        panel.setLayout(new BorderLayout());
+        panel.setBorder(new EmptyBorder(24, 24, 24, 24));
+        panel.setOpaque(false);
+        
+        JLabel title = new JLabel("Acțiuni Rapide");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        title.setForeground(TEXT_PRIMARY);
+        title.setBorder(new EmptyBorder(0, 0, 16, 0));
+        
+        JPanel actionsGrid = new JPanel(new GridLayout(2, 2, 12, 12));
+        actionsGrid.setOpaque(false);
+        
+        String[] actions = {"➕ Adaugă Cameră", "📝 Nouă Rezervare", "👥 Gestionare Oaspeți", "📊 Rapoarte"};
+        Runnable[] actionHandlers = {
+            () -> switchModule("rooms"),
+            () -> switchModule("bookings"),
+            () -> switchModule("guests"),
+            () -> switchModule("analytics")
+        };
+        
+        for (int i = 0; i < actions.length; i++) {
+            final Runnable handler = actionHandlers[i];
+            JButton actionBtn = new JButton(actions[i]) {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2d = (Graphics2D) g.create();
+                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    
+                    if (getModel().isRollover()) {
+                        g2d.setColor(new Color(PRIMARY_COLOR.getRed(), PRIMARY_COLOR.getGreen(), PRIMARY_COLOR.getBlue(), 20));
+                        g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                    }
+                    
+                    g2d.dispose();
+                    super.paintComponent(g);
+                }
+            };
+            actionBtn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            actionBtn.setForeground(TEXT_PRIMARY);
+            actionBtn.setHorizontalAlignment(SwingConstants.LEFT);
+            actionBtn.setOpaque(false);
+            actionBtn.setContentAreaFilled(false);
+            actionBtn.setBorderPainted(false);
+            actionBtn.setBorder(new EmptyBorder(12, 16, 12, 16));
+            actionBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            actionBtn.addActionListener(e -> handler.run());
+            actionsGrid.add(actionBtn);
+        }
+        
+        panel.add(title, BorderLayout.NORTH);
+        panel.add(actionsGrid, BorderLayout.CENTER);
+        
+        return panel;
+    }
+    
+    // Recent Activity Panel
+    private JPanel createRecentActivityPanel() {
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(CARD_COLOR);
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                g2d.setColor(new Color(0, 0, 0, 8));
+                g2d.fillRoundRect(2, getHeight() - 2, getWidth() - 4, 2, 12, 12);
+                g2d.dispose();
+            }
+        };
+        panel.setLayout(new BorderLayout());
+        panel.setBorder(new EmptyBorder(24, 24, 24, 24));
+        panel.setOpaque(false);
+        
+        JLabel title = new JLabel("Activitate Recentă");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        title.setForeground(TEXT_PRIMARY);
+        title.setBorder(new EmptyBorder(0, 0, 16, 0));
+        
+        JPanel activityList = new JPanel();
+        activityList.setLayout(new BoxLayout(activityList, BoxLayout.Y_AXIS));
+        activityList.setOpaque(false);
+        
+        // Sample activities (would be loaded from database)
+        String[] activities = {
+            "📅 Nouă rezervare pentru Camera 101",
+            "⭐ Recenzie nouă: 5 stele",
+            "💰 Plată procesată: 450 RON",
+            "🏨 Cameră adăugată: Suite Deluxe"
+        };
+        
+        for (String activity : activities) {
+            JLabel activityLabel = new JLabel(activity);
+            activityLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            activityLabel.setForeground(TEXT_SECONDARY);
+            activityLabel.setBorder(new EmptyBorder(8, 0, 8, 0));
+            activityList.add(activityLabel);
+        }
+        
+        JScrollPane scrollPane = new JScrollPane(activityList);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.setBorder(null);
+        scrollPane.setPreferredSize(new Dimension(0, 150));
+        
+        panel.add(title, BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        
+        return panel;
+    }
+    
+    // API Statistics Panel
+    private JPanel createApiStatsPanel() {
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(new Color(PRIMARY_COLOR.getRed(), PRIMARY_COLOR.getGreen(), PRIMARY_COLOR.getBlue(), 13));
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                g2d.setColor(new Color(PRIMARY_COLOR.getRed(), PRIMARY_COLOR.getGreen(), PRIMARY_COLOR.getBlue(), 51));
+                g2d.setStroke(new BasicStroke(1));
+                g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
+                g2d.dispose();
+            }
+        };
+        panel.setLayout(new BorderLayout());
+        panel.setBorder(new EmptyBorder(24, 24, 24, 24));
+        panel.setOpaque(false);
+        
+        JLabel title = new JLabel("Statistici API Integrate");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        title.setForeground(TEXT_PRIMARY);
+        title.setBorder(new EmptyBorder(0, 0, 16, 0));
+        
+        JPanel statsGrid = new JPanel(new GridLayout(1, 0, 24, 0));
+        statsGrid.setOpaque(false);
+        
+        if (BookingApiSimulator.isEnabled()) {
+            Map<String, Object> bookingStats = BookingApiSimulator.getStatistics();
+            JPanel bookingCard = createApiStatCard("Booking.com", bookingStats);
+            statsGrid.add(bookingCard);
+        }
+        
+        if (GoogleAdsApiSimulator.isEnabled()) {
+            Map<String, Object> adsStats = GoogleAdsApiSimulator.getStatistics();
+            JPanel adsCard = createApiStatCard("Google Ads", adsStats);
+            statsGrid.add(adsCard);
+        }
+        
+        panel.add(title, BorderLayout.NORTH);
+        panel.add(statsGrid, BorderLayout.CENTER);
+        
+        return panel;
+    }
+    
+    private JPanel createApiStatCard(String apiName, Map<String, Object> stats) {
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setOpaque(false);
+        card.setBorder(new EmptyBorder(16, 16, 16, 16));
+        
+        JLabel nameLabel = new JLabel(apiName);
+        nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        nameLabel.setForeground(TEXT_PRIMARY);
+        
+        card.add(nameLabel);
+        card.add(Box.createVerticalStrut(12));
+        
+        if (stats.containsKey("totalBookings")) {
+            JLabel bookingsLabel = new JLabel("Rezervări: " + stats.get("totalBookings"));
+            bookingsLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            bookingsLabel.setForeground(TEXT_SECONDARY);
+            card.add(bookingsLabel);
+        }
+        
+        if (stats.containsKey("totalRevenue")) {
+            JLabel revenueLabel = new JLabel("Venit: " + String.format("%.2f RON", ((Number)stats.get("totalRevenue")).doubleValue()));
+            revenueLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            revenueLabel.setForeground(TEXT_SECONDARY);
+            card.add(revenueLabel);
+        }
+        
+        if (stats.containsKey("averageRating")) {
+            JLabel ratingLabel = new JLabel("Rating: " + String.format("%.2f/5", ((Number)stats.get("averageRating")).doubleValue()));
+            ratingLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            ratingLabel.setForeground(TEXT_SECONDARY);
+            card.add(ratingLabel);
+        }
+        
+        return card;
     }
     
     private JPanel createGuestsPanel() {
@@ -2402,5 +2741,117 @@ public class MainGUI extends JFrame {
                 e.printStackTrace();
             }
         });
+    }
+    
+    // Animated Content Panel with floating orbs (matching AnimatedBackground.tsx)
+    private class AnimatedContentPanel extends JPanel {
+        private List<Orb> orbs = new ArrayList<>();
+        private Random random = new Random();
+        private float gradientOffset = 0f;
+        
+        public AnimatedContentPanel() {
+            setOpaque(false);
+            // Initialize orbs
+            for (int i = 0; i < 6; i++) {
+                orbs.add(new Orb(
+                    random.nextFloat() * 1000,
+                    random.nextFloat() * 600,
+                    random.nextInt(200) + 150,
+                    (random.nextFloat() - 0.5f) * 0.5f,
+                    (random.nextFloat() - 0.5f) * 0.5f
+                ));
+            }
+        }
+        
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2d = (Graphics2D) g.create();
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            int width = getWidth();
+            int height = getHeight();
+            
+            // Base gradient background (animated)
+            gradientOffset += 0.002f;
+            if (gradientOffset > 1.0f) gradientOffset = 0f;
+            
+            Color[] gradientColors = {
+                new Color(255, 255, 255),
+                new Color(240, 247, 255),
+                new Color(201, 224, 255),
+                new Color(168, 207, 255),
+                new Color(214, 235, 255),
+                new Color(240, 247, 255)
+            };
+            
+            for (int i = 0; i < gradientColors.length - 1; i++) {
+                float startX = (float) i / (gradientColors.length - 1) * width;
+                float endX = (float) (i + 1) / (gradientColors.length - 1) * width;
+                float offset = (float) Math.sin(gradientOffset * Math.PI * 2 + i) * 0.1f;
+                GradientPaint gradient = new GradientPaint(
+                    startX + offset * width, 0, gradientColors[i],
+                    endX + offset * width, height, gradientColors[i + 1]
+                );
+                g2d.setPaint(gradient);
+                g2d.fillRect((int)startX, 0, (int)(endX - startX), height);
+            }
+            
+            // Animated orbs with blur effect simulation
+            for (Orb orb : orbs) {
+                for (int i = 0; i < 3; i++) {
+                    float alpha = 0.3f / (i + 1);
+                    int size = orb.size + (i * 20);
+                    Color orbColor = new Color(
+                        PRIMARY_COLOR.getRed(),
+                        PRIMARY_COLOR.getGreen(),
+                        PRIMARY_COLOR.getBlue(),
+                        (int)(alpha * 255)
+                    );
+                    g2d.setColor(orbColor);
+                    g2d.fillOval(
+                        (int)(orb.x - size / 2),
+                        (int)(orb.y - size / 2),
+                        size, size
+                    );
+                }
+            }
+            
+            g2d.dispose();
+        }
+        
+        public void animate() {
+            int width = getWidth();
+            int height = getHeight();
+            
+            for (Orb orb : orbs) {
+                orb.x += orb.vx;
+                orb.y += orb.vy;
+                
+                if (orb.x < -orb.size || orb.x > width + orb.size) orb.vx *= -1;
+                if (orb.y < -orb.size || orb.y > height + orb.size) orb.vy *= -1;
+                
+                // Keep orbs within bounds
+                if (orb.x < -orb.size) orb.x = width + orb.size;
+                if (orb.x > width + orb.size) orb.x = -orb.size;
+                if (orb.y < -orb.size) orb.y = height + orb.size;
+                if (orb.y > height + orb.size) orb.y = -orb.size;
+            }
+            
+            repaint();
+        }
+        
+        private class Orb {
+            float x, y;
+            int size;
+            float vx, vy;
+            
+            Orb(float x, float y, int size, float vx, float vy) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.vx = vx;
+                this.vy = vy;
+            }
+        }
     }
 }
