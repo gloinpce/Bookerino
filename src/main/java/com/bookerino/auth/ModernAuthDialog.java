@@ -718,24 +718,40 @@ public class ModernAuthDialog extends JDialog {
     private class AnimatedBackgroundPanel extends JPanel {
         private List<Orb> orbs = new ArrayList<>();
         private Random random = new Random();
+        private boolean orbsInitialized = false;
         
         public AnimatedBackgroundPanel() {
+            // Orbs will be initialized when component is first painted (when dimensions are available)
+        }
+        
+        private void initializeOrbs() {
+            if (orbsInitialized) return;
+            
+            int width = Math.max(getWidth(), 1200); // Default width if not set
+            int height = Math.max(getHeight(), 800); // Default height if not set
+            
             // Create animated orbs
             for (int i = 0; i < 6; i++) {
                 orbs.add(new Orb(
-                    random.nextInt(getWidth()),
-                    random.nextInt(getHeight()),
+                    random.nextInt(Math.max(width, 1)),
+                    random.nextInt(Math.max(height, 1)),
                     random.nextInt(200) + 150,
                     random.nextFloat() * 0.02f + 0.01f,
                     random.nextFloat() * 0.02f + 0.01f
                 ));
             }
+            orbsInitialized = true;
         }
         
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2d = (Graphics2D) g.create();
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            // Initialize orbs on first paint (when dimensions are available)
+            if (!orbsInitialized) {
+                initializeOrbs();
+            }
             
             // Base gradient background (matching bg-gradient-subtle)
             GradientPaint baseGradient = new GradientPaint(
