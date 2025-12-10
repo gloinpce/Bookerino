@@ -727,14 +727,23 @@ public class ModernAuthDialog extends JDialog {
         private void initializeOrbs() {
             if (orbsInitialized) return;
             
-            int width = Math.max(getWidth(), 1200); // Default width if not set
-            int height = Math.max(getHeight(), 800); // Default height if not set
+            // Use default dimensions if component size is not yet available
+            int width = getWidth();
+            int height = getHeight();
+            
+            // If dimensions are not available yet, use defaults
+            if (width <= 0) width = 1200;
+            if (height <= 0) height = 800;
+            
+            // Ensure positive values for nextInt
+            width = Math.max(width, 1);
+            height = Math.max(height, 1);
             
             // Create animated orbs
             for (int i = 0; i < 6; i++) {
                 orbs.add(new Orb(
-                    random.nextInt(Math.max(width, 1)),
-                    random.nextInt(Math.max(height, 1)),
+                    random.nextInt(width),
+                    random.nextInt(height),
                     random.nextInt(200) + 150,
                     random.nextFloat() * 0.02f + 0.01f,
                     random.nextFloat() * 0.02f + 0.01f
