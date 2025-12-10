@@ -6,7 +6,6 @@ import java.awt.Window;
 import javax.swing.SwingUtilities;
 
 public class AuthManager {
-    private static final String AUTH_SERVER_URL = "http://localhost:5000/api/auth"; // Default, can be configured
     static String currentToken = null;
     static String currentUser = null;
     
